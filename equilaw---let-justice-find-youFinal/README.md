@@ -10,4 +10,4 @@
 
 Fatemaa looks so damn pretty
 
-https://equilaw-let-justice-find-you-final.vercel.app/
+https://equilaw-vert.vercel.app/
