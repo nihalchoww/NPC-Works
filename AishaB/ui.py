@@ -512,7 +512,7 @@ def draw_win(surface: pygame.Surface, starfield: Starfield,
     draw_text_glow(surface, "🎂  AISHA'S  BAKE-OFF  CHAMPION!  🎂", 40,
                    GOLD, GOLD_DIM, cx, int(cy - 78 + bob),
                    anchor="center", glow_radius=7)
-    draw_text(surface, "Happy Birthday Aisha — All 10 Stages Conquered!", 22, PINK,
+    draw_text(surface, "Happy Birthday Aisha — All 30 Stages Conquered!", 22, PINK,
               cx, int(cy - 16 + bob), anchor="center")
     draw_text(surface, f"Final Score: {score:,}", 30, WHITE,
               cx, int(cy + 26 + bob), anchor="center", shadow=True)

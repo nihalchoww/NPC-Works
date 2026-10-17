@@ -296,9 +296,9 @@ html = """<!DOCTYPE html>
   window.addEventListener('orientationchange', () => setTimeout(handleResize, 200));
 
   // Game Constants
-  const TOTAL_STAGES = 10;
-  const ITEMS_PER_STAGE = 10;
-  const STAGE_DURATION = 38;
+  const TOTAL_STAGES = 30;
+  const ITEMS_PER_STAGE = 20;
+  const STAGE_DURATION = 60;
   const MAX_LIVES = 3;
 
   const COLORS = {
@@ -363,6 +363,10 @@ html = """<!DOCTYPE html>
       haptic(25);
       return;
     }
+    if (state === 'MILESTONE') {
+      continueMilestone();
+      return;
+    }
     if (state === 'PAUSED') {
       state = 'PLAYING';
       return;
@@ -386,6 +390,7 @@ html = """<!DOCTYPE html>
     keys[e.code] = true;
     if (e.code === 'Space') {
       if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
+      else if (state === 'MILESTONE') continueMilestone();
     }
     if (e.code === 'Escape') {
       state = (state === 'PLAYING') ? 'PAUSED' : (state === 'PAUSED' ? 'PLAYING' : state);
@@ -435,6 +440,7 @@ html = """<!DOCTYPE html>
     initAudio();
     haptic(25);
     if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
+    else if (state === 'MILESTONE') continueMilestone();
     else if (state === 'PLAYING') state = 'PAUSED';
     else if (state === 'PAUSED') state = 'PLAYING';
     syncUIState();
@@ -506,12 +512,12 @@ html = """<!DOCTYPE html>
   const BAD_KINDS = ['ANVIL', 'BROCCOLI', 'SPOILED_MILK'];
 
   const GOOD_POINTS = {
-    CAKE: 200,
-    STRAWBERRY: 150,
-    CHERRY: 180,
-    CANDLE: 100,
-    CANDY: 120,
-    FROSTING: 220
+    CAKE: 50,
+    STRAWBERRY: 50,
+    CHERRY: 50,
+    CANDLE: 50,
+    CANDY: 50,
+    FROSTING: 50
   };
 
   // Particles
@@ -583,7 +589,33 @@ html = """<!DOCTYPE html>
     syncUIState();
   }
 
+  function continueMilestone() {
+    stage++;
+    itemsCaughtStage = 0;
+    timeLeft = STAGE_DURATION;
+    items = [];
+    state = 'PLAYING';
+    btnAction.textContent = 'PAUSE';
+    syncUIState();
+    sfxCatch();
+    haptic(30);
+  }
+
   function nextStage() {
+    if (stage === 10 || stage === 20) {
+      score += 1000;
+      if (score > hiScore) {
+        hiScore = score;
+        localStorage.setItem('anti_grav_hiscore', hiScore);
+      }
+      state = 'MILESTONE';
+      btnAction.textContent = 'STAGE ' + (stage + 1);
+      sfxWin();
+      haptic([40, 50, 40, 50, 100]);
+      syncUIState();
+      return;
+    }
+
     stage++;
     if (stage > TOTAL_STAGES) {
       score += 2000;
@@ -601,6 +633,7 @@ html = """<!DOCTYPE html>
       timeLeft = STAGE_DURATION;
       items = [];
       state = 'PLAYING';
+      btnAction.textContent = 'PAUSE';
       syncUIState();
     }
   }
@@ -1036,12 +1069,12 @@ html = """<!DOCTYPE html>
       }
 
       // Spawner
-      const speed = 190 + (stage - 1) * 30;
-      const interval = Math.max(0.38, 1.35 - (stage - 1) * 0.1);
+      const speed = 190 + Math.min(360, (stage - 1) * 12.5);
+      const interval = Math.max(0.40, 1.15 - (stage - 1) * 0.025);
       spawnTimer -= dt;
       if (spawnTimer <= 0) {
         spawnTimer = interval;
-        const isBad = Math.random() < Math.min(0.45, 0.28 + (stage - 1) * 0.02);
+        const isBad = Math.random() < Math.min(0.45, 0.28 + (stage - 1) * 0.006);
         const kind = isBad ? BAD_KINDS[Math.floor(Math.random() * BAD_KINDS.length)]
                            : GOOD_KINDS[Math.floor(Math.random() * GOOD_KINDS.length)];
         const minX = Math.min(90, WIDTH * 0.12);
@@ -1052,15 +1085,15 @@ html = """<!DOCTYPE html>
           vy: speed,
           isBad: isBad,
           kind: kind,
-          pts: GOOD_POINTS[kind] || 0,
+          pts: 50,
           rot: 0,
           vrot: (Math.random() - 0.5) * 4.5,
           color: isBad ? COLORS.RED : (kind === 'CAKE' ? COLORS.PINK : COLORS.GOLD)
         });
       }
 
-      // Cake height dynamically grows with items caught
-      const cakeLayersH = (itemsCaughtStage >= 4 ? 68 : (itemsCaughtStage >= 2 ? 38 : 20)) * 1.25;
+      // Cake height dynamically grows with items caught (out of 20 per stage)
+      const cakeLayersH = (itemsCaughtStage >= 14 ? 68 : (itemsCaughtStage >= 7 ? 38 : 20)) * 1.25;
       const trayRect = {
         x: player.x - 70,
         y: player.y - 92 * 1.25 - cakeLayersH - 14,
@@ -1110,10 +1143,10 @@ html = """<!DOCTYPE html>
         if (!item.isBad) {
           if (item.x >= trayRect.x && item.x <= trayRect.x + trayRect.w &&
               item.y >= trayRect.y && item.y <= trayRect.y + trayRect.h + 24) {
-            score += 100;
+            score += 50;
             itemsCaughtStage++;
             addCollectBurst(item.x, item.y, '#00ff88');
-            addScorePopup(item.x, item.y - 20, "+100", '#00ff88');
+            addScorePopup(item.x, item.y - 20, "+50", '#00ff88');
             sfxCatch();
             haptic(15);
             items.splice(i, 1);
@@ -1155,7 +1188,7 @@ html = """<!DOCTYPE html>
     } else if (state === 'STAGE_CLEAR') {
       stageClearTime -= dt;
       if (stageClearTime <= 0) nextStage();
-    } else if (state === 'WIN') {
+    } else if (state === 'WIN' || state === 'MILESTONE') {
       if (Math.random() < 0.08) {
         addFireworks(100 + Math.random() * (WIDTH - 200), 100 + Math.random() * (HEIGHT * 0.5),
                      bColors[Math.floor(Math.random() * bColors.length)]);
@@ -1572,8 +1605,8 @@ html = """<!DOCTYPE html>
         ctx.fillRect(-4, t1Y + 8, 3, 3);
         ctx.fillRect(16, t1Y + 4, 3, 3);
 
-        // Tier 2 Layer (grows if itemsCaughtStage >= 2)
-        if (itemsCaughtStage >= 2) {
+        // Tier 2 Layer (grows if itemsCaughtStage >= 7)
+        if (itemsCaughtStage >= 7) {
           const t2W = 58, t2H = 16;
           const t2Y = t1Y - t2H;
           ctx.fillStyle = '#f4a261';
@@ -1588,8 +1621,8 @@ html = """<!DOCTYPE html>
           }
         }
 
-        // Tier 3 Layer (grows if itemsCaughtStage >= 4)
-        if (itemsCaughtStage >= 4) {
+        // Tier 3 Layer (grows if itemsCaughtStage >= 14)
+        if (itemsCaughtStage >= 14) {
           const t3W = 42, t3H = 14;
           const t3Y = t1Y - 16 - t3H;
           ctx.fillStyle = '#c040ff';
@@ -1599,7 +1632,7 @@ html = """<!DOCTYPE html>
         }
 
         // Birthday Candles (flickering on top of highest layer)
-        const topY = itemsCaughtStage >= 4 ? (t1Y - 30) : (itemsCaughtStage >= 2 ? (t1Y - 16) : t1Y);
+        const topY = itemsCaughtStage >= 14 ? (t1Y - 30) : (itemsCaughtStage >= 7 ? (t1Y - 16) : t1Y);
         const candleColors = ['#ff4da6', '#ffd700', '#00dcff'];
         [-12, 0, 12].forEach((cx, idx) => {
           ctx.fillStyle = candleColors[idx % candleColors.length];
@@ -1654,7 +1687,9 @@ html = """<!DOCTYPE html>
     // Center Timer — Sharp Bright Cyan
     ctx.save();
     const secs = Math.max(0, Math.ceil(timeLeft));
-    const tStr = "0:" + String(secs).padStart(2, "0");
+    const mins = Math.floor(secs / 60);
+    const remSecs = secs % 60;
+    const tStr = mins + ":" + String(remSecs).padStart(2, "0");
     const tCol = (timeLeft < 10 && Math.floor(globalTime * 4) % 2 === 0) ? '#ff2a55' : '#00dcff';
     ctx.fillStyle = tCol;
     ctx.shadowColor = tCol;
@@ -1799,6 +1834,58 @@ html = """<!DOCTYPE html>
       ctx.fillStyle = COLORS.CYAN;
       ctx.font = '13px "Press Start 2P", monospace';
       ctx.fillText("GET READY...", WIDTH / 2, HEIGHT / 2 + 35);
+    } else if (state === 'MILESTONE') {
+      btnAction.textContent = 'STAGE ' + (stage + 1);
+      const boxW = 660;
+      const boxH = 530;
+      const boxX = WIDTH / 2 - boxW / 2;
+      const boxY = HEIGHT / 2 - boxH / 2;
+
+      ctx.fillStyle = 'rgba(10, 6, 32, 0.95)';
+      ctx.fillRect(boxX, boxY, boxW, boxH);
+      ctx.strokeStyle = COLORS.GOLD;
+      ctx.lineWidth = 4;
+      ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+      // Gold Corner Accent Pixels
+      ctx.fillStyle = COLORS.CYAN;
+      [[boxX, boxY], [boxX + boxW - 12, boxY], [boxX, boxY + boxH - 12], [boxX + boxW - 12, boxY + boxH - 12]].forEach(([cxo, cyo]) => {
+        ctx.fillRect(cxo, cyo, 12, 12);
+      });
+
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.font = '17px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("★ CHAMPION BAKER! ★", WIDTH / 2, boxY + 36);
+
+      ctx.fillStyle = COLORS.PINK;
+      ctx.font = '14px "Press Start 2P", monospace';
+      ctx.fillText("HAPPY BIRTHDAY AISHA! 🎂", WIDTH / 2, boxY + 64);
+
+      const floatY = Math.sin(globalTime * 2.2) * 5;
+      const portW = 180;
+      const portH = 240;
+      const portY = boxY + 200;
+      drawAishaPortrait(ctx, WIDTH / 2, portY, portW, portH, floatY);
+
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.font = '11px "Press Start 2P", monospace';
+      const mText = stage === 10 ? "★ LEVEL 10 CLEAR! 20 LEVELS REMAIN ★" : "★ LEVEL 20 CLEAR! 10 LEVELS REMAIN ★";
+      ctx.fillText(mText, WIDTH / 2, portY + portH / 2 + 22 + floatY);
+
+      ctx.fillStyle = COLORS.WHITE;
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillText("CURRENT SCORE: " + score.toLocaleString(), WIDTH / 2, boxY + 396);
+
+      const nextLevel = stage + 1;
+      const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+      ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
+      ctx.font = '13px "Press Start 2P", monospace';
+      ctx.fillText("▶ TAP TO ADVANCE TO LEVEL " + nextLevel + " ◀", WIDTH / 2, boxY + 440);
+
+      ctx.fillStyle = '#859bb8';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.fillText("CHAMPION BONUS +1,000 PTS   |   BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 485);
     } else if (state === 'GAME_OVER') {
       btnAction.textContent = 'RETRY';
       const boxW = 660;
@@ -1862,7 +1949,7 @@ html = """<!DOCTYPE html>
       ctx.fillStyle = COLORS.GOLD;
       ctx.font = '18px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("★ CHAMPION BAKER! ★", WIDTH / 2, boxY + 36);
+      ctx.fillText("★ GRAND CHAMPION BAKER! ★", WIDTH / 2, boxY + 36);
 
       ctx.fillStyle = COLORS.PINK;
       ctx.font = '15px "Press Start 2P", monospace';
@@ -1876,7 +1963,7 @@ html = """<!DOCTYPE html>
 
       ctx.fillStyle = COLORS.GOLD;
       ctx.font = '11px "Press Start 2P", monospace';
-      ctx.fillText("★ BIRTHDAY WISH GRANTED! ★", WIDTH / 2, portY + portH / 2 + 22 + floatY);
+      ctx.fillText("★ ALL 30 LEVELS CONQUERED! ★", WIDTH / 2, portY + portH / 2 + 22 + floatY);
 
       ctx.fillStyle = COLORS.WHITE;
       ctx.font = '12px "Press Start 2P", monospace';
@@ -1886,6 +1973,10 @@ html = """<!DOCTYPE html>
       ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
       ctx.font = '13px "Press Start 2P", monospace';
       ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + 440);
+
+      ctx.fillStyle = '#859bb8';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 485);
     }
 
     ctx.restore();

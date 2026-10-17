@@ -9,14 +9,14 @@ MAX_LIVES          = 3
 INVINCIBLE_SECONDS = 1.5    # Grace period after being hit (flashing)
 
 # ─── Stage system ─────────────────────────────────────────────────────────────
-TOTAL_STAGES        = 10
-ITEMS_PER_STAGE     = 10    # Items to catch to complete a stage
-STAGE_DURATION      = 38    # Seconds per stage (0:38 countdown)
-BASE_FALL_SPEED     = 180   # px/s at stage 1
-FALL_SPEED_INCREMENT = 28   # px/s added each stage
+TOTAL_STAGES        = 30
+ITEMS_PER_STAGE     = 20    # Items to catch to complete a stage (20 * 50 = 1000 pts)
+STAGE_DURATION      = 60    # Seconds per stage (1:00 countdown)
+BASE_FALL_SPEED     = 190   # px/s at stage 1
+FALL_SPEED_INCREMENT = 12   # px/s added each stage
 OBSTACLE_CHANCE     = 0.28  # Probability any spawned item is an obstacle
-SPAWN_INTERVAL_BASE = 1.4   # Seconds between spawns at stage 1
-SPAWN_INTERVAL_MIN  = 0.4   # Floor for spawn interval (stage 10)
+SPAWN_INTERVAL_BASE = 1.15  # Seconds between spawns at stage 1
+SPAWN_INTERVAL_MIN  = 0.40  # Floor for spawn interval (stage 30)
 
 # ─── Player ───────────────────────────────────────────────────────────────────
 PLAYER_SPEED     = 340   # px/s horizontal
@@ -24,12 +24,12 @@ TRAY_WIDTH       = 70    # Catch zone width (centred on player)
 TRAY_HEIGHT      = 14    # Catch zone height
 
 # ─── Scoring ──────────────────────────────────────────────────────────────────
-SCORE_CAKE_TIER   = 200
-SCORE_CANDLE      = 100
-SCORE_STRAWBERRY  = 150
-SCORE_CHERRY      = 180
-SCORE_CANDY       = 120
-SCORE_FROSTING    = 220
+SCORE_CAKE_TIER   = 50
+SCORE_CANDLE      = 50
+SCORE_STRAWBERRY  = 50
+SCORE_CHERRY      = 50
+SCORE_CANDY       = 50
+SCORE_FROSTING    = 50
 STAGE_CLEAR_BONUS = 500
 WIN_BONUS         = 2000
 
