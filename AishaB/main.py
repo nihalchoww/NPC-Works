@@ -1,4 +1,4 @@
-# main.py — Entry point for Anti-Gravity Birthday Bake-Off
+# main.py — Entry point for Aisha's Birthday Bake-Off
 #
 # Supports both:
 #   1. Native Pygame desktop application (`python main.py`)

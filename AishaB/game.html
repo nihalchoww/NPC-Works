@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0520">
+<title>Aisha's Birthday Bake-Off 🎂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    background: #080417;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    touch-action: none;
+  }
+  #game-wrap {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1b1248 0%, #0d0824 60%, #060312 100%);
+  }
+  canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    touch-action: none;
+  }
+  /* Subtle Retro CRT Scanline overlay */
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(rgba(18, 16, 38, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 4px;
+    opacity: 0.65;
+    z-index: 10;
+  }
+  /* Mobile Virtual Controls */
+  .hud-btn {
+    position: absolute;
+    z-index: 25;
+    background: rgba(15, 25, 60, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid #00dcff;
+    color: #00dcff;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 220, 255, 0.3);
+    touch-action: manipulation;
+  }
+  .hud-btn:active {
+    background: rgba(0, 220, 255, 0.35);
+    transform: scale(0.92);
+  }
+  #pause-btn {
+    top: max(14px, env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+  }
+  #fs-btn {
+    top: max(14px, env(safe-area-inset-top));
+    left: max(14px, env(safe-area-inset-left));
+    font-size: 16px;
+  }
+  /* Mobile Thumb Controls */
+  #touch-controls {
+    display: none;
+    position: absolute;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    left: 0;
+    width: 100%;
+    padding: 0 22px;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 20;
+  }
+  @media (pointer: coarse), (max-width: 900px) {
+    #touch-controls { display: flex; }
+  }
+  .d-pad {
+    display: flex;
+    gap: 14px;
+    pointer-events: auto;
+  }
+  .control-btn {
+    width: 72px;
+    height: 72px;
+    border-radius: 36px;
+    background: rgba(10, 20, 55, 0.65);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid #00dcff;
+    color: #00dcff;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), inset 0 0 14px rgba(0, 220, 255, 0.2);
+    touch-action: none;
+  }
+  .control-btn:active, .control-btn.active {
+    background: rgba(0, 220, 255, 0.45);
+    color: #fff;
+    transform: scale(0.92);
+    box-shadow: 0 0 24px rgba(0, 220, 255, 0.7);
+  }
+  .drag-hint {
+    position: absolute;
+    bottom: max(96px, calc(env(safe-area-inset-bottom) + 82px));
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: rgba(0, 220, 255, 0.65);
+    letter-spacing: 1px;
+    pointer-events: none;
+    text-align: center;
+    text-shadow: 0 0 8px rgba(0, 220, 255, 0.5);
+    z-index: 15;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-wrap">
+  <div class="scanlines"></div>
+  <canvas id="gameCanvas"></canvas>
+  <button class="hud-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
+  <button class="hud-btn" id="pause-btn" title="Pause / Resume">⏸</button>
+  <div class="drag-hint">GLIDE THUMB OR TAP ARROWS</div>
+  <div id="touch-controls">
+    <div class="d-pad">
+      <button class="control-btn" id="btn-left">◀</button>
+      <button class="control-btn" id="btn-right">▶</button>
+    </div>
+    <div style="pointer-events:auto;">
+      <button class="control-btn" id="btn-action" style="width:88px; font-size:11px; border-radius:24px;">START</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Load Aisha Head Avatar
+  const aishaImg = new Image();
+  aishaImg.src = "data:image/png;base64," + "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";
+
+  // Web Audio Synthesizer (Retro 16-bit arcade sound chip)
+  let audioCtx = null;
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+  ['touchstart', 'pointerdown', 'click', 'keydown'].forEach(ev => {
+    window.addEventListener(ev, initAudio, { passive: true, once: false });
+  });
+
+  function playTone(freq, type, duration, gainVal=0.15) {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch(e) {}
+  }
+  function sfxCatch() {
+    initAudio();
+    playTone(523, 'triangle', 0.08, 0.18); // C5
+    setTimeout(() => playTone(659, 'triangle', 0.09, 0.18), 40); // E5
+    setTimeout(() => playTone(784, 'triangle', 0.12, 0.18), 80); // G5
+  }
+  function sfxHit() {
+    initAudio();
+    playTone(140, 'sawtooth', 0.22, 0.3);
+    setTimeout(() => playTone(95, 'sawtooth', 0.2, 0.25), 60);
+  }
+  function sfxWin() {
+    initAudio();
+    const melody = [523, 659, 784, 1046];
+    melody.forEach((f, i) => {
+      setTimeout(() => playTone(f, 'square', 0.14, 0.16), i * 110);
+    });
+  }
+
+  // Haptic feedback
+  function haptic(ms) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try { navigator.vibrate(ms); } catch(e) {}
+    }
+  }
+
+  // Dynamic Viewport
+  let WIDTH = 720;
+  let HEIGHT = 1280;
+
+  function handleResize() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    if (isPortrait) {
+      WIDTH = 720;
+      const ratio = window.innerHeight / window.innerWidth;
+      HEIGHT = Math.round(720 * ratio);
+      HEIGHT = Math.max(1080, Math.min(1600, HEIGHT));
+    } else {
+      HEIGHT = 720;
+      const ratio = window.innerWidth / window.innerHeight;
+      WIDTH = Math.round(720 * ratio);
+      WIDTH = Math.max(1080, Math.min(1600, WIDTH));
+    }
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    player.y = HEIGHT - 115;
+    player.x = Math.max(player.w / 2, Math.min(WIDTH - player.w / 2, player.x));
+  }
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('orientationchange', () => setTimeout(handleResize, 200));
+
+  // Game Constants
+  const TOTAL_STAGES = 10;
+  const ITEMS_PER_STAGE = 10;
+  const STAGE_DURATION = 38;
+  const MAX_LIVES = 3;
+
+  const COLORS = {
+    SPACE_DARK: '#0b0621',
+    SPACE_MID: '#1b1248',
+    COCKPIT_BLUE: '#374682',
+    COCKPIT_DARK: '#161c3c',
+    COCKPIT_MID: '#283363',
+    CYAN: '#00dcff',
+    CYAN_GLOW: '#00f0ff',
+    PINK: '#ff6ebe',
+    GOLD: '#ffd700',
+    RED: '#ff4646',
+    WHITE: '#ffffff',
+    ORANGE: '#ff9100',
+    GREEN: '#37be46',
+    PURPLE: '#a03ce6'
+  };
+
+  // State
+  let state = 'MENU';
+  let score = 0;
+  let hiScore = parseInt(localStorage.getItem('anti_grav_hiscore') || '1000');
+  let lives = MAX_LIVES;
+  let stage = 1;
+  let itemsCaughtStage = 0;
+  let timeLeft = STAGE_DURATION;
+  let shakeTime = 0;
+  let stageClearTime = 0;
+  let globalTime = 0;
+
+  // Player
+  const player = {
+    x: 360,
+    y: 1165,
+    w: 60,
+    h: 110,
+    speed: 520,
+    invincible: 0,
+    walkTime: 0
+  };
+
+  // Touch Dragging Mechanics
+  let isDragging = false;
+  let targetX = player.x;
+
+  function getCanvasCoords(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  window.addEventListener('pointerdown', (e) => {
+    initAudio();
+    if (e.target.closest('.hud-btn') || e.target.closest('#touch-controls')) return;
+    if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') {
+      startGame();
+      haptic(25);
+      return;
+    }
+    if (state === 'PAUSED') {
+      state = 'PLAYING';
+      return;
+    }
+    isDragging = true;
+    targetX = getCanvasCoords(e.clientX, e.clientY).x;
+  }, { passive: true });
+
+  window.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    targetX = getCanvasCoords(e.clientX, e.clientY).x;
+  }, { passive: true });
+
+  window.addEventListener('pointerup', () => { isDragging = false; });
+  window.addEventListener('pointercancel', () => { isDragging = false; });
+
+  // Keyboard controls
+  const keys = {};
+  window.addEventListener('keydown', (e) => {
+    initAudio();
+    keys[e.code] = true;
+    if (e.code === 'Space') {
+      if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
+    }
+    if (e.code === 'Escape') {
+      state = (state === 'PLAYING') ? 'PAUSED' : (state === 'PAUSED' ? 'PLAYING' : state);
+    }
+    if (e.code === 'KeyQ' && state === 'PAUSED') state = 'MENU';
+  });
+  window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+  // Touch Buttons
+  const btnL = document.getElementById('btn-left');
+  const btnR = document.getElementById('btn-right');
+  const btnAction = document.getElementById('btn-action');
+  const btnPause = document.getElementById('pause-btn');
+  const btnFS = document.getElementById('fs-btn');
+
+  function bindBtn(elem, code) {
+    elem.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      initAudio();
+      keys[code] = true;
+      elem.classList.add('active');
+      haptic(15);
+    });
+    const release = (e) => {
+      e.preventDefault();
+      keys[code] = false;
+      elem.classList.remove('active');
+    };
+    elem.addEventListener('pointerup', release);
+    elem.addEventListener('pointercancel', release);
+  }
+  bindBtn(btnL, 'ArrowLeft');
+  bindBtn(btnR, 'ArrowRight');
+
+  btnAction.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    initAudio();
+    haptic(25);
+    if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
+    else if (state === 'PLAYING') state = 'PAUSED';
+    else if (state === 'PAUSED') state = 'PLAYING';
+  });
+
+  btnPause.addEventListener('click', (e) => {
+    e.preventDefault();
+    initAudio();
+    haptic(20);
+    if (state === 'PLAYING') state = 'PAUSED';
+    else if (state === 'PAUSED') state = 'PLAYING';
+  });
+
+  btnFS.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+
+  // Twinkling Pixel Stars with 4-point sparkle
+  const stars = [];
+  for (let i = 0; i < 140; i++) {
+    stars.push({
+      x: Math.random() * 1400,
+      y: Math.random() * 1600,
+      size: Math.random() < 0.6 ? 2 : (Math.random() < 0.85 ? 3 : 4),
+      speed: 0.15 + Math.random() * 0.45,
+      twinkle: Math.random() * Math.PI * 2,
+      color: Math.random() < 0.7 ? '#ffffff' : (Math.random() < 0.5 ? '#00dcff' : '#ffb3d9')
+    });
+  }
+
+  // Drifting Helium Balloons
+  const bColors = [COLORS.PINK, COLORS.CYAN, COLORS.GOLD, COLORS.PURPLE, COLORS.GREEN, COLORS.ORANGE];
+  const balloons = [];
+  for (let i = 0; i < 12; i++) {
+    balloons.push({
+      x: Math.random() * 1400,
+      y: Math.random() * 1600,
+      sz: 16 + Math.random() * 10,
+      dy: -0.4 - Math.random() * 0.45,
+      color: bColors[Math.floor(Math.random() * bColors.length)],
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+
+  // Retro Confetti
+  const confetti = [];
+  for (let i = 0; i < 65; i++) {
+    confetti.push({
+      x: Math.random() * 1400,
+      y: Math.random() * 1600,
+      vy: 45 + Math.random() * 65,
+      color: bColors[Math.floor(Math.random() * bColors.length)],
+      sz: 3 + Math.random() * 3,
+      rot: Math.random() * 6
+    });
+  }
+
+  // Stardust trail particles behind falling items
+  let trails = [];
+
+  // Item Catalogue
+  const GOOD_KINDS = ['CAKE', 'STRAWBERRY', 'CHERRY', 'CANDLE', 'CANDY', 'FROSTING'];
+  const BAD_KINDS = ['ANVIL', 'BROCCOLI', 'SPOILED_MILK'];
+
+  const GOOD_POINTS = {
+    CAKE: 200,
+    STRAWBERRY: 150,
+    CHERRY: 180,
+    CANDLE: 100,
+    CANDY: 120,
+    FROSTING: 220
+  };
+
+  // Particles
+  let particles = [];
+  function addCollectBurst(x, y, color) {
+    for (let i = 0; i < 18; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const spd = 70 + Math.random() * 160;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd,
+        life: 0.45,
+        maxLife: 0.45,
+        color: color,
+        size: 3 + Math.random() * 3
+      });
+    }
+  }
+
+  function addScorePopup(x, y, text, color=COLORS.GOLD) {
+    particles.push({
+      x, y,
+      vx: 0,
+      vy: -55,
+      life: 0.85,
+      maxLife: 0.85,
+      text: text,
+      color: color,
+      isText: true
+    });
+  }
+
+  function addFireworks(x, y, color) {
+    for (let i = 0; i < 30; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const spd = 90 + Math.random() * 210;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd,
+        life: 0.8,
+        maxLife: 0.8,
+        color: color,
+        size: 4
+      });
+    }
+  }
+
+  // Items
+  let items = [];
+  let spawnTimer = 0.5;
+
+  function startGame() {
+    score = 0;
+    lives = MAX_LIVES;
+    stage = 1;
+    itemsCaughtStage = 0;
+    timeLeft = STAGE_DURATION;
+    shakeTime = 0;
+    items = [];
+    particles = [];
+    trails = [];
+    player.x = WIDTH / 2;
+    player.invincible = 0;
+    targetX = player.x;
+    state = 'PLAYING';
+    btnAction.textContent = 'PAUSE';
+  }
+
+  function nextStage() {
+    stage++;
+    if (stage > TOTAL_STAGES) {
+      score += 2000;
+      if (score > hiScore) {
+        hiScore = score;
+        localStorage.setItem('anti_grav_hiscore', hiScore);
+      }
+      state = 'WIN';
+      btnAction.textContent = 'AGAIN';
+      sfxWin();
+      haptic([40, 50, 40, 50, 100]);
+    } else {
+      itemsCaughtStage = 0;
+      timeLeft = STAGE_DURATION;
+      items = [];
+      state = 'PLAYING';
+    }
+  }
+
+  function endGame() {
+    if (score > hiScore) {
+      hiScore = score;
+      localStorage.setItem('anti_grav_hiscore', hiScore);
+    }
+    state = 'GAME_OVER';
+    btnAction.textContent = 'RETRY';
+    haptic([100, 80, 120]);
+  }
+
+  // ─── 16-BIT RETRO PIXEL SPRITE RENDERERS ──────────────────────────────
+
+  function drawCake(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Silver platter
+    ctx.fillStyle = '#b0c4de';
+    ctx.fillRect(-22, 14, 44, 4);
+    // Bottom Tier sponge
+    ctx.fillStyle = '#f4a261';
+    ctx.fillRect(-18, 2, 36, 12);
+    // Cream filling
+    ctx.fillStyle = '#fff3b0';
+    ctx.fillRect(-18, 6, 36, 3);
+    // Top Tier sponge
+    ctx.fillStyle = '#f4a261';
+    ctx.fillRect(-14, -8, 28, 10);
+    ctx.fillStyle = '#fff3b0';
+    ctx.fillRect(-14, -4, 28, 2);
+    // Pink Strawberry Glaze with Drips
+    ctx.fillStyle = '#ff4d6d';
+    ctx.fillRect(-15, -9, 30, 4);
+    ctx.fillRect(-13, -5, 4, 5);
+    ctx.fillRect(-4, -5, 4, 7);
+    ctx.fillRect(6, -5, 4, 6);
+    // Colorful sugar sprinkles
+    ctx.fillStyle = '#00dcff'; ctx.fillRect(-8, -7, 2, 2); ctx.fillRect(4, 3, 2, 2);
+    ctx.fillStyle = '#ffd700'; ctx.fillRect(2, -7, 2, 2); ctx.fillRect(-10, 4, 2, 2);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(-3, -7, 2, 2); ctx.fillRect(8, 7, 2, 2);
+    // Cherry on top
+    ctx.fillStyle = '#c9184a';
+    ctx.beginPath(); ctx.arc(0, -13, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(-1, -15, 2, 2);
+    ctx.restore();
+  }
+
+  function drawStrawberry(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Plump ruby berry
+    ctx.fillStyle = '#e61842';
+    ctx.beginPath();
+    ctx.moveTo(0, 16);
+    ctx.bezierCurveTo(-16, 4, -16, -10, 0, -8);
+    ctx.bezierCurveTo(16, -10, 16, 4, 0, 16);
+    ctx.fill();
+    // Shading highlight
+    ctx.fillStyle = '#ff758f';
+    ctx.beginPath(); ctx.arc(-4, -1, 5, 0, Math.PI * 2); ctx.fill();
+    // Seed specks
+    ctx.fillStyle = '#ffea00';
+    [[-6, -3], [0, -5], [5, -3], [-8, 2], [-2, 1], [4, 2], [-3, 8], [2, 8], [0, 12]].forEach(([sx, sy]) => {
+      ctx.fillRect(sx, sy, 2, 2);
+    });
+    // Leaf crown
+    ctx.fillStyle = '#2ec4b6';
+    ctx.beginPath();
+    ctx.moveTo(0, -9);
+    ctx.lineTo(-8, -15); ctx.lineTo(-3, -10);
+    ctx.lineTo(0, -17);
+    ctx.lineTo(3, -10); ctx.lineTo(8, -15);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#1b7a6f';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, -10); ctx.quadraticCurveTo(2, -20, 6, -18); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawCherry(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Twin Stems
+    ctx.strokeStyle = '#40916c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-7, 2); ctx.quadraticCurveTo(-4, -16, 2, -18);
+    ctx.moveTo(7, 6); ctx.quadraticCurveTo(5, -12, 2, -18);
+    ctx.stroke();
+    // Green Leaf
+    ctx.fillStyle = '#2d6a4f';
+    ctx.beginPath();
+    ctx.ellipse(6, -16, 6, 3, Math.PI / 4, 0, Math.PI * 2); ctx.fill();
+    // Cherries
+    ctx.fillStyle = '#ba181b';
+    ctx.beginPath(); ctx.arc(-8, 5, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ff758f';
+    ctx.beginPath(); ctx.arc(-10, 3, 3, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = '#9b111e';
+    ctx.beginPath(); ctx.arc(7, 8, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ff758f';
+    ctx.beginPath(); ctx.arc(5, 6, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawCandle(ctx, x, y, rot, fl_t) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Candle body
+    ctx.fillStyle = '#00dcff';
+    ctx.fillRect(-5, -6, 10, 22);
+    // White spiral wax stripes
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-5, -2, 10, 3);
+    ctx.fillRect(-5, 6, 10, 3);
+    ctx.fillRect(-5, 14, 10, 3);
+    // Wick
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(0, -11); ctx.stroke();
+    // Animated glowing flame
+    const flick = Math.sin(fl_t * 14) * 2;
+    ctx.fillStyle = 'rgba(255, 165, 0, 0.45)';
+    ctx.beginPath(); ctx.arc(0, -18, 9 + flick * 0.5, 0, Math.PI * 2); ctx.fill();
+    // Outer flame
+    ctx.fillStyle = '#ff7b00';
+    ctx.beginPath();
+    ctx.moveTo(0, -24 + flick);
+    ctx.quadraticCurveTo(-6, -17, 0, -11);
+    ctx.quadraticCurveTo(6, -17, 0, -24 + flick);
+    ctx.fill();
+    // Inner flame
+    ctx.fillStyle = '#ffe600';
+    ctx.beginPath();
+    ctx.moveTo(0, -21 + flick * 0.7);
+    ctx.quadraticCurveTo(-3, -16, 0, -12);
+    ctx.quadraticCurveTo(3, -16, 0, -21 + flick * 0.7);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(-1, -15, 2, 3);
+    ctx.restore();
+  }
+
+  function drawCandy(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Wrapper ends
+    ctx.fillStyle = '#ff6ebe';
+    ctx.beginPath();
+    ctx.moveTo(-11, 0); ctx.lineTo(-20, -9); ctx.lineTo(-18, 0); ctx.lineTo(-20, 9); ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(11, 0); ctx.lineTo(20, -9); ctx.lineTo(18, 0); ctx.lineTo(20, 9); ctx.closePath();
+    ctx.fill();
+    // Candy ball
+    ctx.fillStyle = '#ff2a85';
+    ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI * 2); ctx.fill();
+    // Candy cane stripes
+    ctx.fillStyle = '#ffffff';
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI * 2); ctx.clip();
+    ctx.fillRect(-3, -12, 3, 24);
+    ctx.fillRect(4, -12, 3, 24);
+    ctx.fillRect(-10, -12, 3, 24);
+    ctx.restore();
+    ctx.restore();
+  }
+
+  function drawFrosting(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Pastry bag
+    ctx.fillStyle = '#4895ef';
+    ctx.beginPath();
+    ctx.moveTo(-16, -14);
+    ctx.lineTo(8, -14);
+    ctx.lineTo(16, 8);
+    ctx.lineTo(-4, 8);
+    ctx.closePath(); ctx.fill();
+    // Metal nozzle
+    ctx.fillStyle = '#d8e2dc';
+    ctx.fillRect(14, 6, 6, 6);
+    // Dollop of cream
+    ctx.fillStyle = '#fff0f3';
+    ctx.beginPath(); ctx.arc(23, 11, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffb3c1';
+    ctx.beginPath(); ctx.arc(22, 10, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawAnvil(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Cast iron base
+    ctx.fillStyle = '#495057';
+    ctx.fillRect(-16, 10, 32, 6);
+    ctx.fillStyle = '#6c757d';
+    ctx.fillRect(-14, 10, 28, 2);
+    // Center column
+    ctx.fillStyle = '#343a40';
+    ctx.fillRect(-10, 2, 20, 8);
+    // Horn
+    ctx.fillStyle = '#495057';
+    ctx.beginPath();
+    ctx.moveTo(-10, 2); ctx.lineTo(-24, -4); ctx.lineTo(-10, -4);
+    ctx.closePath(); ctx.fill();
+    // Top striking plate
+    ctx.fillStyle = '#6c757d';
+    ctx.fillRect(-12, -6, 30, 8);
+    ctx.fillStyle = '#ced4da';
+    ctx.fillRect(-12, -6, 30, 2);
+    // Weight marking
+    ctx.fillStyle = '#ff4646';
+    ctx.font = '7px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('100T', 2, 8);
+    ctx.restore();
+  }
+
+  function drawBroccoli(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Florets
+    ctx.fillStyle = '#2d6a4f';
+    [[-12, -6, 9], [0, -14, 11], [12, -6, 9], [-6, -4, 8], [6, -4, 8]].forEach(([bx, by, br]) => {
+      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.fillStyle = '#52b788';
+    [[-10, -8, 6], [0, -15, 7], [10, -8, 6]].forEach(([bx, by, br]) => {
+      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill();
+    });
+    // Stalk
+    ctx.fillStyle = '#74c69d';
+    ctx.fillRect(-5, 2, 10, 14);
+    // Angry Eyebrows
+    ctx.strokeStyle = '#081c15';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-9, -7); ctx.lineTo(-3, -4);
+    ctx.moveTo(9, -7); ctx.lineTo(3, -4);
+    ctx.stroke();
+    // Eyes
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-8, -4, 4, 4);
+    ctx.fillRect(4, -4, 4, 4);
+    ctx.fillStyle = '#d00000';
+    ctx.fillRect(-7, -3, 2, 2);
+    ctx.fillRect(5, -3, 2, 2);
+    // Frowning Mouth
+    ctx.strokeStyle = '#081c15';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-5, 4); ctx.lineTo(-2, 2); ctx.lineTo(2, 4); ctx.lineTo(5, 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawSpoiledMilk(ctx, x, y, rot, bt) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    // Carton
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(-12, -6, 24, 26);
+    ctx.fillStyle = '#e9ecef';
+    ctx.beginPath();
+    ctx.moveTo(-12, -6); ctx.lineTo(0, -18); ctx.lineTo(12, -6);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ced4da';
+    ctx.fillRect(-3, -21, 6, 4);
+    // Sour green label
+    ctx.fillStyle = '#70e000';
+    ctx.fillRect(-10, 2, 20, 12);
+    ctx.fillStyle = '#004b23';
+    ctx.font = '7px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('SOUR', 0, 10);
+    // Slime drips
+    ctx.fillStyle = '#38b000';
+    ctx.fillRect(-8, 18, 4, 5);
+    ctx.fillRect(2, 18, 6, 7);
+    // Ooze bubbles
+    ctx.fillStyle = 'rgba(112, 224, 0, 0.7)';
+    const b1 = Math.sin(bt * 6) * 4;
+    ctx.beginPath(); ctx.arc(-14 + b1, -10 - (bt * 22 % 28), 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(14 - b1, -6 - ((bt + 0.4) * 22 % 28), 3.5, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // Update
+  let lastTime = performance.now();
+  function update(dt) {
+    globalTime += dt;
+    shakeTime = Math.max(0, shakeTime - dt);
+
+    // Stars
+    stars.forEach(s => {
+      s.y += s.speed;
+      s.twinkle += dt * 3;
+      if (s.y > HEIGHT) { s.y = 0; s.x = Math.random() * WIDTH; }
+    });
+
+    // Balloons
+    balloons.forEach(b => {
+      b.y += b.dy;
+      b.x += Math.sin(globalTime * 2 + b.phase) * 0.4;
+      if (b.y < -50) { b.y = HEIGHT + 30; b.x = Math.random() * WIDTH; }
+    });
+
+    // Confetti
+    confetti.forEach(c => {
+      c.y += c.vy * dt;
+      if (c.y > HEIGHT) { c.y = -10; c.x = Math.random() * WIDTH; }
+    });
+
+    // Stardust Trails
+    trails = trails.filter(t => t.life > 0);
+    trails.forEach(t => {
+      t.life -= dt * 2.2;
+      t.y += t.vy * dt * 0.3;
+    });
+
+    // Particles
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+    });
+
+    if (state === 'PLAYING') {
+      btnAction.textContent = 'PAUSE';
+
+      // Player Movement (responsive drag + keys + buttons)
+      let moveDir = 0;
+      if (keys['ArrowLeft'] || keys['KeyA']) moveDir -= 1;
+      if (keys['ArrowRight'] || keys['KeyD']) moveDir += 1;
+
+      if (moveDir !== 0) {
+        player.x += moveDir * player.speed * dt;
+        targetX = player.x;
+        player.walkTime += dt * 10;
+      } else if (isDragging) {
+        const dx = targetX - player.x;
+        player.x += dx * Math.min(1.0, 24 * dt);
+        player.walkTime += Math.abs(dx) * dt * 0.18;
+      }
+      player.x = Math.max(player.w / 2, Math.min(WIDTH - player.w / 2, player.x));
+      if (player.invincible > 0) player.invincible -= dt;
+
+      // Stage Countdown
+      timeLeft -= dt;
+      if (timeLeft <= 0) {
+        lives--;
+        shakeTime = 0.4;
+        player.invincible = 1.5;
+        addScorePopup(player.x, player.y - 40, "TIME UP!", COLORS.RED);
+        sfxHit();
+        haptic([60, 40, 60]);
+        if (lives <= 0) endGame();
+        else timeLeft = STAGE_DURATION;
+      }
+
+      // Spawner
+      const speed = 190 + (stage - 1) * 30;
+      const interval = Math.max(0.38, 1.35 - (stage - 1) * 0.1);
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) {
+        spawnTimer = interval;
+        const isBad = Math.random() < Math.min(0.45, 0.28 + (stage - 1) * 0.02);
+        const kind = isBad ? BAD_KINDS[Math.floor(Math.random() * BAD_KINDS.length)]
+                           : GOOD_KINDS[Math.floor(Math.random() * GOOD_KINDS.length)];
+        const minX = Math.min(90, WIDTH * 0.12);
+        const maxX = WIDTH - minX;
+        items.push({
+          x: minX + Math.random() * (maxX - minX),
+          y: -40,
+          vy: speed,
+          isBad: isBad,
+          kind: kind,
+          pts: GOOD_POINTS[kind] || 0,
+          rot: 0,
+          vrot: (Math.random() - 0.5) * 4.5,
+          color: isBad ? COLORS.RED : (kind === 'CAKE' ? COLORS.PINK : COLORS.GOLD)
+        });
+      }
+
+      // Hitboxes
+      const trayRect = {
+        x: player.x - 35,
+        y: player.y - 50 - 7,
+        w: 70,
+        h: 18
+      };
+      const bodyRect = {
+        x: player.x - 16,
+        y: player.y - 20,
+        w: 32,
+        h: 70
+      };
+
+      for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
+        item.y += item.vy * dt;
+        item.rot += item.vrot * dt;
+
+        // Leave stardust trail
+        if (Math.random() < 0.35) {
+          trails.push({
+            x: item.x + (Math.random() - 0.5) * 8,
+            y: item.y - 10,
+            vy: -15,
+            life: 1.0,
+            color: item.isBad ? 'rgba(255, 70, 70, 0.5)' : 'rgba(0, 220, 255, 0.6)'
+          });
+        }
+
+        // Catch check
+        if (!item.isBad) {
+          if (item.x >= trayRect.x && item.x <= trayRect.x + trayRect.w &&
+              item.y >= trayRect.y && item.y <= trayRect.y + trayRect.h + 24) {
+            score += item.pts;
+            itemsCaughtStage++;
+            addCollectBurst(item.x, item.y, item.color);
+            addScorePopup(item.x, item.y - 15, "+" + item.pts, COLORS.GOLD);
+            sfxCatch();
+            haptic(15);
+            items.splice(i, 1);
+
+            if (itemsCaughtStage >= ITEMS_PER_STAGE) {
+              score += 500;
+              state = 'STAGE_CLEAR';
+              stageClearTime = 1.8;
+              addCollectBurst(WIDTH / 2, HEIGHT / 2, COLORS.GOLD);
+              sfxWin();
+              haptic([30, 30, 60]);
+            }
+            continue;
+          }
+        } else {
+          // Obstacle collision
+          if (player.invincible <= 0) {
+            if (item.x >= bodyRect.x && item.x <= bodyRect.x + bodyRect.w &&
+                item.y >= bodyRect.y && item.y <= bodyRect.y + bodyRect.h) {
+              lives--;
+              shakeTime = 0.35;
+              player.invincible = 1.5;
+              addCollectBurst(item.x, item.y, COLORS.RED);
+              addScorePopup(item.x, item.y - 20, "OUCH!", COLORS.RED);
+              sfxHit();
+              haptic([60, 40, 60]);
+              items.splice(i, 1);
+              if (lives <= 0) endGame();
+              continue;
+            }
+          }
+        }
+
+        // Clean off-screen
+        if (item.y > HEIGHT + 40) {
+          items.splice(i, 1);
+        }
+      }
+    } else if (state === 'STAGE_CLEAR') {
+      stageClearTime -= dt;
+      if (stageClearTime <= 0) nextStage();
+    } else if (state === 'WIN') {
+      if (Math.random() < 0.08) {
+        addFireworks(100 + Math.random() * (WIDTH - 200), 100 + Math.random() * (HEIGHT * 0.5),
+                     bColors[Math.floor(Math.random() * bColors.length)]);
+      }
+    }
+  }
+
+  // Draw
+  function draw() {
+    ctx.save();
+    if (shakeTime > 0) {
+      const sx = (Math.random() - 0.5) * 8;
+      const sy = (Math.random() - 0.5) * 8;
+      ctx.translate(sx, sy);
+    }
+
+    // Space Deep Radial Gradient
+    const bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.8);
+    bgGrad.addColorStop(0, '#1a1040');
+    bgGrad.addColorStop(0.65, '#0b0621');
+    bgGrad.addColorStop(1, '#050210');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    // Glowing Nebula clouds
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    const neb1 = ctx.createRadialGradient(WIDTH * 0.25, HEIGHT * 0.35, 10, WIDTH * 0.25, HEIGHT * 0.35, 260);
+    neb1.addColorStop(0, '#ff00aa'); neb1.addColorStop(1, 'transparent');
+    ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    const neb2 = ctx.createRadialGradient(WIDTH * 0.75, HEIGHT * 0.65, 10, WIDTH * 0.75, HEIGHT * 0.65, 280);
+    neb2.addColorStop(0, '#00dcff'); neb2.addColorStop(1, 'transparent');
+    ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.restore();
+
+    // Pixel Stars with sparkling 4-point shape
+    stars.forEach(s => {
+      ctx.save();
+      const alpha = 0.4 + 0.6 * Math.abs(Math.sin(s.twinkle));
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = alpha;
+      const sz = s.size;
+      ctx.fillRect(s.x, s.y, sz, sz);
+      if (sz >= 3) {
+        ctx.fillRect(s.x - 1, s.y + 1, sz + 2, sz - 2);
+        ctx.fillRect(s.x + 1, s.y - 1, sz - 2, sz + 2);
+      }
+      ctx.restore();
+    });
+
+    // Portholes looking into galaxies
+    const isPortrait = HEIGHT > WIDTH;
+    const portholes = isPortrait
+      ? [[80, 280, 52], [WIDTH - 80, 280, 52], [80, 680, 45], [WIDTH - 80, 680, 45]]
+      : [[180, 280, 95], [WIDTH - 180, 280, 95], [130, 520, 60], [WIDTH - 130, 520, 60]];
+
+    portholes.forEach(([cx, cy, r]) => {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = COLORS.SPACE_MID; ctx.fill();
+      // Galaxy swirl
+      ctx.fillStyle = '#b042ff';
+      ctx.beginPath(); ctx.arc(cx, cy, r / 3, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+
+      ctx.strokeStyle = '#3d4d80';
+      ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = '#00dcff';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, Math.PI * 2); ctx.stroke();
+    });
+
+    // Balloons
+    balloons.forEach(b => {
+      ctx.fillStyle = b.color;
+      ctx.beginPath();
+      ctx.ellipse(b.x, b.y, b.sz, b.sz * 1.35, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.beginPath();
+      ctx.ellipse(b.x - b.sz * 0.35, b.y - b.sz * 0.4, b.sz * 0.3, b.sz * 0.4, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#a0a0b4';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y + b.sz * 1.35);
+      ctx.lineTo(b.x + 5, b.y + b.sz * 1.35 + 18);
+      ctx.stroke();
+    });
+
+    // Cockpit Side panels
+    const pw = isPortrait ? 24 : 110;
+    ctx.fillStyle = '#121832';
+    ctx.fillRect(0, 0, pw, HEIGHT);
+    ctx.fillRect(WIDTH - pw, 0, pw, HEIGHT);
+    ctx.strokeStyle = '#00dcff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, pw, HEIGHT);
+    ctx.strokeRect(WIDTH - pw, 0, pw, HEIGHT);
+
+    // Neon Circuit Trim Lines along walls
+    ctx.strokeStyle = 'rgba(0, 220, 255, 0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(pw, 0); ctx.lineTo(pw, HEIGHT);
+    ctx.moveTo(WIDTH - pw, 0); ctx.lineTo(WIDTH - pw, HEIGHT);
+    ctx.stroke();
+
+    // Top & Floor Panels
+    ctx.fillStyle = '#1b244d';
+    ctx.fillRect(0, 0, WIDTH, 54);
+    ctx.fillStyle = '#0f142b';
+    ctx.fillRect(0, HEIGHT - 50, WIDTH, 50);
+    ctx.strokeStyle = '#00dcff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 54); ctx.lineTo(WIDTH, 54);
+    ctx.moveTo(0, HEIGHT - 50); ctx.lineTo(WIDTH, HEIGHT - 50);
+    ctx.stroke();
+
+    // Bunting ("HAPPY BIRTHDAY!")
+    const letters = "HAPPYBIRTHDAY!".split('');
+    const xStart = pw + 16, xEnd = WIDTH - pw - 16;
+    const fw = (xEnd - xStart) / (letters.length - 1);
+    letters.forEach((l, i) => {
+      const fx = xStart + fw * i;
+      const sag = Math.sin((Math.PI * (i + 1)) / (letters.length + 1)) * 14;
+      const fy = 62 + sag;
+      ctx.fillStyle = bColors[i % bColors.length];
+      ctx.beginPath();
+      ctx.moveTo(fx - 10, fy);
+      ctx.lineTo(fx + 10, fy);
+      ctx.lineTo(fx, fy + 24);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(l, fx, fy + 14);
+    });
+
+    // Stardust Trails
+    trails.forEach(t => {
+      ctx.save();
+      ctx.fillStyle = t.color;
+      ctx.globalAlpha = Math.max(0, t.life);
+      ctx.fillRect(t.x, t.y, 3, 3);
+      ctx.restore();
+    });
+
+    // Confetti
+    confetti.forEach(c => {
+      ctx.fillStyle = c.color;
+      ctx.fillRect(c.x, c.y, c.sz, c.sz * 1.6);
+    });
+
+    // Handcrafted 16-Bit Pixel Falling Items
+    items.forEach(item => {
+      if (item.kind === 'CAKE') drawCake(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'STRAWBERRY') drawStrawberry(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'CHERRY') drawCherry(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'CANDLE') drawCandle(ctx, item.x, item.y, item.rot, globalTime);
+      else if (item.kind === 'CANDY') drawCandy(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'FROSTING') drawFrosting(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'ANVIL') drawAnvil(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'BROCCOLI') drawBroccoli(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'SPOILED_MILK') drawSpoiledMilk(ctx, item.x, item.y, item.rot, globalTime);
+    });
+
+    // Player (Aisha Character)
+    if (state === 'PLAYING' || state === 'STAGE_CLEAR' || state === 'PAUSED') {
+      const flicker = player.invincible > 0 && Math.floor(player.invincible * 14) % 2 === 0;
+      if (!flicker) {
+        ctx.save();
+        const bob = Math.sin(player.walkTime) * 3;
+        const px = player.x;
+        const py = player.y + bob;
+
+        // Zero-G Boot Thruster Sparks
+        const thrust = Math.sin(globalTime * 25) * 4;
+        ctx.fillStyle = '#00dcff';
+        ctx.beginPath();
+        ctx.moveTo(px - 14, py + 46); ctx.lineTo(px - 6, py + 46); ctx.lineTo(px - 10, py + 54 + thrust);
+        ctx.closePath(); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(px + 6, py + 46); ctx.lineTo(px + 14, py + 46); ctx.lineTo(px + 10, py + 54 + thrust);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(px - 11, py + 46, 2, 4);
+        ctx.fillRect(px + 9, py + 46, 2, 4);
+
+        // Gleaming Silver Serving Tray
+        ctx.fillStyle = '#c5d3e8';
+        ctx.fillRect(px - 36, py - 52, 72, 8);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(px - 34, py - 52, 68, 2); // metallic sheen
+        ctx.strokeStyle = '#00dcff';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px - 36, py - 52, 72, 8);
+
+        // Raised Arms holding tray
+        ctx.strokeStyle = '#dca064';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(px - 14, py - 8); ctx.lineTo(px - 24, py - 46);
+        ctx.moveTo(px + 14, py - 8); ctx.lineTo(px + 24, py - 46);
+        ctx.stroke();
+
+        // Signature Floral Blouse (Cream with Crimson Flower Petals)
+        ctx.fillStyle = '#f8f2e6';
+        ctx.fillRect(px - 16, py - 16, 32, 28);
+        ctx.fillStyle = '#c9184a';
+        ctx.beginPath();
+        ctx.arc(px - 8, py - 10, 2.5, 0, Math.PI * 2);
+        ctx.arc(px + 8, py - 8, 2.5, 0, Math.PI * 2);
+        ctx.arc(px - 6, py + 2, 2, 0, Math.PI * 2);
+        ctx.arc(px + 7, py + 4, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Golden Baking Apron & Belt
+        ctx.fillStyle = '#f4a261';
+        ctx.fillRect(px - 12, py - 6, 24, 18);
+        ctx.fillStyle = '#261405';
+        ctx.fillRect(px - 16, py + 8, 32, 5);
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(px - 4, py + 8, 8, 5); // belt buckle
+
+        // Denim Jeans & High-top Sneakers
+        ctx.fillStyle = '#2b5894';
+        ctx.fillRect(px - 16, py + 13, 14, 26);
+        ctx.fillRect(px + 2, py + 13, 14, 26);
+        ctx.fillStyle = COLORS.ORANGE;
+        ctx.fillRect(px - 18, py + 39, 14, 8);
+        ctx.fillRect(px + 4, py + 39, 14, 8);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(px - 17, py + 45, 12, 2); // soles
+        ctx.fillRect(px + 5, py + 45, 12, 2);
+
+        // Aisha's Attached Face Photo (High-quality crisp blend)
+        if (aishaImg.complete && aishaImg.naturalWidth > 0) {
+          ctx.drawImage(aishaImg, px - 22, py - 52, 44, 48);
+        } else {
+          ctx.fillStyle = '#110d18';
+          ctx.beginPath(); ctx.arc(px, py - 26, 17, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#ffdca8';
+          ctx.beginPath(); ctx.arc(px, py - 24, 12, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // Party Hat on top of hair
+        ctx.fillStyle = COLORS.PINK;
+        ctx.beginPath();
+        ctx.moveTo(px - 8, py - 50); ctx.lineTo(px + 10, py - 50); ctx.lineTo(px + 1, py - 68);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(px + 1, py - 69, 3.5, 0, Math.PI * 2); ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // Particles
+    particles.forEach(p => {
+      ctx.save();
+      const alpha = Math.max(0, p.life / p.maxLife);
+      if (p.isText) {
+        ctx.fillStyle = p.color;
+        ctx.font = '14px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#000';
+        ctx.shadowBlur = 6;
+        ctx.fillText(p.text, p.x, p.y);
+      } else {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+
+    // ─── RETRO 16-BIT HUD ─────────────────────────────────────────────
+    // Top Score Box
+    ctx.fillStyle = COLORS.GOLD;
+    ctx.font = '12px "Press Start 2P", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText("SCORE: " + String(score).padStart(6, "0"), 60, 36);
+
+    // Center Timer with Neon Border
+    const secs = Math.max(0, Math.ceil(timeLeft));
+    const tStr = "0:" + String(secs).padStart(2, "0");
+    const tCol = (timeLeft < 10 && Math.floor(globalTime * 4) % 2 === 0) ? COLORS.RED : COLORS.CYAN_GLOW;
+    ctx.fillStyle = tCol;
+    ctx.font = '14px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(tStr, WIDTH / 2, 36);
+
+    // Pixel Hearts (Lives)
+    ctx.textAlign = 'right';
+    const hx = WIDTH - 64;
+    for (let i = 0; i < MAX_LIVES; i++) {
+      const active = i < lives;
+      const lx = hx - (MAX_LIVES - 1 - i) * 26;
+      ctx.fillStyle = active ? '#ff2a55' : '#331520';
+      // Pixel Heart
+      ctx.fillRect(lx - 10, 24, 8, 8);
+      ctx.fillRect(lx - 2, 24, 8, 8);
+      ctx.fillRect(lx - 8, 32, 12, 6);
+      ctx.fillRect(lx - 5, 38, 6, 4);
+      if (active) {
+        ctx.fillStyle = '#ffb3c6';
+        ctx.fillRect(lx - 8, 26, 3, 3); // sheen
+      }
+    }
+
+    // Bottom Hologram Wave & Mode Badge
+    ctx.fillStyle = COLORS.CYAN;
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText("ZERO-G MODE", pw + 12, HEIGHT - 20);
+
+    // Animated sine wave oscillation inside bottom bar
+    ctx.strokeStyle = 'rgba(0, 220, 255, 0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    const waveStart = pw + 160;
+    const waveWidth = Math.max(100, WIDTH - pw * 2 - 340);
+    for (let wx = 0; wx < waveWidth; wx += 4) {
+      const wy = HEIGHT - 24 + Math.sin(wx * 0.08 + globalTime * 6) * 6;
+      if (wx === 0) ctx.moveTo(waveStart + wx, wy);
+      else ctx.lineTo(waveStart + wx, wy);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = COLORS.GOLD;
+    ctx.textAlign = 'right';
+    ctx.fillText("STAGE " + stage + "/" + TOTAL_STAGES, WIDTH - pw - 12, HEIGHT - 20);
+
+    // ─── OVERLAY SCREENS ──────────────────────────────────────────────
+    const boxW = Math.min(WIDTH - 36, 680);
+    const boxH = Math.min(HEIGHT - 120, 420);
+
+    if (state === 'MENU') {
+      btnAction.textContent = 'START';
+      ctx.fillStyle = 'rgba(10, 6, 32, 0.94)';
+      ctx.fillRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      ctx.strokeStyle = COLORS.GOLD;
+      ctx.lineWidth = 4;
+      ctx.strokeRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+
+      // Gold Corner Accent Pixels
+      ctx.fillStyle = COLORS.CYAN;
+      [[-boxW/2, -boxH/2], [boxW/2 - 12, -boxH/2], [-boxW/2, boxH/2 - 12], [boxW/2 - 12, boxH/2 - 12]].forEach(([cxo, cyo]) => {
+        ctx.fillRect(WIDTH / 2 + cxo, HEIGHT / 2 + cyo, 12, 12);
+      });
+
+      // Aisha Avatar on Menu
+      if (aishaImg.complete && aishaImg.naturalWidth > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(WIDTH / 2, HEIGHT / 2 - boxH / 2 + 58, 38, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(aishaImg, WIDTH / 2 - 38, HEIGHT / 2 - boxH / 2 + 18, 76, 84);
+        ctx.restore();
+        ctx.strokeStyle = COLORS.GOLD;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(WIDTH / 2, HEIGHT / 2 - boxH / 2 + 58, 38, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.font = '18px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("AISHA'S", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 130);
+      ctx.fillStyle = COLORS.PINK;
+      ctx.font = '14px "Press Start 2P", monospace';
+      ctx.fillText("BIRTHDAY BAKE-OFF!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 165);
+
+      ctx.fillStyle = '#d0d8f0';
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillText("CATCH CAKE - DODGE HAZARDS!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 215);
+
+      if (Math.floor(globalTime * 2.5) % 2 === 0) {
+        ctx.fillStyle = COLORS.CYAN_GLOW;
+        ctx.font = '14px "Press Start 2P", monospace';
+        ctx.fillText("TAP SCREEN TO PLAY!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 280);
+      }
+
+      ctx.fillStyle = '#a0b0d0';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.fillText("SLIDE THUMB OR USE ARROWS", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 340);
+    } else if (state === 'PAUSED') {
+      btnAction.textContent = 'RESUME';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      ctx.fillStyle = COLORS.WHITE;
+      ctx.font = '24px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("— PAUSED —", WIDTH / 2, HEIGHT / 2 - 20);
+      ctx.fillStyle = COLORS.CYAN;
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillText("TAP SCREEN TO RESUME", WIDTH / 2, HEIGHT / 2 + 35);
+    } else if (state === 'STAGE_CLEAR') {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.font = '22px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("STAGE " + stage + " CLEAR!", WIDTH / 2, HEIGHT / 2 - 20);
+      ctx.fillStyle = COLORS.CYAN;
+      ctx.font = '13px "Press Start 2P", monospace';
+      ctx.fillText("GET READY...", WIDTH / 2, HEIGHT / 2 + 35);
+    } else if (state === 'GAME_OVER') {
+      btnAction.textContent = 'RETRY';
+      ctx.fillStyle = 'rgba(45, 5, 12, 0.94)';
+      ctx.fillRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      ctx.strokeStyle = COLORS.RED;
+      ctx.lineWidth = 4;
+      ctx.strokeRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+
+      ctx.fillStyle = COLORS.RED;
+      ctx.font = '20px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("CAKE DISASTER!", WIDTH / 2, HEIGHT / 2 - 60);
+      ctx.fillStyle = COLORS.WHITE;
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillText("Score: " + score.toLocaleString(), WIDTH / 2, HEIGHT / 2 - 10);
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.fillText("Hi-Score: " + hiScore.toLocaleString(), WIDTH / 2, HEIGHT / 2 + 25);
+
+      ctx.fillStyle = COLORS.CYAN;
+      ctx.font = '13px "Press Start 2P", monospace';
+      ctx.fillText("TAP TO RETRY", WIDTH / 2, HEIGHT / 2 + 80);
+    } else if (state === 'WIN') {
+      btnAction.textContent = 'AGAIN';
+      ctx.fillStyle = 'rgba(25, 20, 5, 0.94)';
+      ctx.fillRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      ctx.strokeStyle = COLORS.GOLD;
+      ctx.lineWidth = 4;
+      ctx.strokeRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+
+      if (aishaImg.complete && aishaImg.naturalWidth > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(WIDTH / 2, HEIGHT / 2 - boxH / 2 + 58, 38, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(aishaImg, WIDTH / 2 - 38, HEIGHT / 2 - boxH / 2 + 18, 76, 84);
+        ctx.restore();
+        ctx.strokeStyle = COLORS.GOLD;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(WIDTH / 2, HEIGHT / 2 - boxH / 2 + 58, 38, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.font = '18px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("CHAMPION!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 130);
+      ctx.fillStyle = COLORS.PINK;
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillText("Happy Birthday Aisha!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 168);
+      ctx.fillStyle = COLORS.WHITE;
+      ctx.font = '11px "Press Start 2P", monospace';
+      ctx.fillText("Final Score: " + score.toLocaleString(), WIDTH / 2, HEIGHT / 2 - boxH / 2 + 215);
+
+      ctx.fillStyle = COLORS.CYAN;
+      ctx.font = '13px "Press Start 2P", monospace';
+      ctx.fillText("TAP TO PLAY AGAIN", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 280);
+    }
+
+    ctx.restore();
+  }
+
+  function loop(now) {
+    const dt = Math.min((now - lastTime) / 1000, 0.05);
+    lastTime = now;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  handleResize();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
