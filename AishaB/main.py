@@ -29,7 +29,7 @@ def run_desktop():
         pass
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Anti-Gravity Birthday Bake-Off 🎂")
+    pygame.display.set_caption("Aisha's Birthday Bake-Off 🎂")
 
     clock = pygame.time.Clock()
     screen.fill(SPACE_DARK)
@@ -49,7 +49,7 @@ def run_desktop():
 def run_web_server(port: int = 8080):
     """Run built-in HTTP server serving the playable web edition."""
     from wsgiref.simple_server import make_server
-    print(f"Serving Anti-Gravity Birthday Bake-Off on http://localhost:{port} ...")
+    print(f"Serving Aisha's Birthday Bake-Off on http://localhost:{port} ...")
     with make_server("0.0.0.0", port, application) as httpd:
         httpd.serve_forever()
 

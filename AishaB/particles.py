@@ -1,4 +1,4 @@
-# particles.py — Particle system for Anti-Gravity Birthday Bake-Off (Catcher)
+# particles.py — Particle system for Aisha's Birthday Bake-Off (Catcher)
 #
 # Types:
 #   ConfettiParticle  — constant colourful confetti rain (background decor)

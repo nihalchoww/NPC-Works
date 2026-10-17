@@ -1,4 +1,4 @@
-# entities.py — Falling items for Anti-Gravity Birthday Bake-Off (Catcher)
+# entities.py — Falling items for Aisha's Birthday Bake-Off (Catcher)
 #
 # GOOD items (catch on tray):   CakeTier, Candle, Strawberry, Cherry, Candy, FrostingBag
 # BAD  items (dodge with body): Anvil, AngryBroccoli, SpoiledMilk

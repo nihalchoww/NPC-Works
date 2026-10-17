@@ -1,4 +1,4 @@
-# 🎂 Anti-Gravity Birthday Bake-Off (2D Pixel-Art Game) 🚀
+# 🎂 Aisha's Birthday Bake-Off (2D Pixel-Art Game) 🚀
 
 A retro 16-bit arcade catcher game built with Python and Pygame (`pygame-ce`), inspired by zero-gravity space baking adventures.
 
@@ -8,7 +8,7 @@ A retro 16-bit arcade catcher game built with Python and Pygame (`pygame-ce`), i
 
 ## 🎮 Gameplay Overview
 
-You play as a baker floating inside a spaceship kitchen cockpit. Cake tiers, candles, strawberries, cherries, candies, and frosting bags drift down from zero-G orbit—catch them on your raised tray to assemble the ultimate birthday cake!
+You play as Aisha floating inside a spaceship kitchen cockpit. Cake tiers, candles, strawberries, cherries, candies, and frosting bags drift down from zero-G orbit—catch them on your raised tray to assemble the ultimate birthday cake!
 
 Watch out for dangerous tumbling hazards:
 - 🪨 **Spinning Heavy Anvils**

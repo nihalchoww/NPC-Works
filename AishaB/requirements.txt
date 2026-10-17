@@ -1,4 +1,4 @@
-# Anti-Gravity Birthday Bake-Off — Python dependencies
+# Aisha's Birthday Bake-Off — Python dependencies
 #
 # Standard installation (Python 3.10–3.13):
 #   pip install pygame

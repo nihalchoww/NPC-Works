@@ -9,7 +9,7 @@
 #           LIVES+hearts bottom-left, ZERO-G MODE bottom-centre, STAGE N bottom-right
 #   • Heart lives display
 
-import math, random
+import math, random, os
 import pygame
 from settings import (
     WIDTH, HEIGHT,
@@ -387,8 +387,8 @@ def draw_menu(surface: pygame.Surface, starfield: Starfield,
 
     cx, cy = WIDTH // 2, HEIGHT // 2
 
-    box_w, box_h = 720, 300
-    br   = pygame.Rect(cx - box_w // 2, cy - box_h // 2 - 30, box_w, box_h)
+    box_w, box_h = 720, 340
+    br   = pygame.Rect(cx - box_w // 2, cy - box_h // 2 - 20, box_w, box_h)
     pan  = pygame.Surface((box_w, box_h), pygame.SRCALPHA)
     pan.fill((15, 8, 50, 195))
     surface.blit(pan, br)
@@ -398,19 +398,31 @@ def draw_menu(surface: pygame.Surface, starfield: Starfield,
                    (br.left + 14, br.bottom - 14), (br.right - 14, br.bottom - 14)]:
         draw_star(surface, GOLD, sx, sy, 12, 6, points=5, angle_offset=t * 1.8)
 
-    draw_text_glow(surface, "ANTI-GRAVITY", 60, GOLD, GOLD_DIM,
-                   cx, cy - 95, anchor="center", glow_radius=7)
-    draw_text_glow(surface, "BIRTHDAY BAKE-OFF!", 48, PINK, PINK_DARK,
-                   cx, cy - 28, anchor="center", glow_radius=5)
+    # Aisha Avatar Badge
+    import os
+    av_path = os.path.join(os.path.dirname(__file__), "assets", "aisha_head.png")
+    if os.path.exists(av_path):
+        try:
+            av = pygame.image.load(av_path).convert_alpha()
+            av_scaled = pygame.transform.smoothscale(av, (52, 56))
+            surface.blit(av_scaled, av_scaled.get_rect(center=(cx, cy - 135)))
+            pygame.draw.circle(surface, GOLD, (cx, cy - 135), 30, 2)
+        except Exception:
+            pass
+
+    draw_text_glow(surface, "AISHA'S", 56, GOLD, GOLD_DIM,
+                   cx, cy - 85, anchor="center", glow_radius=7)
+    draw_text_glow(surface, "BIRTHDAY BAKE-OFF!", 44, PINK, PINK_DARK,
+                   cx, cy - 22, anchor="center", glow_radius=5)
     draw_text(surface, "Catch falling cake pieces — dodge the obstacles!",
               18, OFF_WHITE, cx, cy + 36, anchor="center")
 
     if int(t * 2.2) % 2 == 0:
         draw_text(surface, "PRESS  SPACE  TO  START", 24, CYAN,
-                  cx, cy + 82, anchor="center", shadow=True)
+                  cx, cy + 86, anchor="center", shadow=True)
 
     draw_text(surface, "← → / A D  MOVE     ESC  PAUSE", 16,
-              (120, 140, 170), cx, cy + 118, anchor="center")
+              (120, 140, 170), cx, cy + 124, anchor="center")
 
 
 # ─── Paused overlay ────────────────────────────────────────────────────────────
@@ -465,8 +477,8 @@ def draw_win(surface: pygame.Surface, starfield: Starfield,
     cx, cy  = WIDTH // 2, HEIGHT // 2
     bob     = math.sin(t * 3) * 7
 
-    bw, bh = 700, 300
-    br   = pygame.Rect(cx - bw // 2, cy - bh // 2 - 30, bw, bh)
+    bw, bh = 700, 340
+    br   = pygame.Rect(cx - bw // 2, cy - bh // 2 - 20, bw, bh)
     pan  = pygame.Surface((bw, bh), pygame.SRCALPHA)
     pan.fill((30, 25, 5, 215))
     surface.blit(pan, br)
@@ -479,11 +491,22 @@ def draw_win(surface: pygame.Surface, starfield: Starfield,
         draw_star(surface, GOLD if i % 2 == 0 else PINK,
                   sx, sy, 10, 5, points=5, angle_offset=angle)
 
-    draw_text_glow(surface, "🎂  BAKE-OFF  CHAMPION!  🎂", 48,
-                   GOLD, GOLD_DIM, cx, int(cy - 80 + bob),
+    # Aisha Avatar Badge on Win Screen
+    av_path = os.path.join(os.path.dirname(__file__), "assets", "aisha_head.png")
+    if os.path.exists(av_path):
+        try:
+            av = pygame.image.load(av_path).convert_alpha()
+            av_scaled = pygame.transform.smoothscale(av, (52, 56))
+            surface.blit(av_scaled, av_scaled.get_rect(center=(cx, int(cy - 125 + bob))))
+            pygame.draw.circle(surface, GOLD, (cx, int(cy - 125 + bob)), 30, 2)
+        except Exception:
+            pass
+
+    draw_text_glow(surface, "🎂  AISHA'S  BAKE-OFF  CHAMPION!  🎂", 40,
+                   GOLD, GOLD_DIM, cx, int(cy - 78 + bob),
                    anchor="center", glow_radius=7)
-    draw_text(surface, "All 10 Stages Conquered!", 24, PINK,
-              cx, int(cy - 14 + bob), anchor="center")
+    draw_text(surface, "Happy Birthday Aisha — All 10 Stages Conquered!", 22, PINK,
+              cx, int(cy - 16 + bob), anchor="center")
     draw_text(surface, f"Final Score: {score:,}", 30, WHITE,
               cx, int(cy + 26 + bob), anchor="center", shadow=True)
     draw_text(surface, f"Hi-Score: {hi_score:,}", 20, GOLD_DIM,

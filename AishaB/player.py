@@ -1,4 +1,4 @@
-# player.py — Catcher-style player for Anti-Gravity Birthday Bake-Off
+# player.py — Catcher-style player for Aisha's Birthday Bake-Off
 #
 # The girl moves LEFT / RIGHT only.
 # She holds a tray ABOVE her head — that's the catch zone.
@@ -128,70 +128,58 @@ class Player:
         # Seam line
         pygame.draw.line(s, (50, 80, 150), (cx - 2, cy + 10), (cx - 2, cy + 38), 2)
 
-        # ── Torso — golden/beige top ───────────────────────────────────────────
-        torso_col = (220, 180, 100)
-        pygame.draw.rect(s, torso_col, (cx - 16, cy - 16, 32, 30))
+        # ── Torso — Aisha's cream & red floral blouse with apron ──────────────
+        blouse_col = (245, 238, 225)
+        apron_col  = (225, 180, 105)
+        pygame.draw.rect(s, blouse_col, (cx - 16, cy - 16, 32, 28))
+        # Signature red floral petal patterns from Aisha's blouse
+        for fx, fy in [(cx - 9, cy - 10), (cx + 7, cy - 8), (cx - 6, cy + 2), (cx + 8, cy + 4)]:
+            pygame.draw.circle(s, (190, 50, 40), (fx, fy), 2)
+        # Golden baking apron
+        pygame.draw.rect(s, apron_col, (cx - 12, cy - 6, 24, 18))
         # Belt
         pygame.draw.rect(s, BROWN_DARK, (cx - 16, cy + 10, 32, 5))
         pygame.draw.rect(s, GOLD, (cx - 4, cy + 10, 8, 5))   # belt buckle
-        # Collar V
-        pygame.draw.polygon(s, (200, 160, 80),
-                            [(cx - 6, cy - 16), (cx + 6, cy - 16), (cx, cy - 4)])
-        # Sleeve stub left (arm raised — holding tray)
-        pygame.draw.rect(s, torso_col, (cx - 24, cy - 36, 12, 26))   # raised L arm
-        pygame.draw.rect(s, torso_col, (cx + 12, cy -  8, 12, 20))   # right arm
 
-        # ── Head ──────────────────────────────────────────────────────────────
-        skin = (190, 140, 95)
-        pygame.draw.ellipse(s, skin, (cx - 14, cy - 50, 28, 32))
+        # Raised arms holding the tray
+        arm_col = (220, 175, 130)
+        pygame.draw.line(s, arm_col, (cx - 14, cy - 6), (cx - 24, cy - 42), 4)
+        pygame.draw.line(s, arm_col, (cx + 14, cy - 6), (cx + 24, cy - 42), 4)
 
-        # ── Long black wavy hair ───────────────────────────────────────────────
-        hair = (20, 12, 8)
-        # Crown mass
-        pygame.draw.ellipse(s, hair, (cx - 15, cy - 57, 30, 22))
-        # Long flowing left side
-        for i, (hx, hy, hw, hh) in enumerate([
-            (-18, cy - 42, 10, 18),
-            (-20, cy - 28, 12, 20),
-            (-19, cy - 10, 11, 22),
-            (-17, cy +  8, 10, 18),
-        ]):
-            pygame.draw.ellipse(s, hair, (cx + hx, hy, hw, hh))
-        # Right side shorter
-        for (hx, hy, hw, hh) in [
-            (10, cy - 42, 10, 16),
-            (11, cy - 28, 9,  18),
-            (10, cy - 12, 8,  14),
-        ]:
-            pygame.draw.ellipse(s, hair, (cx + hx, hy, hw, hh))
+        # ── Head — Aisha's Photo Attachment ───────────────────────────────────
+        head_attached = False
+        import os
+        head_path = os.path.join(os.path.dirname(__file__), "assets", "aisha_head.png")
+        if os.path.exists(head_path):
+            try:
+                head_surf = pygame.image.load(head_path).convert_alpha()
+                head_scaled = pygame.transform.smoothscale(head_surf, (44, 48))
+                s.blit(head_scaled, (cx - 22, cy - 54))
+                head_attached = True
+            except Exception:
+                pass
 
-        # ── Headband / tiara ──────────────────────────────────────────────────
-        pygame.draw.rect(s, PINK, (cx - 14, cy - 52, 28, 5))
-        # Small gem
-        pygame.draw.circle(s, CYAN, (cx, cy - 50), 4)
-        pygame.draw.circle(s, WHITE, (cx - 1, cy - 51), 1)
+        if not head_attached:
+            # Procedural fallback
+            skin = (190, 140, 95)
+            pygame.draw.ellipse(s, skin, (cx - 14, cy - 50, 28, 32))
+            hair = (20, 12, 8)
+            pygame.draw.ellipse(s, hair, (cx - 15, cy - 57, 30, 22))
+            # Pink butterfly clip
+            pygame.draw.rect(s, PINK, (cx + 3, cy - 48, 6, 5))
+            # Eyes & Smile
+            pygame.draw.circle(s, (25, 12, 5), (cx - 5, cy - 36), 3)
+            pygame.draw.circle(s, (25, 12, 5), (cx + 5, cy - 36), 3)
+            pygame.draw.arc(s, (150, 80, 40),
+                            pygame.Rect(cx - 6, cy - 28, 12, 8),
+                            math.pi + 0.4, 2 * math.pi - 0.4, 2)
 
-        # ── Party hat ─────────────────────────────────────────────────────────
-        hat_pts = [(cx + 2, cy - 70), (cx - 10, cy - 52), (cx + 14, cy - 52)]
+        # ── Birthday party hat on top of hair ─────────────────────────────────
+        hat_pts = [(cx + 2, cy - 68), (cx - 9, cy - 52), (cx + 13, cy - 52)]
         pygame.draw.polygon(s, PINK, hat_pts)
-        pygame.draw.polygon(s, (200, 60, 140), hat_pts, 2)
-        pygame.draw.rect(s, GOLD, (cx - 10, cy - 55, 24, 4))
-        # Pom-pom
-        pygame.draw.circle(s, WHITE, (cx + 2, cy - 71), 5)
-
-        # ── Eyes ──────────────────────────────────────────────────────────────
-        pygame.draw.circle(s, (25, 12, 5), (cx - 5, cy - 36), 4)
-        pygame.draw.circle(s, (25, 12, 5), (cx + 5, cy - 36), 4)
-        pygame.draw.circle(s, WHITE, (cx - 4, cy - 37), 1)
-        pygame.draw.circle(s, WHITE, (cx + 6, cy - 37), 1)
-        # Lashes
-        pygame.draw.line(s, BROWN_DARK, (cx - 9, cy - 40), (cx - 5, cy - 38), 2)
-        pygame.draw.line(s, BROWN_DARK, (cx + 5, cy - 40), (cx + 9, cy - 38), 2)
-
-        # ── Smile ─────────────────────────────────────────────────────────────
-        pygame.draw.arc(s, (150, 80, 40),
-                        pygame.Rect(cx - 6, cy - 28, 12, 8),
-                        math.pi + 0.4, 2 * math.pi - 0.4, 2)
+        pygame.draw.polygon(s, (200, 60, 140), hat_pts, 1)
+        pygame.draw.rect(s, GOLD, (cx - 9, cy - 54, 22, 3))
+        pygame.draw.circle(s, WHITE, (cx + 2, cy - 69), 3)
 
     def _draw_tray(self, surface: pygame.Surface, cx: int, cy: int):
         """Draw the silver serving tray the player holds above her head."""

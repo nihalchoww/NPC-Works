@@ -1,4 +1,4 @@
-# game.py — Main game state machine for Anti-Gravity Birthday Bake-Off (Catcher Edition)
+# game.py — Main game state machine for Aisha's Birthday Bake-Off (Catcher Edition)
 #
 # States: MENU → PLAYING → STAGE_CLEAR → PLAYING ... → GAME_OVER | WIN → MENU
 #

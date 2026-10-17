@@ -1,4 +1,4 @@
-# settings.py — Constants for Anti-Gravity Birthday Bake-Off (Catcher Edition)
+# settings.py — Constants for Aisha's Birthday Bake-Off (Catcher Edition)
 
 # ─── Screen ───────────────────────────────────────────────────────────────────
 WIDTH, HEIGHT = 1280, 720
