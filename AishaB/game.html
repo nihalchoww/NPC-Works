@@ -175,21 +175,6 @@
     box-shadow: 0 0 26px rgba(255, 215, 0, 0.85), inset 0 0 14px #ffffff;
     color: #ffffff;
   }
-
-  .drag-hint {
-    position: absolute;
-    bottom: max(20px, env(safe-area-inset-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 9px;
-    color: rgba(0, 220, 255, 0.65);
-    letter-spacing: 1px;
-    pointer-events: none;
-    text-align: center;
-    text-shadow: 0 0 8px rgba(0, 220, 255, 0.5);
-    z-index: 15;
-    transition: opacity 0.4s ease;
-  }
 </style>
 </head>
 <body>
@@ -199,7 +184,6 @@
   <canvas id="gameCanvas"></canvas>
   <button class="hud-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
   <button class="hud-btn" id="pause-btn" title="Pause / Resume">⏸</button>
-  <div class="drag-hint">GLIDE THUMB OR TAP SIDE ARROWS</div>
   <div id="touch-controls">
     <div class="thumb-zone zone-left">
       <button class="control-btn" id="btn-left" aria-label="Move Left">◀</button>
@@ -411,7 +395,6 @@
   const actionZone = document.getElementById('action-zone');
   const btnPause = document.getElementById('pause-btn');
   const btnFS = document.getElementById('fs-btn');
-  const dragHint = document.querySelector('.drag-hint');
 
   function syncUIState() {
     if (actionZone) {
@@ -427,7 +410,6 @@
       keys[code] = true;
       elem.classList.add('active');
       haptic(15);
-      if (dragHint) dragHint.style.opacity = '0';
     });
     const release = (e) => {
       e.preventDefault();
@@ -700,34 +682,23 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
-    // Silver platter
-    ctx.fillStyle = '#b0c4de';
-    ctx.fillRect(-22, 14, 44, 4);
-    // Bottom Tier sponge
+    ctx.scale(1.5, 1.5);
+    // Triangular cake wedge slice (matching mockup)
     ctx.fillStyle = '#f4a261';
-    ctx.fillRect(-18, 2, 36, 12);
-    // Cream filling
+    ctx.beginPath();
+    ctx.moveTo(-16, 12); ctx.lineTo(16, 12); ctx.lineTo(12, -4); ctx.lineTo(-12, -4);
+    ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#fff3b0';
-    ctx.fillRect(-18, 6, 36, 3);
-    // Top Tier sponge
-    ctx.fillStyle = '#f4a261';
-    ctx.fillRect(-14, -8, 28, 10);
-    ctx.fillStyle = '#fff3b0';
-    ctx.fillRect(-14, -4, 28, 2);
-    // Pink Strawberry Glaze with Drips
+    ctx.fillRect(-14, 2, 28, 4);
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(-13, -4); ctx.lineTo(13, -4); ctx.lineTo(8, -14); ctx.lineTo(-8, -14);
+    ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#ff4d6d';
-    ctx.fillRect(-15, -9, 30, 4);
-    ctx.fillRect(-13, -5, 4, 5);
-    ctx.fillRect(-4, -5, 4, 7);
-    ctx.fillRect(6, -5, 4, 6);
-    // Colorful sugar sprinkles
-    ctx.fillStyle = '#00dcff'; ctx.fillRect(-8, -7, 2, 2); ctx.fillRect(4, 3, 2, 2);
-    ctx.fillStyle = '#ffd700'; ctx.fillRect(2, -7, 2, 2); ctx.fillRect(-10, 4, 2, 2);
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(-3, -7, 2, 2); ctx.fillRect(8, 7, 2, 2);
-    // Cherry on top
+    ctx.fillRect(-10, -8, 20, 4);
     ctx.fillStyle = '#c9184a';
-    ctx.beginPath(); ctx.arc(0, -13, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(-1, -15, 2, 2);
+    ctx.beginPath(); ctx.arc(0, -17, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(-2, -19, 2, 2);
     ctx.restore();
   }
 
@@ -735,6 +706,7 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
+    ctx.scale(1.5, 1.5);
     // Plump ruby berry
     ctx.fillStyle = '#e61842';
     ctx.beginPath();
@@ -768,6 +740,7 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
+    ctx.scale(1.5, 1.5);
     // Twin Stems
     ctx.strokeStyle = '#40916c';
     ctx.lineWidth = 2;
@@ -796,6 +769,7 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
+    ctx.scale(1.5, 1.5);
     // Candle body
     ctx.fillStyle = '#00dcff';
     ctx.fillRect(-5, -6, 10, 22);
@@ -834,6 +808,7 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
+    ctx.scale(1.5, 1.5);
     // Wrapper ends
     ctx.fillStyle = '#ff6ebe';
     ctx.beginPath();
@@ -860,6 +835,7 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
+    ctx.scale(1.5, 1.5);
     // Pastry bag
     ctx.fillStyle = '#4895ef';
     ctx.beginPath();
@@ -883,6 +859,7 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
+    ctx.scale(1.5, 1.5);
     // Cast iron base
     ctx.fillStyle = '#495057';
     ctx.fillRect(-16, 10, 32, 6);
@@ -903,7 +880,7 @@
     ctx.fillRect(-12, -6, 30, 2);
     // Weight marking
     ctx.fillStyle = '#ff4646';
-    ctx.font = '7px sans-serif';
+    ctx.font = 'bold 7px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('100T', 2, 8);
     ctx.restore();
@@ -913,6 +890,7 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
+    ctx.scale(1.5, 1.5);
     // Florets
     ctx.fillStyle = '#2d6a4f';
     [[-12, -6, 9], [0, -14, 11], [12, -6, 9], [-6, -4, 8], [6, -4, 8]].forEach(([bx, by, br]) => {
@@ -939,12 +917,6 @@
     ctx.fillStyle = '#d00000';
     ctx.fillRect(-7, -3, 2, 2);
     ctx.fillRect(5, -3, 2, 2);
-    // Frowning Mouth
-    ctx.strokeStyle = '#081c15';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(-5, 4); ctx.lineTo(-2, 2); ctx.lineTo(2, 4); ctx.lineTo(5, 2);
-    ctx.stroke();
     ctx.restore();
   }
 
@@ -952,9 +924,10 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rot);
+    ctx.scale(1.5, 1.5);
     // Carton
     ctx.fillStyle = '#f8f9fa';
-    ctx.fillRect(-12, -6, 24, 26);
+    ctx.fillRect(-12, -6, 24, 28);
     ctx.fillStyle = '#e9ecef';
     ctx.beginPath();
     ctx.moveTo(-12, -6); ctx.lineTo(0, -18); ctx.lineTo(12, -6);
@@ -963,20 +936,22 @@
     ctx.fillRect(-3, -21, 6, 4);
     // Sour green label
     ctx.fillStyle = '#70e000';
-    ctx.fillRect(-10, 2, 20, 12);
+    ctx.fillRect(-11, 0, 22, 14);
     ctx.fillStyle = '#004b23';
-    ctx.font = '7px sans-serif';
+    ctx.font = 'bold 5px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('SOUR', 0, 10);
+    ctx.fillText('SOUR', 0, 6);
+    ctx.fillText('SPOILED', 0, 11);
+    ctx.fillText('MILK', 0, 16);
     // Slime drips
     ctx.fillStyle = '#38b000';
-    ctx.fillRect(-8, 18, 4, 5);
-    ctx.fillRect(2, 18, 6, 7);
+    ctx.fillRect(-9, 20, 5, 6);
+    ctx.fillRect(3, 20, 6, 8);
     // Ooze bubbles
     ctx.fillStyle = 'rgba(112, 224, 0, 0.7)';
-    const b1 = Math.sin(bt * 6) * 4;
-    ctx.beginPath(); ctx.arc(-14 + b1, -10 - (bt * 22 % 28), 3, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(14 - b1, -6 - ((bt + 0.4) * 22 % 28), 3.5, 0, Math.PI * 2); ctx.fill();
+    const b1 = Math.sin((bt || 0) * 6) * 4;
+    ctx.beginPath(); ctx.arc(-14 + b1, -10 - ((bt || 0) * 22 % 28), 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(14 - b1, -6 - (((bt || 0) + 0.4) * 22 % 28), 3.5, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
 
@@ -1078,19 +1053,36 @@
         });
       }
 
-      // Hitboxes
+      // Cake height dynamically grows with items caught
+      const cakeLayersH = (itemsCaughtStage >= 4 ? 68 : (itemsCaughtStage >= 2 ? 38 : 20)) * 1.25;
       const trayRect = {
-        x: player.x - 35,
-        y: player.y - 50 - 7,
-        w: 70,
-        h: 18
+        x: player.x - 70,
+        y: player.y - 92 * 1.25 - cakeLayersH - 14,
+        w: 140,
+        h: cakeLayersH + 32
       };
       const bodyRect = {
-        x: player.x - 16,
-        y: player.y - 20,
-        w: 32,
-        h: 70
+        x: player.x - 22,
+        y: player.y - 45,
+        w: 44,
+        h: 90
       };
+
+      // Emit animated jet spark particles downwards from boots
+      if (Math.random() < 0.65) {
+        [-15 * 1.25, 15 * 1.25].forEach(bx => {
+          particles.push({
+            x: player.x + bx + (Math.random() - 0.5) * 4,
+            y: player.y + 50 * 1.25,
+            vx: (Math.random() - 0.5) * 20,
+            vy: 110 + Math.random() * 90,
+            life: 0.22,
+            maxLife: 0.22,
+            color: Math.random() < 0.6 ? '#ffd700' : (Math.random() < 0.5 ? '#ff4da6' : '#00dcff'),
+            size: 3
+          });
+        });
+      }
 
       for (let i = items.length - 1; i >= 0; i--) {
         const item = items[i];
@@ -1103,8 +1095,8 @@
             x: item.x + (Math.random() - 0.5) * 8,
             y: item.y - 10,
             vy: -15,
-            life: 1.0,
-            color: item.isBad ? 'rgba(255, 70, 70, 0.5)' : 'rgba(0, 220, 255, 0.6)'
+            life: 0.8,
+            color: item.isBad ? 'rgba(255, 50, 70, 0.6)' : 'rgba(0, 255, 136, 0.6)'
           });
         }
 
@@ -1112,10 +1104,10 @@
         if (!item.isBad) {
           if (item.x >= trayRect.x && item.x <= trayRect.x + trayRect.w &&
               item.y >= trayRect.y && item.y <= trayRect.y + trayRect.h + 24) {
-            score += item.pts;
+            score += 100;
             itemsCaughtStage++;
-            addCollectBurst(item.x, item.y, item.color);
-            addScorePopup(item.x, item.y - 15, "+" + item.pts, COLORS.GOLD);
+            addCollectBurst(item.x, item.y, '#00ff88');
+            addScorePopup(item.x, item.y - 20, "+100", '#00ff88');
             sfxCatch();
             haptic(15);
             items.splice(i, 1);
@@ -1139,7 +1131,7 @@
               shakeTime = 0.35;
               player.invincible = 1.5;
               addCollectBurst(item.x, item.y, COLORS.RED);
-              addScorePopup(item.x, item.y - 20, "OUCH!", COLORS.RED);
+              addScorePopup(player.x, player.y - 50, "-1 LIFE", "#ff2a55");
               sfxHit();
               haptic([60, 40, 60]);
               items.splice(i, 1);
@@ -1232,27 +1224,30 @@
       ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, Math.PI * 2); ctx.stroke();
     });
 
-    // Balloons
+    // Background Balloons — Dimmed & darkened by ~70% (opacity ~28%)
+    ctx.save();
+    ctx.globalAlpha = 0.28;
     balloons.forEach(b => {
       ctx.fillStyle = b.color;
       ctx.beginPath();
       ctx.ellipse(b.x, b.y, b.sz, b.sz * 1.35, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
       ctx.beginPath();
       ctx.ellipse(b.x - b.sz * 0.35, b.y - b.sz * 0.4, b.sz * 0.3, b.sz * 0.4, -0.3, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#a0a0b4';
+      ctx.strokeStyle = 'rgba(160, 160, 180, 0.4)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(b.x, b.y + b.sz * 1.35);
-      ctx.lineTo(b.x + 5, b.y + b.sz * 1.35 + 18);
+      ctx.lineTo(b.x + 3, b.y + b.sz * 1.35 + 16);
       ctx.stroke();
     });
+    ctx.restore();
 
     // Cockpit Side panels
-    const pw = isPortrait ? 24 : 110;
-    ctx.fillStyle = '#121832';
+    const pw = 18;
+    ctx.fillStyle = '#10162f';
     ctx.fillRect(0, 0, pw, HEIGHT);
     ctx.fillRect(WIDTH - pw, 0, pw, HEIGHT);
     ctx.strokeStyle = '#00dcff';
@@ -1260,18 +1255,55 @@
     ctx.strokeRect(0, 0, pw, HEIGHT);
     ctx.strokeRect(WIDTH - pw, 0, pw, HEIGHT);
 
-    // Neon Circuit Trim Lines along walls
-    ctx.strokeStyle = 'rgba(0, 220, 255, 0.35)';
-    ctx.lineWidth = 2;
+    // Doubled-size pulsating purple neon audio waves / speakers
+    const spPulse = Math.sin(globalTime * 9) * 5;
+    const spY = HEIGHT - 150;
+
+    // Left Speaker
+    ctx.save();
+    ctx.shadowColor = '#d020ff';
+    ctx.shadowBlur = 22;
+    ctx.fillStyle = '#240638';
     ctx.beginPath();
-    ctx.moveTo(pw, 0); ctx.lineTo(pw, HEIGHT);
-    ctx.moveTo(WIDTH - pw, 0); ctx.lineTo(WIDTH - pw, HEIGHT);
+    ctx.arc(10, spY, 26, -Math.PI / 2, Math.PI / 2);
+    ctx.fill();
+    ctx.strokeStyle = '#e040ff';
+    ctx.lineWidth = 4;
     ctx.stroke();
+    const lWaves = [46 + spPulse, 68 + spPulse * 1.3, 92 + spPulse * 1.7];
+    lWaves.forEach((rw, idx) => {
+      ctx.strokeStyle = idx === 0 ? '#ff4da6' : (idx === 1 ? '#e040ff' : '#a000e0');
+      ctx.lineWidth = 4.5 - idx * 0.8;
+      ctx.beginPath();
+      ctx.arc(10, spY, rw, -Math.PI * 0.44, Math.PI * 0.44);
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    // Right Speaker
+    ctx.save();
+    ctx.shadowColor = '#d020ff';
+    ctx.shadowBlur = 22;
+    ctx.fillStyle = '#240638';
+    ctx.beginPath();
+    ctx.arc(WIDTH - 10, spY, 26, Math.PI / 2, Math.PI * 1.5);
+    ctx.fill();
+    ctx.strokeStyle = '#e040ff';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    lWaves.forEach((rw, idx) => {
+      ctx.strokeStyle = idx === 0 ? '#ff4da6' : (idx === 1 ? '#e040ff' : '#a000e0');
+      ctx.lineWidth = 4.5 - idx * 0.8;
+      ctx.beginPath();
+      ctx.arc(WIDTH - 10, spY, rw, Math.PI * 0.56, Math.PI * 1.44);
+      ctx.stroke();
+    });
+    ctx.restore();
 
     // Top & Floor Panels
-    ctx.fillStyle = '#1b244d';
+    ctx.fillStyle = '#161e42';
     ctx.fillRect(0, 0, WIDTH, 54);
-    ctx.fillStyle = '#0f142b';
+    ctx.fillStyle = '#0c1024';
     ctx.fillRect(0, HEIGHT - 50, WIDTH, 50);
     ctx.strokeStyle = '#00dcff';
     ctx.lineWidth = 2;
@@ -1280,29 +1312,58 @@
     ctx.moveTo(0, HEIGHT - 50); ctx.lineTo(WIDTH, HEIGHT - 50);
     ctx.stroke();
 
-    // Bunting ("HAPPY BIRTHDAY!")
+    // Highlighted "HAPPY BIRTHDAY!" Bunting Banner — Twice as Large
     const letters = "HAPPYBIRTHDAY!".split('');
-    const xStart = pw + 16, xEnd = WIDTH - pw - 16;
-    const fw = (xEnd - xStart) / (letters.length - 1);
+    const flagColors = ['#9b5de5', '#f15bb5', '#fee440', '#00bbf9', '#00f5d4', '#ff8500', '#9b5de5', '#f15bb5', '#fee440', '#00bbf9', '#00f5d4', '#ff8500', '#f15bb5', '#00bbf9'];
+    const xStart = pw + 12, xEnd = WIDTH - pw - 12;
+    const fw = (xEnd - xStart) / letters.length;
+    const flagW = Math.min(52, fw - 4);
+    const flagH = 58;
+
+    // Bunting white suspension cord
+    ctx.save();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(xStart, 55);
+    for (let i = 0; i < letters.length; i++) {
+      const fx = xStart + fw * (i + 0.5);
+      const sag = Math.sin((Math.PI * (i + 0.5)) / letters.length) * 16;
+      ctx.lineTo(fx, 56 + sag);
+    }
+    ctx.lineTo(xEnd, 55);
+    ctx.stroke();
+
+    // Large colourful flags with bold high-contrast letters
     letters.forEach((l, i) => {
-      const fx = xStart + fw * i;
-      const sag = Math.sin((Math.PI * (i + 1)) / (letters.length + 1)) * 14;
-      const fy = 62 + sag;
-      ctx.fillStyle = bColors[i % bColors.length];
+      const fx = xStart + fw * (i + 0.5);
+      const sag = Math.sin((Math.PI * (i + 0.5)) / letters.length) * 16;
+      const fy = 56 + sag;
+
+      // Triangular Flag
+      ctx.fillStyle = flagColors[i % flagColors.length];
       ctx.beginPath();
-      ctx.moveTo(fx - 10, fy);
-      ctx.lineTo(fx + 10, fy);
-      ctx.lineTo(fx, fy + 24);
+      ctx.moveTo(fx - flagW / 2, fy);
+      ctx.lineTo(fx + flagW / 2, fy);
+      ctx.lineTo(fx, fy + flagH);
       ctx.closePath();
       ctx.fill();
+
+      // Sharp white outline
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.8;
       ctx.stroke();
+
+      // Bold white letter with dark shadow
       ctx.fillStyle = '#ffffff';
-      ctx.font = '9px monospace';
+      ctx.font = 'bold 15px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(l, fx, fy + 14);
+      ctx.shadowColor = '#000000';
+      ctx.shadowBlur = 4;
+      ctx.fillText(l, fx, fy + 26);
+      ctx.shadowBlur = 0;
     });
+    ctx.restore();
 
     // Stardust Trails
     trails.forEach(t => {
@@ -1319,20 +1380,45 @@
       ctx.fillRect(c.x, c.y, c.sz, c.sz * 1.6);
     });
 
-    // Handcrafted 16-Bit Pixel Falling Items
+    // Falling Items with Glowing Auras
     items.forEach(item => {
+      ctx.save();
+      const trailH = 80;
+      const grad = ctx.createLinearGradient(item.x, item.y - trailH, item.x, item.y + 15);
+      if (item.isBad) {
+        // Warning-red trail / glowing halo
+        grad.addColorStop(0, 'rgba(255, 30, 60, 0)');
+        grad.addColorStop(0.65, 'rgba(255, 40, 70, 0.25)');
+        grad.addColorStop(1, 'rgba(255, 20, 50, 0.55)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(item.x - 26, item.y - trailH, 52, trailH + 20);
+        ctx.shadowColor = '#ff2040';
+        ctx.shadowBlur = 18;
+      } else {
+        // Faint glowing green trail / particle aura
+        grad.addColorStop(0, 'rgba(0, 255, 136, 0)');
+        grad.addColorStop(0.65, 'rgba(0, 255, 136, 0.22)');
+        grad.addColorStop(1, 'rgba(0, 255, 136, 0.48)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(item.x - 24, item.y - trailH, 48, trailH + 20);
+        ctx.shadowColor = '#00ff88';
+        ctx.shadowBlur = 16;
+      }
+
+      // 1.5x scaled pixel items
       if (item.kind === 'CAKE') drawCake(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'CANDY') drawCandy(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'STRAWBERRY') drawStrawberry(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'CHERRY') drawCherry(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'CANDLE') drawCandle(ctx, item.x, item.y, item.rot, globalTime);
-      else if (item.kind === 'CANDY') drawCandy(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'FROSTING') drawFrosting(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'ANVIL') drawAnvil(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'BROCCOLI') drawBroccoli(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'SPOILED_MILK') drawSpoiledMilk(ctx, item.x, item.y, item.rot, globalTime);
+      ctx.restore();
     });
 
-    // Player (Aisha Character)
+    // Playable Character (Aisha) — Scaled 1.25x with dynamic growing cake
     if (state === 'PLAYING' || state === 'STAGE_CLEAR' || state === 'PAUSED') {
       const flicker = player.invincible > 0 && Math.floor(player.invincible * 14) % 2 === 0;
       if (!flicker) {
@@ -1341,89 +1427,193 @@
         const px = player.x;
         const py = player.y + bob;
 
-        // Zero-G Boot Thruster Sparks
-        const thrust = Math.sin(globalTime * 25) * 4;
-        ctx.fillStyle = '#00dcff';
-        ctx.beginPath();
-        ctx.moveTo(px - 14, py + 46); ctx.lineTo(px - 6, py + 46); ctx.lineTo(px - 10, py + 54 + thrust);
-        ctx.closePath(); ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(px + 6, py + 46); ctx.lineTo(px + 14, py + 46); ctx.lineTo(px + 10, py + 54 + thrust);
-        ctx.closePath(); ctx.fill();
+        ctx.translate(px, py);
+        ctx.scale(1.25, 1.25);
+
+        // 1. Boot Thrusters with Animated Pixel-Jet Flame Cones
+        [-15, 15].forEach(bx => {
+          ctx.fillStyle = '#00dcff';
+          ctx.fillRect(bx - 5, 46, 10, 4);
+          const flick = (Math.sin(globalTime * 35 + bx) + 1) * 0.5;
+          const flameLen = 10 + flick * 12;
+          ctx.fillStyle = '#ff6600';
+          ctx.beginPath();
+          ctx.moveTo(bx - 5, 50); ctx.lineTo(bx + 5, 50); ctx.lineTo(bx, 50 + flameLen);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(bx - 2.5, 50); ctx.lineTo(bx + 2.5, 50); ctx.lineTo(bx, 50 + flameLen * 0.6);
+          ctx.closePath(); ctx.fill();
+        });
+
+        // 2. High-top Sneakers & Denim Jeans
+        ctx.fillStyle = COLORS.ORANGE;
+        ctx.fillRect(-18, 38, 14, 8);
+        ctx.fillRect(4, 38, 14, 8);
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(px - 11, py + 46, 2, 4);
-        ctx.fillRect(px + 9, py + 46, 2, 4);
+        ctx.fillRect(-17, 44, 12, 2);
+        ctx.fillRect(5, 44, 12, 2);
 
-        // Gleaming Silver Serving Tray
-        ctx.fillStyle = '#c5d3e8';
-        ctx.fillRect(px - 36, py - 52, 72, 8);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(px - 34, py - 52, 68, 2); // metallic sheen
-        ctx.strokeStyle = '#00dcff';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(px - 36, py - 52, 72, 8);
+        ctx.fillStyle = '#2b5894';
+        ctx.fillRect(-16, 14, 13, 25);
+        ctx.fillRect(3, 14, 13, 25);
 
-        // Raised Arms holding tray
-        ctx.strokeStyle = '#dca064';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(px - 14, py - 8); ctx.lineTo(px - 24, py - 46);
-        ctx.moveTo(px + 14, py - 8); ctx.lineTo(px + 24, py - 46);
-        ctx.stroke();
+        // Belt & Buckle
+        ctx.fillStyle = '#261405';
+        ctx.fillRect(-16, 9, 32, 5);
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(-4, 9, 8, 5);
 
-        // Signature Floral Blouse (Cream with Crimson Flower Petals)
+        // 3. Signature Floral Blouse & Baker Apron
         ctx.fillStyle = '#f8f2e6';
-        ctx.fillRect(px - 16, py - 16, 32, 28);
+        ctx.fillRect(-16, -14, 32, 24);
+        ctx.fillStyle = '#f4a261';
+        ctx.fillRect(-12, -4, 24, 14);
         ctx.fillStyle = '#c9184a';
         ctx.beginPath();
-        ctx.arc(px - 8, py - 10, 2.5, 0, Math.PI * 2);
-        ctx.arc(px + 8, py - 8, 2.5, 0, Math.PI * 2);
-        ctx.arc(px - 6, py + 2, 2, 0, Math.PI * 2);
-        ctx.arc(px + 7, py + 4, 2, 0, Math.PI * 2);
+        ctx.arc(-8, -8, 2, 0, Math.PI * 2);
+        ctx.arc(8, -6, 2, 0, Math.PI * 2);
+        ctx.arc(-6, 2, 1.8, 0, Math.PI * 2);
+        ctx.arc(7, 3, 1.8, 0, Math.PI * 2);
         ctx.fill();
 
-        // Golden Baking Apron & Belt
-        ctx.fillStyle = '#f4a261';
-        ctx.fillRect(px - 12, py - 6, 24, 18);
-        ctx.fillStyle = '#261405';
-        ctx.fillRect(px - 16, py + 8, 32, 5);
-        ctx.fillStyle = '#ffd700';
-        ctx.fillRect(px - 4, py + 8, 8, 5); // belt buckle
+        // 4. Raised Arms Reaching Up to Plate
+        ctx.strokeStyle = '#f8f2e6';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(-18, -10); ctx.lineTo(-28, -50);
+        ctx.moveTo(18, -10); ctx.lineTo(28, -50);
+        ctx.stroke();
+        ctx.strokeStyle = '#f4a261';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(-28, -50); ctx.lineTo(-36, -90);
+        ctx.moveTo(28, -50); ctx.lineTo(36, -90);
+        ctx.stroke();
 
-        // Denim Jeans & High-top Sneakers
-        ctx.fillStyle = '#2b5894';
-        ctx.fillRect(px - 16, py + 13, 14, 26);
-        ctx.fillRect(px + 2, py + 13, 14, 26);
-        ctx.fillStyle = COLORS.ORANGE;
-        ctx.fillRect(px - 18, py + 39, 14, 8);
-        ctx.fillRect(px + 4, py + 39, 14, 8);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(px - 17, py + 45, 12, 2); // soles
-        ctx.fillRect(px + 5, py + 45, 12, 2);
+        // 5. Aisha Head — Cropped into an oval with a blue retro outline
+        const headY = -36;
+        const headRx = 20;
+        const headRy = 26;
 
-        // Aisha's Attached Face Photo (High-quality crisp blend with forehead butterfly)
+        ctx.save();
+        ctx.shadowColor = '#00dcff';
+        ctx.shadowBlur = 10;
+        ctx.strokeStyle = '#00dcff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, headY, headRx, headRy, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(0, headY, headRx, headRy, 0, 0, Math.PI * 2);
+        ctx.clip();
         if (aishaHead.complete && aishaHead.naturalWidth > 0) {
-          ctx.drawImage(aishaHead, px - 24, py - 56, 48, 54);
-        } else {
-          ctx.fillStyle = '#110d18';
-          ctx.beginPath(); ctx.arc(px, py - 26, 17, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#ffdca8';
-          ctx.beginPath(); ctx.arc(px, py - 24, 12, 0, Math.PI * 2); ctx.fill();
+          ctx.drawImage(aishaHead, -headRx - 2, headY - headRy - 2, (headRx + 2) * 2, (headRy + 3) * 2);
+        } else if (aishaPortrait.complete && aishaPortrait.naturalWidth > 0) {
+          ctx.drawImage(aishaPortrait, -headRx - 2, headY - headRy - 2, (headRx + 2) * 2, (headRy + 3) * 2);
+        }
+        ctx.restore();
+
+        // 6. Pink Party Hat Seated Directly on Top of Hair
+        const hatBaseY = headY - headRy + 3;
+        const hatTipY = hatBaseY - 26;
+        ctx.fillStyle = '#ff4da6';
+        ctx.beginPath();
+        ctx.moveTo(-13, hatBaseY);
+        ctx.lineTo(13, hatBaseY);
+        ctx.lineTo(0, hatTipY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-5, hatBaseY - 9, 3, 3);
+        ctx.fillRect(4, hatBaseY - 14, 3, 3);
+        ctx.fillRect(-1, hatBaseY - 20, 2, 2);
+        ctx.beginPath();
+        ctx.arc(0, hatTipY - 2, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 7. Wide Silver Catch Tray Held Right Above Party Hat
+        const trayW = 110;
+        const trayH = 10;
+        const trayY = -92;
+        ctx.fillStyle = '#b0c4de';
+        ctx.fillRect(-trayW / 2, trayY, trayW, trayH);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-trayW / 2 + 4, trayY + 1, trayW - 8, 2);
+        ctx.fillStyle = '#6c757d';
+        ctx.fillRect(-trayW / 2, trayY + trayH - 2, trayW, 2);
+        ctx.strokeStyle = '#00dcff';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(-trayW / 2, trayY, trayW, trayH);
+
+        // 8. Multi-Layered Cake Dynamically Growing on Tray
+        // Tier 1 Base Layer (always present)
+        const t1W = 76, t1H = 18;
+        const t1Y = trayY - t1H;
+        ctx.fillStyle = '#ff4da6';
+        ctx.fillRect(-t1W / 2, t1Y, t1W, t1H);
+        ctx.fillStyle = '#00dcff';
+        for (let ix = -t1W / 2; ix < t1W / 2; ix += 8) {
+          ctx.beginPath();
+          ctx.arc(ix + 4, t1Y + t1H, 4, Math.PI, 0);
+          ctx.fill();
+        }
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-24, t1Y + 5, 3, 3);
+        ctx.fillRect(-4, t1Y + 8, 3, 3);
+        ctx.fillRect(16, t1Y + 4, 3, 3);
+
+        // Tier 2 Layer (grows if itemsCaughtStage >= 2)
+        if (itemsCaughtStage >= 2) {
+          const t2W = 58, t2H = 16;
+          const t2Y = t1Y - t2H;
+          ctx.fillStyle = '#f4a261';
+          ctx.fillRect(-t2W / 2, t2Y, t2W, t2H);
+          ctx.fillStyle = '#fff3b0';
+          ctx.fillRect(-t2W / 2, t2Y + 4, t2W, 3);
+          ctx.fillStyle = '#ff4da6';
+          for (let ix = -t2W / 2; ix < t2W / 2; ix += 8) {
+            ctx.beginPath();
+            ctx.arc(ix + 4, t2Y + t2H, 3.5, Math.PI, 0);
+            ctx.fill();
+          }
         }
 
-        // Party Hat on top of hair
-        ctx.fillStyle = COLORS.PINK;
-        ctx.beginPath();
-        ctx.moveTo(px - 8, py - 50); ctx.lineTo(px + 10, py - 50); ctx.lineTo(px + 1, py - 68);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath(); ctx.arc(px + 1, py - 69, 3.5, 0, Math.PI * 2); ctx.fill();
+        // Tier 3 Layer (grows if itemsCaughtStage >= 4)
+        if (itemsCaughtStage >= 4) {
+          const t3W = 42, t3H = 14;
+          const t3Y = t1Y - 16 - t3H;
+          ctx.fillStyle = '#c040ff';
+          ctx.fillRect(-t3W / 2, t3Y, t3W, t3H);
+          ctx.fillStyle = '#00dcff';
+          ctx.fillRect(-t3W / 2, t3Y + 3, t3W, 2);
+        }
+
+        // Birthday Candles (flickering on top of highest layer)
+        const topY = itemsCaughtStage >= 4 ? (t1Y - 30) : (itemsCaughtStage >= 2 ? (t1Y - 16) : t1Y);
+        const candleColors = ['#ff4da6', '#ffd700', '#00dcff'];
+        [-12, 0, 12].forEach((cx, idx) => {
+          ctx.fillStyle = candleColors[idx % candleColors.length];
+          ctx.fillRect(cx - 2, topY - 12, 4, 12);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(cx - 0.5, topY - 14, 1, 2);
+          const cFlick = Math.sin(globalTime * 18 + idx) * 1.5;
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath();
+          ctx.ellipse(cx, topY - 17 + cFlick * 0.5, 2.5, 4, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(cx - 1, topY - 18 + cFlick * 0.5, 2, 2);
+        });
 
         ctx.restore();
       }
     }
 
-    // Particles
+    // Particles & Floating Text Popups
     particles.forEach(p => {
       ctx.save();
       const alpha = Math.max(0, p.life / p.maxLife);
@@ -1445,61 +1635,82 @@
     });
 
     // ─── RETRO 16-BIT HUD ─────────────────────────────────────────────
-    // Top Score Box
-    ctx.fillStyle = COLORS.GOLD;
-    ctx.font = '12px "Press Start 2P", monospace';
+    // Top Score Box — Sharp Bright Yellow
+    ctx.save();
+    ctx.fillStyle = '#ffd700';
+    ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
+    ctx.shadowBlur = 8;
+    ctx.font = '14px "Press Start 2P", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText("SCORE: " + String(score).padStart(6, "0"), 60, 36);
+    ctx.fillText("SCORE: " + String(score).padStart(6, "0"), pw + 32, 35);
+    ctx.restore();
 
-    // Center Timer with Neon Border
+    // Center Timer — Sharp Bright Cyan
+    ctx.save();
     const secs = Math.max(0, Math.ceil(timeLeft));
     const tStr = "0:" + String(secs).padStart(2, "0");
-    const tCol = (timeLeft < 10 && Math.floor(globalTime * 4) % 2 === 0) ? COLORS.RED : COLORS.CYAN_GLOW;
+    const tCol = (timeLeft < 10 && Math.floor(globalTime * 4) % 2 === 0) ? '#ff2a55' : '#00dcff';
     ctx.fillStyle = tCol;
-    ctx.font = '14px "Press Start 2P", monospace';
+    ctx.shadowColor = tCol;
+    ctx.shadowBlur = 8;
+    ctx.font = '16px "Press Start 2P", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(tStr, WIDTH / 2, 36);
+    ctx.fillText(tStr, WIDTH / 2, 35);
+    ctx.restore();
 
-    // Pixel Hearts (Lives)
-    ctx.textAlign = 'right';
-    const hx = WIDTH - 64;
+    // Pixel Hearts (Lives) — Top Right
+    const hx = WIDTH - pw - 60;
     for (let i = 0; i < MAX_LIVES; i++) {
       const active = i < lives;
-      const lx = hx - (MAX_LIVES - 1 - i) * 26;
+      const lx = hx - (MAX_LIVES - 1 - i) * 28;
+      ctx.save();
       ctx.fillStyle = active ? '#ff2a55' : '#331520';
-      // Pixel Heart
-      ctx.fillRect(lx - 10, 24, 8, 8);
-      ctx.fillRect(lx - 2, 24, 8, 8);
-      ctx.fillRect(lx - 8, 32, 12, 6);
-      ctx.fillRect(lx - 5, 38, 6, 4);
+      if (active) {
+        ctx.shadowColor = '#ff2a55';
+        ctx.shadowBlur = 8;
+      }
+      ctx.fillRect(lx - 10, 22, 9, 9);
+      ctx.fillRect(lx - 1, 22, 9, 9);
+      ctx.fillRect(lx - 9, 31, 16, 7);
+      ctx.fillRect(lx - 5, 38, 8, 4);
       if (active) {
         ctx.fillStyle = '#ffb3c6';
-        ctx.fillRect(lx - 8, 26, 3, 3); // sheen
+        ctx.fillRect(lx - 8, 24, 3, 3);
       }
+      ctx.restore();
     }
 
-    // Bottom Hologram Wave & Mode Badge
-    ctx.fillStyle = COLORS.CYAN;
-    ctx.font = '10px "Press Start 2P", monospace';
+    // Bottom Bar: "ZERO-G MODE" in Neon Cyan & "STAGE X/10" in Neon Orange
+    ctx.save();
+    ctx.fillStyle = '#00dcff';
+    ctx.shadowColor = '#00dcff';
+    ctx.shadowBlur = 10;
+    ctx.font = '13px "Press Start 2P", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText("ZERO-G MODE", pw + 12, HEIGHT - 20);
+    ctx.fillText("ZERO-G MODE", pw + 18, HEIGHT - 20);
+    ctx.restore();
 
-    // Animated sine wave oscillation inside bottom bar
-    ctx.strokeStyle = 'rgba(0, 220, 255, 0.4)';
-    ctx.lineWidth = 1.5;
+    // Animated Neon Sine Wave Oscillation
+    ctx.strokeStyle = '#00dcff';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    const waveStart = pw + 160;
-    const waveWidth = Math.max(100, WIDTH - pw * 2 - 340);
+    const waveStart = pw + 180;
+    const waveWidth = Math.max(100, WIDTH - pw * 2 - 370);
     for (let wx = 0; wx < waveWidth; wx += 4) {
-      const wy = HEIGHT - 24 + Math.sin(wx * 0.08 + globalTime * 6) * 6;
+      const wy = HEIGHT - 23 + Math.sin(wx * 0.08 + globalTime * 7) * 7;
       if (wx === 0) ctx.moveTo(waveStart + wx, wy);
       else ctx.lineTo(waveStart + wx, wy);
     }
     ctx.stroke();
 
-    ctx.fillStyle = COLORS.GOLD;
+    ctx.save();
+    ctx.fillStyle = '#ff9900';
+    ctx.shadowColor = '#ffaa00';
+    ctx.shadowBlur = 10;
+    ctx.font = '13px "Press Start 2P", monospace';
     ctx.textAlign = 'right';
-    ctx.fillText("STAGE " + stage + "/" + TOTAL_STAGES, WIDTH - pw - 12, HEIGHT - 20);
+    ctx.fillText("STAGE " + stage + "/" + TOTAL_STAGES, WIDTH - pw - 18, HEIGHT - 20);
+    ctx.restore();
 
     // ─── OVERLAY SCREENS ──────────────────────────────────────────────
     const boxW = Math.min(WIDTH - 36, 680);
