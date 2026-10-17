@@ -398,15 +398,22 @@ def draw_menu(surface: pygame.Surface, starfield: Starfield,
                    (br.left + 14, br.bottom - 14), (br.right - 14, br.bottom - 14)]:
         draw_star(surface, GOLD, sx, sy, 12, 6, points=5, angle_offset=t * 1.8)
 
-    # Aisha Avatar Badge
+    # Aisha Hero Portrait Centerpiece
     import os
-    av_path = os.path.join(os.path.dirname(__file__), "assets", "aisha_head.png")
-    if os.path.exists(av_path):
+    port_path = os.path.join(os.path.dirname(__file__), "assets", "aisha_portrait.jpg")
+    head_path = os.path.join(os.path.dirname(__file__), "assets", "aisha_head.png")
+    target_img = port_path if os.path.exists(port_path) else head_path
+    if os.path.exists(target_img):
         try:
-            av = pygame.image.load(av_path).convert_alpha()
-            av_scaled = pygame.transform.smoothscale(av, (52, 56))
-            surface.blit(av_scaled, av_scaled.get_rect(center=(cx, cy - 135)))
-            pygame.draw.circle(surface, GOLD, (cx, cy - 135), 30, 2)
+            port = pygame.image.load(target_img).convert_alpha()
+            # 120 x 160 (3:4 ratio)
+            port_scaled = pygame.transform.smoothscale(port, (120, 160))
+            rect = port_scaled.get_rect(center=(cx, cy - 90))
+            # Background & Shadow
+            pygame.draw.rect(surface, (10, 6, 32), rect.inflate(8, 8), border_radius=10)
+            surface.blit(port_scaled, rect)
+            pygame.draw.rect(surface, GOLD, rect.inflate(8, 8), 3, border_radius=10)
+            pygame.draw.rect(surface, CYAN, rect.inflate(2, 2), 1, border_radius=8)
         except Exception:
             pass
 

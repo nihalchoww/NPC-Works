@@ -102,57 +102,99 @@ html = """<!DOCTYPE html>
   #touch-controls {
     display: none;
     position: absolute;
-    bottom: max(18px, env(safe-area-inset-bottom));
-    left: 0;
+    inset: 0;
     width: 100%;
-    padding: 0 22px;
-    justify-content: space-between;
-    align-items: flex-end;
+    height: 100%;
     pointer-events: none;
     z-index: 20;
   }
   @media (pointer: coarse), (max-width: 900px) {
-    #touch-controls { display: flex; }
+    #touch-controls { display: block; }
   }
-  .d-pad {
-    display: flex;
-    gap: 14px;
+
+  /* Left & Right moving icons shifted to the left and right middle sides of the screen */
+  .thumb-zone {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     pointer-events: auto;
+    z-index: 25;
   }
+  .zone-left {
+    left: max(16px, env(safe-area-inset-left));
+  }
+  .zone-right {
+    right: max(16px, env(safe-area-inset-right));
+  }
+
   .control-btn {
-    width: 72px;
-    height: 72px;
-    border-radius: 36px;
-    background: rgba(10, 20, 55, 0.65);
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: rgba(14, 18, 52, 0.75);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 2px solid #00dcff;
+    border: 2.5px solid #00dcff;
     color: #00dcff;
-    font-size: 26px;
+    font-size: 30px;
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), inset 0 0 14px rgba(0, 220, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 16px rgba(0, 220, 255, 0.35), inset 0 0 14px rgba(0, 220, 255, 0.2);
     touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 0.08s ease, background 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
   }
   .control-btn:active, .control-btn.active {
     background: rgba(0, 220, 255, 0.45);
-    color: #fff;
-    transform: scale(0.92);
-    box-shadow: 0 0 24px rgba(0, 220, 255, 0.7);
+    color: #ffffff;
+    border-color: #ffffff;
+    transform: scale(0.90);
+    box-shadow: 0 0 28px rgba(0, 220, 255, 0.9), inset 0 0 16px #ffffff;
   }
-  .drag-hint {
+
+  /* Action button (START / RETRY) at bottom center for menus */
+  .action-zone {
     position: absolute;
-    bottom: max(96px, calc(env(safe-area-inset-bottom) + 82px));
+    bottom: max(18px, env(safe-area-inset-bottom));
     left: 50%;
     transform: translateX(-50%);
-    font-size: 10px;
+    pointer-events: auto;
+    z-index: 22;
+  }
+  .btn-action {
+    width: auto;
+    min-width: 140px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 24px;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.25);
+  }
+  .btn-action:active, .btn-action.active {
+    background: rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 26px rgba(255, 215, 0, 0.85), inset 0 0 14px #ffffff;
+    color: #ffffff;
+  }
+
+  .drag-hint {
+    position: absolute;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
     color: rgba(0, 220, 255, 0.65);
     letter-spacing: 1px;
     pointer-events: none;
     text-align: center;
     text-shadow: 0 0 8px rgba(0, 220, 255, 0.5);
     z-index: 15;
+    transition: opacity 0.4s ease;
   }
 </style>
 </head>
@@ -163,14 +205,16 @@ html = """<!DOCTYPE html>
   <canvas id="gameCanvas"></canvas>
   <button class="hud-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
   <button class="hud-btn" id="pause-btn" title="Pause / Resume">⏸</button>
-  <div class="drag-hint">GLIDE THUMB OR TAP ARROWS</div>
+  <div class="drag-hint">GLIDE THUMB OR TAP SIDE ARROWS</div>
   <div id="touch-controls">
-    <div class="d-pad">
-      <button class="control-btn" id="btn-left">◀</button>
-      <button class="control-btn" id="btn-right">▶</button>
+    <div class="thumb-zone zone-left">
+      <button class="control-btn" id="btn-left" aria-label="Move Left">◀</button>
     </div>
-    <div style="pointer-events:auto;">
-      <button class="control-btn" id="btn-action" style="width:88px; font-size:11px; border-radius:24px;">START</button>
+    <div class="thumb-zone zone-right">
+      <button class="control-btn" id="btn-right" aria-label="Move Right">▶</button>
+    </div>
+    <div class="action-zone" id="action-zone">
+      <button class="control-btn btn-action" id="btn-action">START</button>
     </div>
   </div>
 </div>
@@ -180,9 +224,12 @@ html = """<!DOCTYPE html>
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
 
-  // Load Aisha Head Avatar
-  const aishaImg = new Image();
-  aishaImg.src = "data:image/png;base64," + "%%AISHA_B64%%";
+  // Load Aisha Portrait & Head Sprites
+  const aishaPortrait = new Image();
+  aishaPortrait.src = "data:image/jpeg;base64,%%AISHA_PORTRAIT_B64%%";
+
+  const aishaHead = new Image();
+  aishaHead.src = "data:image/png;base64,%%AISHA_HEAD_B64%%";
 
   // Web Audio Synthesizer (Retro 16-bit arcade sound chip)
   let audioCtx = null;
@@ -367,16 +414,26 @@ html = """<!DOCTYPE html>
   const btnL = document.getElementById('btn-left');
   const btnR = document.getElementById('btn-right');
   const btnAction = document.getElementById('btn-action');
+  const actionZone = document.getElementById('action-zone');
   const btnPause = document.getElementById('pause-btn');
   const btnFS = document.getElementById('fs-btn');
+  const dragHint = document.querySelector('.drag-hint');
+
+  function syncUIState() {
+    if (actionZone) {
+      actionZone.style.display = (state === 'PLAYING') ? 'none' : 'block';
+    }
+  }
 
   function bindBtn(elem, code) {
     elem.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       initAudio();
       keys[code] = true;
       elem.classList.add('active');
       haptic(15);
+      if (dragHint) dragHint.style.opacity = '0';
     });
     const release = (e) => {
       e.preventDefault();
@@ -385,25 +442,30 @@ html = """<!DOCTYPE html>
     };
     elem.addEventListener('pointerup', release);
     elem.addEventListener('pointercancel', release);
+    elem.addEventListener('pointerleave', release);
   }
   bindBtn(btnL, 'ArrowLeft');
   bindBtn(btnR, 'ArrowRight');
 
   btnAction.addEventListener('pointerdown', (e) => {
     e.preventDefault();
+    e.stopPropagation();
     initAudio();
     haptic(25);
     if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
     else if (state === 'PLAYING') state = 'PAUSED';
     else if (state === 'PAUSED') state = 'PLAYING';
+    syncUIState();
   });
 
   btnPause.addEventListener('click', (e) => {
     e.preventDefault();
+    e.stopPropagation();
     initAudio();
     haptic(20);
     if (state === 'PLAYING') state = 'PAUSED';
     else if (state === 'PAUSED') state = 'PLAYING';
+    syncUIState();
   });
 
   btnFS.addEventListener('click', () => {
@@ -536,6 +598,7 @@ html = """<!DOCTYPE html>
     targetX = player.x;
     state = 'PLAYING';
     btnAction.textContent = 'PAUSE';
+    syncUIState();
   }
 
   function nextStage() {
@@ -550,11 +613,13 @@ html = """<!DOCTYPE html>
       btnAction.textContent = 'AGAIN';
       sfxWin();
       haptic([40, 50, 40, 50, 100]);
+      syncUIState();
     } else {
       itemsCaughtStage = 0;
       timeLeft = STAGE_DURATION;
       items = [];
       state = 'PLAYING';
+      syncUIState();
     }
   }
 
@@ -566,9 +631,76 @@ html = """<!DOCTYPE html>
     state = 'GAME_OVER';
     btnAction.textContent = 'RETRY';
     haptic([100, 80, 120]);
+    syncUIState();
   }
 
   // ─── 16-BIT RETRO PIXEL SPRITE RENDERERS ──────────────────────────────
+
+  function drawAishaPortrait(ctx, x, y, width, height, floatY) {
+    const py = y + (floatY || 0);
+    const radius = 14;
+
+    // Glowing drop shadow & bezel
+    ctx.save();
+    ctx.shadowColor = 'rgba(255, 77, 166, 0.65)';
+    ctx.shadowBlur = 24;
+    ctx.fillStyle = '#0a0620';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x - width / 2, py - height / 2, width, height, radius);
+    else ctx.rect(x - width / 2, py - height / 2, width, height);
+    ctx.fill();
+
+    // Gold arcade border
+    ctx.strokeStyle = COLORS.GOLD;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.restore();
+
+    // Clip & draw Aisha's actual photo
+    if (aishaPortrait.complete && aishaPortrait.naturalWidth > 0) {
+      ctx.save();
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x - width / 2, py - height / 2, width, height, radius);
+      else ctx.rect(x - width / 2, py - height / 2, width, height);
+      ctx.clip();
+      ctx.drawImage(aishaPortrait, x - width / 2, py - height / 2, width, height);
+      ctx.restore();
+    }
+
+    // Inner cyan neon rim
+    ctx.strokeStyle = COLORS.CYAN;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x - width / 2 + 3, py - height / 2 + 3, width - 6, height - 6, radius - 2);
+    else ctx.rect(x - width / 2 + 3, py - height / 2 + 3, width - 6, height - 6);
+    ctx.stroke();
+
+    // 4 Corner Gold Gems
+    const corners = [
+      [x - width / 2 + 8, py - height / 2 + 8],
+      [x + width / 2 - 16, py - height / 2 + 8],
+      [x - width / 2 + 8, py + height / 2 - 16],
+      [x + width / 2 - 16, py + height / 2 - 16]
+    ];
+    corners.forEach(([cx, cy]) => {
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.fillRect(cx, cy, 8, 8);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(cx + 2, cy + 2, 4, 4);
+    });
+
+    // Orbiting Sparkles around portrait corners
+    const t = globalTime * 3;
+    for (let i = 0; i < 4; i++) {
+      const angle = t + (i * Math.PI / 2);
+      const orbitR = 12;
+      const [cx, cy] = corners[i];
+      const sx = cx + 4 + Math.cos(angle) * orbitR;
+      const sy = cy + 4 + Math.sin(angle) * orbitR;
+      ctx.fillStyle = (i % 2 === 0) ? COLORS.GOLD : COLORS.PINK;
+      ctx.fillRect(sx - 2, sy - 2, 4, 4);
+    }
+  }
 
   function drawCake(ctx, x, y, rot) {
     ctx.save();
@@ -1275,9 +1407,9 @@ html = """<!DOCTYPE html>
         ctx.fillRect(px - 17, py + 45, 12, 2); // soles
         ctx.fillRect(px + 5, py + 45, 12, 2);
 
-        // Aisha's Attached Face Photo (High-quality crisp blend)
-        if (aishaImg.complete && aishaImg.naturalWidth > 0) {
-          ctx.drawImage(aishaImg, px - 22, py - 52, 44, 48);
+        // Aisha's Attached Face Photo (High-quality crisp blend with forehead butterfly)
+        if (aishaHead.complete && aishaHead.naturalWidth > 0) {
+          ctx.drawImage(aishaHead, px - 24, py - 56, 48, 54);
         } else {
           ctx.fillStyle = '#110d18';
           ctx.beginPath(); ctx.arc(px, py - 26, 17, 0, Math.PI * 2); ctx.fill();
@@ -1381,54 +1513,60 @@ html = """<!DOCTYPE html>
 
     if (state === 'MENU') {
       btnAction.textContent = 'START';
-      ctx.fillStyle = 'rgba(10, 6, 32, 0.94)';
-      ctx.fillRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      const boxW = 660;
+      const boxH = 530;
+      const boxX = WIDTH / 2 - boxW / 2;
+      const boxY = HEIGHT / 2 - boxH / 2;
+
+      ctx.fillStyle = 'rgba(10, 6, 32, 0.95)';
+      ctx.fillRect(boxX, boxY, boxW, boxH);
       ctx.strokeStyle = COLORS.GOLD;
       ctx.lineWidth = 4;
-      ctx.strokeRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      ctx.strokeRect(boxX, boxY, boxW, boxH);
 
       // Gold Corner Accent Pixels
       ctx.fillStyle = COLORS.CYAN;
-      [[-boxW/2, -boxH/2], [boxW/2 - 12, -boxH/2], [-boxW/2, boxH/2 - 12], [boxW/2 - 12, boxH/2 - 12]].forEach(([cxo, cyo]) => {
-        ctx.fillRect(WIDTH / 2 + cxo, HEIGHT / 2 + cyo, 12, 12);
+      [[boxX, boxY], [boxX + boxW - 12, boxY], [boxX, boxY + boxH - 12], [boxX + boxW - 12, boxY + boxH - 12]].forEach(([cxo, cyo]) => {
+        ctx.fillRect(cxo, cyo, 12, 12);
       });
 
-      // Aisha Avatar on Menu
-      if (aishaImg.complete && aishaImg.naturalWidth > 0) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(WIDTH / 2, HEIGHT / 2 - boxH / 2 + 58, 38, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(aishaImg, WIDTH / 2 - 38, HEIGHT / 2 - boxH / 2 + 18, 76, 84);
-        ctx.restore();
-        ctx.strokeStyle = COLORS.GOLD;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(WIDTH / 2, HEIGHT / 2 - boxH / 2 + 58, 38, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
+      // Top Title Banner
       ctx.fillStyle = COLORS.GOLD;
       ctx.font = '18px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("AISHA'S", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 130);
+      ctx.fillText("★ AISHA'S ★", WIDTH / 2, boxY + 36);
+
       ctx.fillStyle = COLORS.PINK;
-      ctx.font = '14px "Press Start 2P", monospace';
-      ctx.fillText("BIRTHDAY BAKE-OFF!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 165);
+      ctx.font = '15px "Press Start 2P", monospace';
+      ctx.fillText("BIRTHDAY BAKE-OFF!", WIDTH / 2, boxY + 64);
 
-      ctx.fillStyle = '#d0d8f0';
+      // Centerpiece Portrait of Aisha (Floating 16-bit framed portrait)
+      const floatY = Math.sin(globalTime * 2.2) * 5;
+      const portW = 180;
+      const portH = 240;
+      const portY = boxY + 200;
+      drawAishaPortrait(ctx, WIDTH / 2, portY, portW, portH, floatY);
+
+      // Birthday Girl Ribbon Tag
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.font = '11px "Press Start 2P", monospace';
+      ctx.fillText("★ THE BIRTHDAY GIRL ★", WIDTH / 2, portY + portH / 2 + 22 + floatY);
+
+      // Instructions
+      ctx.fillStyle = '#c8d4f0';
       ctx.font = '10px "Press Start 2P", monospace';
-      ctx.fillText("CATCH CAKE - DODGE HAZARDS!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 215);
+      ctx.fillText("CATCH FALLING CAKES - DODGE ANVILS!", WIDTH / 2, boxY + 396);
 
-      if (Math.floor(globalTime * 2.5) % 2 === 0) {
-        ctx.fillStyle = COLORS.CYAN_GLOW;
-        ctx.font = '14px "Press Start 2P", monospace';
-        ctx.fillText("TAP SCREEN TO PLAY!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 280);
-      }
+      // Flashing Start Prompt
+      const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+      ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
+      ctx.font = '14px "Press Start 2P", monospace';
+      ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + 440);
 
-      ctx.fillStyle = '#a0b0d0';
+      // Controls hint
+      ctx.fillStyle = '#859bb8';
       ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("SLIDE THUMB OR USE ARROWS", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 340);
+      ctx.fillText("BEST: " + hiScore.toLocaleString() + "   |   TAP ARROWS OR GLIDE THUMB", WIDTH / 2, boxY + 485);
     } else if (state === 'PAUSED') {
       btnAction.textContent = 'RESUME';
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -1452,61 +1590,91 @@ html = """<!DOCTYPE html>
       ctx.fillText("GET READY...", WIDTH / 2, HEIGHT / 2 + 35);
     } else if (state === 'GAME_OVER') {
       btnAction.textContent = 'RETRY';
-      ctx.fillStyle = 'rgba(45, 5, 12, 0.94)';
-      ctx.fillRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      const boxW = 660;
+      const boxH = 530;
+      const boxX = WIDTH / 2 - boxW / 2;
+      const boxY = HEIGHT / 2 - boxH / 2;
+
+      ctx.fillStyle = 'rgba(45, 5, 12, 0.95)';
+      ctx.fillRect(boxX, boxY, boxW, boxH);
       ctx.strokeStyle = COLORS.RED;
       ctx.lineWidth = 4;
-      ctx.strokeRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+      // Corner Accents
+      ctx.fillStyle = COLORS.GOLD;
+      [[boxX, boxY], [boxX + boxW - 12, boxY], [boxX, boxY + boxH - 12], [boxX + boxW - 12, boxY + boxH - 12]].forEach(([cxo, cyo]) => {
+        ctx.fillRect(cxo, cyo, 12, 12);
+      });
 
       ctx.fillStyle = COLORS.RED;
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("CAKE DISASTER!", WIDTH / 2, HEIGHT / 2 - 60);
+      ctx.fillText("CAKE DISASTER!", WIDTH / 2, boxY + 40);
+
+      // Aisha Portrait on game over
+      drawAishaPortrait(ctx, WIDTH / 2, boxY + 185, 135, 180, 0);
+
+      ctx.fillStyle = COLORS.PINK;
+      ctx.font = '11px "Press Start 2P", monospace';
+      ctx.fillText("DON'T GIVE UP ON AISHA'S CAKE!", WIDTH / 2, boxY + 300);
+
       ctx.fillStyle = COLORS.WHITE;
       ctx.font = '12px "Press Start 2P", monospace';
-      ctx.fillText("Score: " + score.toLocaleString(), WIDTH / 2, HEIGHT / 2 - 10);
+      ctx.fillText("Score: " + score.toLocaleString(), WIDTH / 2, boxY + 348);
       ctx.fillStyle = COLORS.GOLD;
-      ctx.fillText("Hi-Score: " + hiScore.toLocaleString(), WIDTH / 2, HEIGHT / 2 + 25);
+      ctx.fillText("Hi-Score: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 382);
 
-      ctx.fillStyle = COLORS.CYAN;
-      ctx.font = '13px "Press Start 2P", monospace';
-      ctx.fillText("TAP TO RETRY", WIDTH / 2, HEIGHT / 2 + 80);
+      const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+      ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
+      ctx.font = '14px "Press Start 2P", monospace';
+      ctx.fillText("▶ TAP TO RETRY ◀", WIDTH / 2, boxY + 440);
     } else if (state === 'WIN') {
       btnAction.textContent = 'AGAIN';
-      ctx.fillStyle = 'rgba(25, 20, 5, 0.94)';
-      ctx.fillRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      const boxW = 660;
+      const boxH = 530;
+      const boxX = WIDTH / 2 - boxW / 2;
+      const boxY = HEIGHT / 2 - boxH / 2;
+
+      ctx.fillStyle = 'rgba(10, 6, 32, 0.95)';
+      ctx.fillRect(boxX, boxY, boxW, boxH);
       ctx.strokeStyle = COLORS.GOLD;
       ctx.lineWidth = 4;
-      ctx.strokeRect(WIDTH / 2 - boxW / 2, HEIGHT / 2 - boxH / 2, boxW, boxH);
+      ctx.strokeRect(boxX, boxY, boxW, boxH);
 
-      if (aishaImg.complete && aishaImg.naturalWidth > 0) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(WIDTH / 2, HEIGHT / 2 - boxH / 2 + 58, 38, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(aishaImg, WIDTH / 2 - 38, HEIGHT / 2 - boxH / 2 + 18, 76, 84);
-        ctx.restore();
-        ctx.strokeStyle = COLORS.GOLD;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(WIDTH / 2, HEIGHT / 2 - boxH / 2 + 58, 38, 0, Math.PI * 2);
-        ctx.stroke();
-      }
+      // Gold Corner Accent Pixels
+      ctx.fillStyle = COLORS.CYAN;
+      [[boxX, boxY], [boxX + boxW - 12, boxY], [boxX, boxY + boxH - 12], [boxX + boxW - 12, boxY + boxH - 12]].forEach(([cxo, cyo]) => {
+        ctx.fillRect(cxo, cyo, 12, 12);
+      });
 
       ctx.fillStyle = COLORS.GOLD;
       ctx.font = '18px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("CHAMPION!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 130);
-      ctx.fillStyle = COLORS.PINK;
-      ctx.font = '12px "Press Start 2P", monospace';
-      ctx.fillText("Happy Birthday Aisha!", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 168);
-      ctx.fillStyle = COLORS.WHITE;
-      ctx.font = '11px "Press Start 2P", monospace';
-      ctx.fillText("Final Score: " + score.toLocaleString(), WIDTH / 2, HEIGHT / 2 - boxH / 2 + 215);
+      ctx.fillText("★ CHAMPION BAKER! ★", WIDTH / 2, boxY + 36);
 
-      ctx.fillStyle = COLORS.CYAN;
+      ctx.fillStyle = COLORS.PINK;
+      ctx.font = '15px "Press Start 2P", monospace';
+      ctx.fillText("HAPPY BIRTHDAY AISHA! 🎂", WIDTH / 2, boxY + 64);
+
+      const floatY = Math.sin(globalTime * 2.2) * 5;
+      const portW = 180;
+      const portH = 240;
+      const portY = boxY + 200;
+      drawAishaPortrait(ctx, WIDTH / 2, portY, portW, portH, floatY);
+
+      ctx.fillStyle = COLORS.GOLD;
+      ctx.font = '11px "Press Start 2P", monospace';
+      ctx.fillText("★ BIRTHDAY WISH GRANTED! ★", WIDTH / 2, portY + portH / 2 + 22 + floatY);
+
+      ctx.fillStyle = COLORS.WHITE;
+      ctx.font = '12px "Press Start 2P", monospace';
+      ctx.fillText("FINAL SCORE: " + score.toLocaleString(), WIDTH / 2, boxY + 396);
+
+      const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+      ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
       ctx.font = '13px "Press Start 2P", monospace';
-      ctx.fillText("TAP TO PLAY AGAIN", WIDTH / 2, HEIGHT / 2 - boxH / 2 + 280);
+      ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + 440);
     }
 
     ctx.restore();
@@ -1520,6 +1688,7 @@ html = """<!DOCTYPE html>
     requestAnimationFrame(loop);
   }
 
+  syncUIState();
   handleResize();
   requestAnimationFrame(loop);
 })();
@@ -1528,9 +1697,16 @@ html = """<!DOCTYPE html>
 </html>
 """
 
-html = html.replace("%%AISHA_B64%%", b64)
+with open("assets/aisha_portrait.jpg", "rb") as f:
+    portrait_b64 = base64.b64encode(f.read()).decode("ascii")
+
+with open("assets/aisha_head.png", "rb") as f:
+    head_b64 = base64.b64encode(f.read()).decode("ascii")
+
+html = html.replace("%%AISHA_PORTRAIT_B64%%", portrait_b64)
+html = html.replace("%%AISHA_HEAD_B64%%", head_b64)
 
 with open("game.html", "w", encoding="utf-8") as f:
     f.write(html)
 
-print("Successfully compiled ultra-quality retro pixel game.html! Size:", len(html))
+print("Successfully compiled ultra-quality retro pixel game.html with Aisha centerpiece! Size:", len(html))
