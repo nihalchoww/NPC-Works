@@ -612,6 +612,10 @@ html = """<!DOCTYPE html>
     color: #ffffff;
     box-shadow: inset 0 0 8px rgba(0, 220, 255, 0.3);
     transition: all 0.15s ease;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
   }
   .initial-slot.active {
     border-color: #ffd700;
@@ -643,6 +647,10 @@ html = """<!DOCTYPE html>
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.12s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   .quick-chip:active {
     background: #ffd700;
@@ -665,7 +673,7 @@ html = """<!DOCTYPE html>
   .arcade-key {
     flex: 1;
     min-width: 25px;
-    height: 30px;
+    height: 32px;
     background: #182245;
     border: 1px solid #36497f;
     color: #ffffff;
@@ -679,6 +687,8 @@ html = """<!DOCTYPE html>
     transition: all 0.1s ease;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   .arcade-key:active {
     background: #ff007f;
@@ -2270,6 +2280,31 @@ html = """<!DOCTYPE html>
   const keys = {};
   window.addEventListener('keydown', (e) => {
     initAudio();
+    const im = document.getElementById('initials-modal');
+    if (im && im.style.display === 'flex') {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitPlayerInitials();
+        return;
+      }
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        backspaceInitial();
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        skipPlayerInitials();
+        return;
+      }
+      if (e.key && e.key.length === 1 && /[a-zA-Z0-9★]/.test(e.key)) {
+        e.preventDefault();
+        appendInitialChar(e.key);
+        return;
+      }
+      return;
+    }
+
     keys[e.code] = true;
     if (e.code === 'Space') {
       if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
@@ -2680,15 +2715,18 @@ html = """<!DOCTYPE html>
 
   // ─── RETRO ARCADE INITIALS ENTRY UI LOGIC ─────────────────────────────
   const initialsModal = document.getElementById('initials-modal');
+  const initialsWrap = document.getElementById('initials-wrap');
   const initialsRankTitle = document.getElementById('initials-rank-title');
   const initialsScoreText = document.getElementById('initials-score-text');
   const initialsInput = document.getElementById('initials-input');
   const initialsSubmitBtn = document.getElementById('initials-submit-btn');
   const initialsSkipBtn = document.getElementById('initials-skip-btn');
+  const initialsCloseX = document.getElementById('initials-close-x');
   const slot0 = document.getElementById('slot-0');
   const slot1 = document.getElementById('slot-1');
   const slot2 = document.getElementById('slot-2');
-  let currentInitials = "ASH";
+  let slotChars = ['', '', ''];
+  let activeSlotIdx = 0;
 
   function promptInitials(s, st) {
     pendingScore = s;
@@ -2696,13 +2734,11 @@ html = """<!DOCTYPE html>
     const rank = getScoreRank(s);
     if (initialsRankTitle) initialsRankTitle.textContent = `TOP 5 BAKER: RANK #${rank}!`;
     if (initialsScoreText) initialsScoreText.textContent = `${s.toLocaleString()} PTS (STAGE ${st})`;
-    currentInitials = "ASH";
+    // Start with empty slots ready for typing
+    slotChars = ['', '', ''];
+    activeSlotIdx = 0;
     updateInitialsSlots();
     if (initialsModal) initialsModal.style.display = 'flex';
-    if (initialsInput) {
-      initialsInput.value = currentInitials;
-      try { initialsInput.focus(); } catch(e){}
-    }
     playTone(587, 'triangle', 0.1, 0.2);
     setTimeout(() => playTone(880, 'triangle', 0.2, 0.25), 100);
   }
@@ -2712,41 +2748,48 @@ html = """<!DOCTYPE html>
   }
 
   function updateInitialsSlots() {
-    const chars = currentInitials.padEnd(3, ' ').split('');
-    if (slot0) slot0.textContent = chars[0] !== ' ' ? chars[0] : '_';
-    if (slot1) slot1.textContent = chars[1] !== ' ' ? chars[1] : '_';
-    if (slot2) slot2.textContent = chars[2] !== ' ' ? chars[2] : '_';
+    if (slot0) slot0.textContent = slotChars[0] || '_';
+    if (slot1) slot1.textContent = slotChars[1] || '_';
+    if (slot2) slot2.textContent = slotChars[2] || '_';
 
-    const activeIdx = Math.min(currentInitials.length, 2);
     [slot0, slot1, slot2].forEach((el, idx) => {
-      if (el) el.classList.toggle('active', idx === activeIdx);
+      if (el) el.classList.toggle('active', idx === activeSlotIdx);
     });
+
+    if (initialsInput) {
+      initialsInput.value = slotChars.join('');
+    }
   }
 
   function appendInitialChar(ch) {
     initAudio();
     haptic(15);
     playTone(700, 'square', 0.04, 0.1);
-    if (currentInitials.length < 3) {
-      currentInitials += ch.toUpperCase();
-      updateInitialsSlots();
+    const letter = ch.toUpperCase().slice(0, 1);
+    slotChars[activeSlotIdx] = letter;
+    if (activeSlotIdx < 2) {
+      activeSlotIdx++;
     }
+    updateInitialsSlots();
   }
 
   function backspaceInitial() {
     initAudio();
     haptic(15);
     playTone(400, 'triangle', 0.05, 0.1);
-    if (currentInitials.length > 0) {
-      currentInitials = currentInitials.slice(0, -1);
-      updateInitialsSlots();
+    if (slotChars[activeSlotIdx] !== '') {
+      slotChars[activeSlotIdx] = '';
+    } else if (activeSlotIdx > 0) {
+      activeSlotIdx--;
+      slotChars[activeSlotIdx] = '';
     }
+    updateInitialsSlots();
   }
 
   function submitPlayerInitials() {
     initAudio();
     haptic([30, 40, 60]);
-    let name = currentInitials.trim().toUpperCase() || 'ASH';
+    let name = slotChars.join('').trim().toUpperCase() || 'ASH';
     addLeaderboardEntry(name, pendingScore, pendingStage);
     runScoreSubmitted = true;
     closeInitialsModal();
@@ -2757,38 +2800,63 @@ html = """<!DOCTYPE html>
     openLeaderboardModal(true);
   }
 
-  if (initialsSubmitBtn) {
-    initialsSubmitBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      submitPlayerInitials();
-    });
-  }
-
-  const initialsCloseX = document.getElementById('initials-close-x');
   function skipPlayerInitials() {
     runScoreSubmitted = true;
     closeInitialsModal();
     openLeaderboardModal(false);
   }
+
+  if (initialsSubmitBtn) {
+    initialsSubmitBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      submitPlayerInitials();
+    });
+  }
+
   if (initialsSkipBtn) {
     initialsSkipBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       skipPlayerInitials();
     });
   }
+
   if (initialsCloseX) {
     initialsCloseX.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       skipPlayerInitials();
     });
   }
+
+  if (initialsWrap) {
+    initialsWrap.addEventListener('pointerdown', (e) => e.stopPropagation());
+    initialsWrap.addEventListener('click', (e) => e.stopPropagation());
+  }
+
+  // Tapping directly on slot 0, 1, or 2 moves cursor to that slot
+  [slot0, slot1, slot2].forEach((slotEl, idx) => {
+    if (slotEl) {
+      slotEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activeSlotIdx = idx;
+        haptic(10);
+        playTone(600, 'sine', 0.03, 0.1);
+        updateInitialsSlots();
+      });
+    }
+  });
 
   // Quick initial chips
   document.querySelectorAll('.quick-chip').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const inits = btn.getAttribute('data-initials') || 'ASH';
-      currentInitials = inits.slice(0, 3).toUpperCase();
+      e.stopPropagation();
+      const inits = (btn.getAttribute('data-initials') || 'ASH').slice(0, 3).toUpperCase();
+      slotChars = [inits[0] || '', inits[1] || '', inits[2] || ''];
+      activeSlotIdx = 2;
       updateInitialsSlots();
       haptic(20);
       playTone(800, 'sine', 0.05, 0.15);
@@ -2799,6 +2867,7 @@ html = """<!DOCTYPE html>
   document.querySelectorAll('.arcade-key').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       if (btn.id === 'key-backspace') {
         backspaceInitial();
       } else {
@@ -2811,7 +2880,9 @@ html = """<!DOCTYPE html>
   // Native input sync
   if (initialsInput) {
     initialsInput.addEventListener('input', () => {
-      currentInitials = initialsInput.value.replace(/[^a-zA-Z0-9★]/g, '').toUpperCase().slice(0, 3);
+      const val = initialsInput.value.replace(/[^a-zA-Z0-9★]/g, '').toUpperCase().slice(0, 3);
+      slotChars = [val[0] || '', val[1] || '', val[2] || ''];
+      activeSlotIdx = Math.min(val.length, 2);
       updateInitialsSlots();
     });
     initialsInput.addEventListener('keydown', (e) => {
@@ -3861,6 +3932,8 @@ https://aishababu.vercel.app`;
     stopMic();
     stopHappyBirthdaySong();
     collapseSettingsDock();
+    closeInitialsModal();
+    closeLeaderboardModal();
     btnAction.textContent = 'PAUSE';
     if (stage === 9 || stage === 19 || stage === 29) {
       initPinataForStage(stage);
