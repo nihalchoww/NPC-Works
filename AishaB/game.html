@@ -95,46 +95,81 @@
     top: max(14px, env(safe-area-inset-top));
     right: max(14px, env(safe-area-inset-right));
   }
-  #fs-btn {
+
+  /* Quick Settings Collapsible Dock (Option 1) */
+  #settings-dock-wrap {
+    position: absolute;
     top: max(14px, env(safe-area-inset-top));
     left: max(14px, env(safe-area-inset-left));
-    font-size: 16px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
   }
-  #mute-btn {
-    top: max(14px, env(safe-area-inset-top));
-    left: calc(max(14px, env(safe-area-inset-left)) + 46px);
-    font-size: 16px;
+  #gear-btn {
+    position: static;
+    pointer-events: auto;
+    font-size: 19px;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s ease, border-color 0.15s ease;
   }
-  #crt-btn {
-    top: max(14px, env(safe-area-inset-top));
-    left: calc(max(14px, env(safe-area-inset-left)) + 92px);
-    font-size: 16px;
+  #gear-btn.open {
+    transform: rotate(60deg) scale(1.08);
+    background: rgba(255, 77, 166, 0.45);
+    border-color: #ff3388;
+    color: #ffd700;
+    box-shadow: 0 0 18px rgba(255, 51, 136, 0.7);
   }
-  #tilt-btn {
-    top: max(14px, env(safe-area-inset-top));
-    left: calc(max(14px, env(safe-area-inset-left)) + 138px);
-    font-size: 16px;
+  #settings-dock {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(13, 7, 34, 0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 3px 8px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(0, 220, 255, 0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85), 0 0 16px rgba(0, 220, 255, 0.3);
+    pointer-events: auto;
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.3, 0.64, 1);
+    transform-origin: left center;
+  }
+  #settings-dock.collapsed {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.65) translateX(-14px);
+  }
+  .dock-btn {
+    background: rgba(22, 32, 70, 0.75);
+    border: 1px solid rgba(0, 220, 255, 0.4);
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    cursor: pointer;
+    touch-action: manipulation;
     transition: all 0.15s ease;
+    box-shadow: 0 0 8px rgba(0, 220, 255, 0.15);
   }
-  #tilt-btn.active {
+  .dock-btn:active {
+    background: rgba(0, 220, 255, 0.45);
+    transform: scale(0.92);
+  }
+  .dock-btn.active, #tilt-btn.active {
     background: rgba(0, 220, 255, 0.45);
     border-color: #ffd700;
     color: #ffd700;
-    box-shadow: 0 0 20px rgba(0, 220, 255, 0.85), inset 0 0 10px #ffd700;
-  }
-  #pwa-btn {
-    top: max(14px, env(safe-area-inset-top));
-    right: calc(max(14px, env(safe-area-inset-right)) + 46px);
-    font-size: 16px;
-    border-color: #ff3388;
-    color: #ff3388;
-    box-shadow: 0 0 15px rgba(255, 51, 136, 0.35);
-    transition: all 0.15s ease;
+    box-shadow: 0 0 14px rgba(0, 220, 255, 0.8), inset 0 0 6px #ffd700;
   }
   #pwa-btn.installed {
     border-color: #00ff88;
     color: #00ff88;
-    box-shadow: 0 0 15px rgba(0, 255, 136, 0.35);
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
   }
   /* CRT Arcade Cabinet Bezel */
   .arcade-bezel {
@@ -497,11 +532,16 @@
   <div class="arcade-bezel" id="arcade-bezel">
     <div class="arcade-marquee">★ AISHA'S SPACE BAKERY ★</div>
   </div>
-  <button class="hud-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
-  <button class="hud-btn" id="mute-btn" title="Toggle Sound">🔊</button>
-  <button class="hud-btn" id="crt-btn" title="Toggle CRT Arcade Cabinet Mode">📺</button>
-  <button class="hud-btn" id="tilt-btn" title="Toggle Phone Tilt / Gyroscope Steering Mode">📳</button>
-  <button class="hud-btn" id="pwa-btn" title="Add to Home Screen / Install Native App">📱</button>
+  <div id="settings-dock-wrap">
+    <button class="hud-btn" id="gear-btn" title="Quick Settings ⚙️" aria-label="Quick Settings">⚙️</button>
+    <div id="settings-dock" class="collapsed">
+      <button class="dock-btn" id="mute-btn" title="Toggle Sound">🔊</button>
+      <button class="dock-btn" id="tilt-btn" title="Toggle Phone Tilt / Gyroscope Steering">📳</button>
+      <button class="dock-btn" id="crt-btn" title="Toggle CRT Arcade Cabinet Mode">📺</button>
+      <button class="dock-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
+      <button class="dock-btn" id="pwa-btn" title="Add to Home Screen / Install Native App">📱</button>
+    </div>
+  </div>
   <button class="hud-btn" id="pause-btn" title="Pause / Resume">⏸</button>
   <div id="touch-controls">
     <div class="thumb-zone zone-left">
@@ -1321,7 +1361,10 @@
 
   window.addEventListener('pointerdown', (e) => {
     initAudio();
-    if (e.target.closest('.hud-btn') || e.target.closest('#touch-controls')) return;
+    if (!e.target.closest('#settings-dock-wrap')) {
+      collapseSettingsDock();
+    }
+    if (e.target.closest('.hud-btn') || e.target.closest('.dock-btn') || e.target.closest('#touch-controls')) return;
     if (state === 'MENU') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxY = HEIGHT / 2 - 265;
@@ -1415,10 +1458,41 @@
   const btnMic = document.getElementById('btn-mic');
   const actionZone = document.getElementById('action-zone');
   const btnPause = document.getElementById('pause-btn');
+  const gearBtn = document.getElementById('gear-btn');
+  const settingsDock = document.getElementById('settings-dock');
   const btnFS = document.getElementById('fs-btn');
   const btnMute = document.getElementById('mute-btn');
   const modalDownloadBtn = document.getElementById('modal-download-btn');
   const modalCloseBtn = document.getElementById('modal-close-btn');
+
+  function toggleSettingsDock() {
+    initAudio();
+    haptic(15);
+    if (!settingsDock) return;
+    const isCollapsed = settingsDock.classList.contains('collapsed');
+    if (isCollapsed) {
+      settingsDock.classList.remove('collapsed');
+      if (gearBtn) gearBtn.classList.add('open');
+      playTone(660, 'sine', 0.05, 0.15);
+    } else {
+      collapseSettingsDock();
+    }
+  }
+
+  function collapseSettingsDock() {
+    if (settingsDock && !settingsDock.classList.contains('collapsed')) {
+      settingsDock.classList.add('collapsed');
+      if (gearBtn) gearBtn.classList.remove('open');
+    }
+  }
+
+  if (gearBtn) {
+    gearBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSettingsDock();
+    });
+  }
 
   if (btnMute) {
     btnMute.textContent = bgmMuted ? '🔇' : '🔊';
@@ -1767,6 +1841,7 @@
   btnAction.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    collapseSettingsDock();
     initAudio();
     haptic(25);
     if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
@@ -1780,6 +1855,7 @@
   btnPause.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    collapseSettingsDock();
     initAudio();
     haptic(20);
     if (state === 'PLAYING') state = 'PAUSED';
@@ -2109,6 +2185,7 @@
     state = 'PLAYING';
     stopMic();
     stopHappyBirthdaySong();
+    collapseSettingsDock();
     btnAction.textContent = 'PAUSE';
     if (stage === 9 || stage === 19 || stage === 29) {
       initPinataForStage(stage);
@@ -2129,6 +2206,7 @@
   function continueMilestone() {
     stopMic();
     stopHappyBirthdaySong();
+    collapseSettingsDock();
     stage++;
     itemsCaughtStage = 0;
     timeLeft = STAGE_DURATION;
@@ -2155,6 +2233,7 @@
   function nextStage() {
     stopMic();
     stopHappyBirthdaySong();
+    collapseSettingsDock();
     stage++;
     if (stage > TOTAL_STAGES) {
       score += 2000;
