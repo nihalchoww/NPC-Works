@@ -3285,7 +3285,6 @@ html = """<!DOCTYPE html>
       if (fortuneTimer > 0) fortuneTimer -= dt;
       if (starFeverTime > 0) {
         starFeverTime -= dt;
-        player.invincible = Math.max(player.invincible, 0.2);
         // Extra rainbow stardust while Star-Fever is active
         if (Math.random() < 0.4) {
           trails.push({
@@ -3581,7 +3580,6 @@ html = """<!DOCTYPE html>
       // 10-Second Sweet Cascade Bonus Frenzy
       if (pinataFrenzyTime > 0) {
         pinataFrenzyTime -= dt;
-        player.invincible = Math.max(player.invincible, 0.2);
         hazardWarnings = [];
 
         frenzySpawnTimer -= dt;
@@ -3804,8 +3802,8 @@ html = """<!DOCTYPE html>
             continue;
           }
         } else {
-          // Obstacle collision
-          if (player.invincible <= 0) {
+          // Obstacle collision (Aisha is completely invincible during Star-Fever and Piñata Frenzy)
+          if (player.invincible <= 0 && starFeverTime <= 0 && pinataFrenzyTime <= 0) {
             if (item.x >= bodyRect.x && item.x <= bodyRect.x + bodyRect.w &&
                 item.y >= bodyRect.y && item.y <= bodyRect.y + bodyRect.h) {
 
@@ -4291,7 +4289,8 @@ html = """<!DOCTYPE html>
 
     // Playable Character (Aisha) — Scaled 1.25x with dynamic bank tilt & cake jiggle
     if (state === 'PLAYING' || state === 'STAGE_CLEAR' || state === 'PAUSED') {
-      const flicker = player.invincible > 0 && Math.floor(player.invincible * 14) % 2 === 0;
+      // Keep Aisha 100% solid and fully visible during Star-Fever and Frenzy (never disappears like a ghost)
+      const flicker = (starFeverTime <= 0 && pinataFrenzyTime <= 0) && player.invincible > 0 && Math.floor(player.invincible * 14) % 2 === 0;
       if (!flicker) {
         ctx.save();
         const bob = Math.sin(player.walkTime) * 3;
