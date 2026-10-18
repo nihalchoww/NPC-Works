@@ -3232,6 +3232,9 @@ html = """<!DOCTYPE html>
     });
   }
 
+  // Retro Celebration Colors & Confetti
+  const bColors = [COLORS.PINK, COLORS.CYAN, COLORS.GOLD, COLORS.PURPLE, COLORS.GREEN, COLORS.ORANGE];
+
   // Retro Confetti
   const confetti = [];
   for (let i = 0; i < 65; i++) {
