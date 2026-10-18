@@ -6297,29 +6297,6 @@ html = """<!DOCTYPE html>
       ctx.restore();
     });
 
-    // Portholes looking into galaxies
-    const isPortrait = HEIGHT > WIDTH;
-    const portholes = isPortrait
-      ? [[80, 280, 52], [WIDTH - 80, 280, 52], [80, 680, 45], [WIDTH - 80, 680, 45]]
-      : [[180, 280, 95], [WIDTH - 180, 280, 95], [130, 520, 60], [WIDTH - 130, 520, 60]];
-
-    portholes.forEach(([cx, cy, r]) => {
-      ctx.save();
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
-      ctx.fillStyle = COLORS.SPACE_MID; ctx.fill();
-      // Galaxy swirl
-      ctx.fillStyle = '#b042ff';
-      ctx.beginPath(); ctx.arc(cx, cy, r / 3, 0, Math.PI * 2); ctx.fill();
-      ctx.restore();
-
-      ctx.strokeStyle = '#3d4d80';
-      ctx.lineWidth = 6;
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
-      ctx.strokeStyle = '#00dcff';
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, Math.PI * 2); ctx.stroke();
-    });
-
     // Background Balloons — Dimmed & darkened by ~70% (opacity ~28%)
     ctx.save();
     ctx.globalAlpha = 0.28;
@@ -6350,51 +6327,6 @@ html = """<!DOCTYPE html>
     ctx.lineWidth = 2;
     ctx.strokeRect(0, 0, pw, HEIGHT);
     ctx.strokeRect(WIDTH - pw, 0, pw, HEIGHT);
-
-    // Doubled-size pulsating purple neon audio waves / speakers
-    const spPulse = Math.sin(globalTime * 9) * 5;
-    const spY = HEIGHT - 150;
-
-    // Left Speaker
-    ctx.save();
-    ctx.shadowColor = '#d020ff';
-    ctx.shadowBlur = 22;
-    ctx.fillStyle = '#240638';
-    ctx.beginPath();
-    ctx.arc(10, spY, 26, -Math.PI / 2, Math.PI / 2);
-    ctx.fill();
-    ctx.strokeStyle = '#e040ff';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    const lWaves = [46 + spPulse, 68 + spPulse * 1.3, 92 + spPulse * 1.7];
-    lWaves.forEach((rw, idx) => {
-      ctx.strokeStyle = idx === 0 ? '#ff4da6' : (idx === 1 ? '#e040ff' : '#a000e0');
-      ctx.lineWidth = 4.5 - idx * 0.8;
-      ctx.beginPath();
-      ctx.arc(10, spY, rw, -Math.PI * 0.44, Math.PI * 0.44);
-      ctx.stroke();
-    });
-    ctx.restore();
-
-    // Right Speaker
-    ctx.save();
-    ctx.shadowColor = '#d020ff';
-    ctx.shadowBlur = 22;
-    ctx.fillStyle = '#240638';
-    ctx.beginPath();
-    ctx.arc(WIDTH - 10, spY, 26, Math.PI / 2, Math.PI * 1.5);
-    ctx.fill();
-    ctx.strokeStyle = '#e040ff';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    lWaves.forEach((rw, idx) => {
-      ctx.strokeStyle = idx === 0 ? '#ff4da6' : (idx === 1 ? '#e040ff' : '#a000e0');
-      ctx.lineWidth = 4.5 - idx * 0.8;
-      ctx.beginPath();
-      ctx.arc(WIDTH - 10, spY, rw, Math.PI * 0.56, Math.PI * 1.44);
-      ctx.stroke();
-    });
-    ctx.restore();
 
     // Top & Floor Panels
     ctx.fillStyle = '#161e42';
@@ -7370,19 +7302,6 @@ html = """<!DOCTYPE html>
       ctx.shadowBlur = 0;
       ctx.fillText("📳 TILT ON", WIDTH / 2, tIndY - 4);
       ctx.restore();
-    } else {
-      // Animated Neon Sine Wave Oscillation
-      ctx.strokeStyle = '#00dcff';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      const waveStart = pw + 180;
-      const waveWidth = Math.max(100, WIDTH - pw * 2 - 370);
-      for (let wx = 0; wx < waveWidth; wx += 4) {
-        const wy = HEIGHT - safeBottom - 11 + Math.sin(wx * 0.08 + globalTime * 7) * 7;
-        if (wx === 0) ctx.moveTo(waveStart + wx, wy);
-        else ctx.lineTo(waveStart + wx, wy);
-      }
-      ctx.stroke();
     }
 
     ctx.save();
