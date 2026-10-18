@@ -6872,17 +6872,21 @@ html = """<!DOCTYPE html>
       // Checkpoint resume option or new game prompt
       if (checkpointStage > 1) {
         ctx.fillStyle = COLORS.CYAN;
-        ctx.font = '10px "Press Start 2P", monospace';
-        ctx.fillText(`★ CHECKPOINT: STAGE ${checkpointStage} (${checkpointScore.toLocaleString()} PTS) ★`, WIDTH / 2, boxY + boxH - 100);
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillText(`★ CHECKPOINT: STAGE ${checkpointStage} (${checkpointScore.toLocaleString()} PTS) ★`, WIDTH / 2, boxY + boxH - 124);
+
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillText("Hold and Drag Aisha babu to control her movement", WIDTH / 2, boxY + boxH - 100);
 
         const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
         ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
         ctx.font = '12px "Press Start 2P", monospace';
         ctx.fillText(`★ TAP TO RESUME STAGE ${checkpointStage} ★`, WIDTH / 2, boxY + boxH - 72);
       } else {
-        ctx.fillStyle = '#c8d4f0';
-        ctx.font = '10px "Press Start 2P", monospace';
-        ctx.fillText("CATCH FALLING CAKES - DODGE ANVILS!", WIDTH / 2, boxY + boxH - 100);
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillText("Hold and Drag Aisha babu to control her movement", WIDTH / 2, boxY + boxH - 100);
 
         const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
         ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
