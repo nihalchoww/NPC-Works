@@ -1946,6 +1946,8 @@
     tilt: 0,
     happyTime: 0,
     worryTime: 0,
+    squash: 1.0,
+    squashVel: 0,
     traySquash: 1.0,
     traySquashVel: 0
   };
@@ -1955,6 +1957,7 @@
   let candyComets = [];
   let cometTimer = 5.0;
   let crtMode = localStorage.getItem('anti_grav_crt') === 'true';
+  let cosmicGlideSparkles = []; // ✨ Cosmic Stardust Glide Trail (Kirby / Star-Wand Effect)
 
   // Phone Tilt / Gyroscope Steering Mode (DeviceOrientationEvent)
   let tiltMode = localStorage.getItem('anti_grav_tilt') === 'true';
@@ -3246,15 +3249,19 @@ https://aishababu.vercel.app`;
     }
   }
 
-  function addScorePopup(x, y, text, color=COLORS.GOLD) {
+  function addScorePopup(x, y, text, color=COLORS.GOLD, fontSize=13) {
     particles.push({
       x, y,
       vx: 0,
-      vy: -55,
+      vy: -70,
       life: 0.85,
       maxLife: 0.85,
       text: text,
       color: color,
+      fontSize: fontSize,
+      glow: 14,
+      glowColor: color,
+      drag: 1.2,
       isText: true
     });
   }
@@ -3290,6 +3297,286 @@ https://aishababu.vercel.app`;
     ctx.bezierCurveTo(cx, topY + size, cx + size / 2, topY + (size + topCurveHeight) / 2, cx + size / 2, topY + topCurveHeight);
     ctx.bezierCurveTo(cx + size / 2, topY, cx, topY, cx, topY + topCurveHeight);
     ctx.closePath();
+  }
+
+  function drawDiamondSparkle(ctx, cx, cy, r) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - r);
+    ctx.quadraticCurveTo(cx, cy, cx + r, cy);
+    ctx.quadraticCurveTo(cx, cy, cx, cy + r);
+    ctx.quadraticCurveTo(cx, cy, cx - r, cy);
+    ctx.quadraticCurveTo(cx, cy, cx, cy - r);
+    ctx.closePath();
+  }
+
+  // ✨ Cosmic Stardust Glide Trail Spawners & Renderer (Kirby / Star-Wand Effect)
+  function spawnCosmicStardustGlide(startX, endX, py, vx, isFever) {
+    const dx = endX - startX;
+    const dist = Math.abs(dx);
+    // Interpolate so fast mobile finger drags create an unbroken sparkling ribbon
+    const count = Math.min(7, Math.max(1, Math.round(dist / 10)));
+    const biome = getBiomeInfo(stage);
+
+    const pastelPalette = [
+      '#ffe246', '#ffd000', '#fff48f', // Radiant Golden Stars
+      '#ff85c2', '#ff69b4', '#ffa8d8', // Pastel Strawberry Pink
+      '#6ee7ff', '#70f3ff', '#a0ffe6', // Mint Cyan Starlight
+      '#d8b4fe', '#f3e8ff', '#ffffff'  // Lavender Lilac & Diamond White
+    ];
+
+    let biomeAccent = biome.tagColor || '#ff6ebe';
+    if (biome.id === 'SUPERNOVA') {
+      biomeAccent = `hsl(${(globalTime * 90 + Math.random() * 60) % 360}, 95%, 72%)`;
+    }
+
+    for (let i = 0; i < count; i++) {
+      if (cosmicGlideSparkles.length > 95) cosmicGlideSparkles.shift();
+
+      const t = count === 1 ? 0.5 : (i + Math.random() * 0.45) / count;
+      const px = startX + dx * t + (Math.random() - 0.5) * 14;
+      const posY = py + 38 + Math.random() * 18;
+
+      // Gentle movement counter-drift & space buoyancy
+      const driftVx = -vx * 0.10 + (Math.random() - 0.5) * 38;
+      const driftVy = -16 - Math.random() * 32;
+
+      // Shapes: 'star4' (Kirby star), 'sparkle' (diamond glint ✦), 'star5' (golden mini star), 'orb' (stardust bead)
+      const rPick = Math.random();
+      let shape = 'orb';
+      if (rPick < 0.38) shape = 'star4';
+      else if (rPick < 0.68) shape = 'sparkle';
+      else if (rPick < 0.84) shape = 'star5';
+
+      let col = pastelPalette[Math.floor(Math.random() * pastelPalette.length)];
+      if (Math.random() < 0.35) col = biomeAccent;
+      if (isFever && Math.random() < 0.5) {
+        col = ['#ffd700', '#ff007f', '#00f0ff', '#39ff14', '#ffffff'][Math.floor(Math.random() * 5)];
+      }
+
+      const life = 0.50 + Math.random() * 0.40;
+      const baseSize = (shape === 'orb' ? 3.2 : 5.4) + Math.random() * (isFever ? 5.5 : 3.8);
+
+      cosmicGlideSparkles.push({
+        x: px,
+        y: posY,
+        vx: driftVx,
+        vy: driftVy,
+        size: baseSize,
+        life: life,
+        maxLife: life,
+        color: col,
+        shape: shape,
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 6.5,
+        twinkleRate: 15 + Math.random() * 12,
+        twinklePhase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function spawnCosmicStardustIdle(px, py, isFever) {
+    if (cosmicGlideSparkles.length > 95) cosmicGlideSparkles.shift();
+    const biome = getBiomeInfo(stage);
+    const pastelPalette = ['#ffe246', '#ff85c2', '#6ee7ff', '#d8b4fe', '#ffffff'];
+    const col = (Math.random() < 0.4 && biome.tagColor) ? biome.tagColor : pastelPalette[Math.floor(Math.random() * pastelPalette.length)];
+    const life = 0.45 + Math.random() * 0.35;
+    const shape = Math.random() < 0.5 ? 'sparkle' : (Math.random() < 0.5 ? 'star4' : 'orb');
+
+    cosmicGlideSparkles.push({
+      x: px + (Math.random() - 0.5) * 28,
+      y: py + 42 + Math.random() * 12,
+      vx: (Math.random() - 0.5) * 16,
+      vy: -14 - Math.random() * 20,
+      size: 3.5 + Math.random() * 3.0,
+      life: life,
+      maxLife: life,
+      color: col,
+      shape: shape,
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 4.0,
+      twinkleRate: 14 + Math.random() * 10,
+      twinklePhase: Math.random() * Math.PI * 2
+    });
+  }
+
+  function drawCosmicGlideTrail(ctx) {
+    if (cosmicGlideSparkles.length === 0) return;
+
+    ctx.save();
+    cosmicGlideSparkles.forEach(p => {
+      const progress = Math.max(0, p.life / p.maxLife);
+      const scale = (progress > 0.88 ? (1.0 - progress) / 0.12 : 1.0) * Math.sin(progress * Math.PI * 0.70);
+      const r = Math.max(0.6, p.size * scale);
+
+      const twinkle = 0.75 + 0.25 * Math.sin(globalTime * p.twinkleRate + p.twinklePhase);
+      const alpha = Math.min(1.0, Math.max(0, progress * 1.25)) * twinkle;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = Math.min(10, r * 2.0);
+
+      if (p.shape === 'star4') {
+        drawStarShape(ctx, 0, 0, 4, r, r * 0.38);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.shape === 'star5') {
+        drawStarShape(ctx, 0, 0, 5, r, r * 0.44);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.20, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.shape === 'sparkle') {
+        drawDiamondSparkle(ctx, 0, 0, r * 1.15);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        drawDiamondSparkle(ctx, 0, 0, r * 0.42);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(-r * 0.22, -r * 0.22, r * 0.32, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+  // 💥 Juicy Catch & Squish Frosting Pop Ring
+  function triggerJuicyCatchPop(x, y) {
+    const pastelFrostingCols = ['#ffffff', '#ff9ecb', '#70ffe2', '#fff3a8', '#d8b4fe', '#ffb3ba'];
+    // 14 pastel frosting beads bursting outward in an elliptical ring matching tray perspective
+    for (let f = 0; f < 14; f++) {
+      const angle = (f / 14) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
+      const spd = 85 + Math.random() * 95;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd * 0.55 - 20,
+        life: 0.42,
+        maxLife: 0.42,
+        size: 3.5 + Math.random() * 3.0,
+        color: pastelFrostingCols[Math.floor(Math.random() * pastelFrostingCols.length)],
+        shape: 'frosting',
+        drag: 2.2,
+        gravity: 50
+      });
+    }
+    // 5 sparkling star glints in the ring
+    for (let g = 0; g < 5; g++) {
+      const angle = (g / 5) * Math.PI * 2 + 0.3;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * 110,
+        vy: Math.sin(angle) * 65 - 25,
+        life: 0.36,
+        maxLife: 0.36,
+        size: 5.0,
+        color: '#ffffff',
+        glowColor: '#ffd700',
+        glow: 12,
+        shape: 'sparkle',
+        drag: 3.2
+      });
+    }
+  }
+
+  // 👑 Streak Sparkle Aura (High-Combo Glow)
+  function drawStreakSparkleAura(ctx, headY) {
+    if (comboStreak < 5) return;
+
+    ctx.save();
+    const isOverdrive = comboStreak >= 10;
+    const pulse = Math.sin(globalTime * (isOverdrive ? 10 : 7)) * 4;
+    const auraAlpha = isOverdrive ? (0.42 + Math.sin(globalTime * 9) * 0.18) : (0.35 + Math.sin(globalTime * 6) * 0.14);
+
+    // 1. Pulsing Celestial Aura Silhouette Glow
+    ctx.save();
+    if (isOverdrive) {
+      // 10x Supreme Tier: Electric Neon-Pink with Golden Core
+      ctx.shadowColor = '#ff007f';
+      ctx.shadowBlur = 28 + Math.sin(globalTime * 12) * 8;
+      ctx.fillStyle = `rgba(255, 0, 127, ${auraAlpha})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 38 + pulse, 64 + pulse, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = `rgba(255, 215, 0, ${auraAlpha * 0.7})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 30 + pulse * 0.7, 54 + pulse * 0.7, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // 5x Tier: Radiant Golden Celestial Aura
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 22 + pulse * 2;
+      ctx.fillStyle = `rgba(255, 215, 0, ${auraAlpha})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 34 + pulse, 58 + pulse, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 2. Orbiting Celestial Stars & Hearts around Aisha's head
+    const count = isOverdrive ? 4 : 3;
+    for (let s = 0; s < count; s++) {
+      const orbitSpeed = isOverdrive ? 3.8 : 2.8;
+      const orbitAngle = globalTime * orbitSpeed + s * ((Math.PI * 2) / count);
+      const orbitX = Math.cos(orbitAngle) * (isOverdrive ? 40 : 35);
+      const orbitY = headY - 4 + Math.sin(orbitAngle) * 12;
+      const depthScale = 0.8 + Math.sin(orbitAngle) * 0.35;
+
+      ctx.save();
+      ctx.translate(orbitX, orbitY);
+      ctx.scale(depthScale, depthScale);
+
+      if (isOverdrive && s % 2 === 1) {
+        // Neon-pink celestial heart
+        ctx.fillStyle = '#ff1493';
+        ctx.shadowColor = '#ff69b4';
+        ctx.shadowBlur = 10;
+        drawHeartShape(ctx, 0, 0, 8);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        drawHeartShape(ctx, -1, -1, 3.5);
+        ctx.fill();
+      } else {
+        // Golden celestial star
+        ctx.fillStyle = '#ffd700';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 10;
+        drawStarShape(ctx, 0, 0, 4, 6.5, 2.6);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(0, 0, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    ctx.restore();
   }
 
   const LETTER_MATRICES = {
@@ -3981,6 +4268,8 @@ https://aishababu.vercel.app`;
     items = [];
     particles = [];
     trails = [];
+    ghostTrails = [];
+    cosmicGlideSparkles = [];
     player.x = WIDTH / 2;
     player.invincible = 0;
     targetX = player.x;
@@ -5039,6 +5328,17 @@ https://aishababu.vercel.app`;
       gt.alpha -= dt * 2.5;
     });
 
+    // ✨ Cosmic Stardust Glide Trail Update
+    cosmicGlideSparkles = cosmicGlideSparkles.filter(p => p.life > 0);
+    cosmicGlideSparkles.forEach(p => {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= Math.pow(0.86, dt * 60);
+      p.vy -= 14 * dt;
+      p.rot += p.rotSpeed * dt;
+      p.life -= dt;
+    });
+
     // Cosmic Candy Comets
     cometTimer -= dt;
     if (cometTimer <= 0) {
@@ -5181,6 +5481,16 @@ https://aishababu.vercel.app`;
       player.vx = (player.x - player.prevX) / Math.max(0.001, dt);
       player.prevX = player.x;
 
+      // ✨ Cosmic Stardust Glide Trail (Kirby / Star-Wand Effect)
+      const moveDelta = player.x - curX;
+      const absDist = Math.abs(moveDelta);
+      const isFever = (starFeverTime > 0 || pinataFrenzyTime > 0);
+      if (absDist > 0.4 || (isDragging && Math.abs(player.vx) > 12) || Math.abs(player.vx) > 28) {
+        spawnCosmicStardustGlide(curX, player.x, player.y, player.vx, isFever);
+      } else if (Math.random() < 0.16) {
+        spawnCosmicStardustIdle(player.x, player.y, isFever);
+      }
+
       // Bank tilt towards movement
       const targetTilt = Math.max(-0.11, Math.min(0.11, player.vx * 0.00022));
       player.tilt += (targetTilt - player.tilt) * Math.min(1.0, 14 * dt);
@@ -5196,10 +5506,30 @@ https://aishababu.vercel.app`;
         });
       }
 
-      // Cake Squash & Stretch spring physics
+      // Character & Cake Squash & Stretch spring physics
+      player.squashVel += (1.0 - player.squash) * 58 * dt;
+      player.squashVel *= 0.76;
+      player.squash += player.squashVel * dt;
+
       player.traySquashVel += (1.0 - player.traySquash) * 48 * dt;
       player.traySquashVel *= 0.80;
       player.traySquash += player.traySquashVel * dt;
+
+      // 👑 Ambient Streak Sparkle Aura motes when combo is 5x or 10x
+      if (comboStreak >= 5 && Math.random() < (comboStreak >= 10 ? 0.35 : 0.18)) {
+        particles.push({
+          x: player.x + (Math.random() - 0.5) * 44,
+          y: player.y + 25 - Math.random() * 45,
+          vx: (Math.random() - 0.5) * 22,
+          vy: -40 - Math.random() * 30,
+          life: 0.40,
+          maxLife: 0.40,
+          size: 3.2,
+          color: comboStreak >= 10 ? (Math.random() < 0.5 ? '#ff007f' : '#ffd700') : '#ffd700',
+          shape: Math.random() < 0.5 ? 'heart' : 'sparkle',
+          glow: 10
+        });
+      }
 
       // Micro-expressions timers
       player.happyTime = Math.max(0, player.happyTime - dt);
@@ -5518,14 +5848,36 @@ https://aishababu.vercel.app`;
           });
         }
 
+        // 🔥 Atmospheric Re-Entry Comic Sparks shedding off plunging hazards
+        if (item.isBad && Math.random() < (item.kind === 'ANVIL' ? 0.70 : 0.35)) {
+          const sparkCols = ['#ff4500', '#ff8c00', '#ffd700', '#fffb91'];
+          particles.push({
+            x: item.x + (Math.random() - 0.5) * (item.kind === 'ANVIL' ? 32 : 24),
+            y: item.y - 8 + Math.random() * 20,
+            vx: (Math.random() - 0.5) * 65,
+            vy: -item.vy * 0.32 - 45 - Math.random() * 45,
+            life: 0.22,
+            maxLife: 0.22,
+            size: 2.2 + Math.random() * 2.2,
+            color: sparkCols[Math.floor(Math.random() * sparkCols.length)],
+            shape: 'sparkle',
+            glow: 8,
+            glowColor: '#ff6600'
+          });
+        }
+
         // Catch check
         if (!item.isBad) {
           if (item.x >= trayRect.x && item.x <= trayRect.x + trayRect.w &&
               item.y >= trayRect.y && item.y <= trayRect.y + trayRect.h + 24) {
 
-            // Cake Squash & Stretch Jiggle + Character Happy Expression
-            player.traySquash = 0.72;
+            // 💥 Juicy Catch & Squish Jiggle + Character Happy Expression
+            player.squash = 0.78; // Microscopic squash-and-stretch bounce!
+            player.traySquash = 0.70;
             player.happyTime = 0.65;
+
+            // 💥 Quick Ring of Pastel Frosting Pop on Tray Catch
+            triggerJuicyCatchPop(item.x, trayRect.y + 4);
 
             // Frosting Splatters & Rainbow Sprinkles on Catch
             const splashCols = ['#ff4da6', '#ffffff', '#ffd700', '#00dcff', '#ff8500', '#70e000'];
@@ -5618,17 +5970,19 @@ https://aishababu.vercel.app`;
 
               if (comboStreak === 5) {
                 score += 75;
-                addScorePopup(player.x, player.y - 75, "5x COMBO! +75", COLORS.GOLD);
+                addScorePopup(player.x, player.y - 75, "COMBO x5! +75 ✨", COLORS.GOLD, 14);
                 sfxCombo();
               } else if (comboStreak >= 10 && comboStreak % 5 === 0) {
                 score += 150;
-                addScorePopup(player.x, player.y - 75, comboStreak + "x BAKING FEVER! +150", '#00f0ff');
+                addScorePopup(player.x, player.y - 75, `${comboStreak}x FEVER! +150 👑`, '#00f0ff', 15);
                 addCollectBurst(player.x, player.y - 60, '#00f0ff');
                 sfxCombo();
+              } else if (comboStreak >= 3) {
+                popupText += ` (x${comboStreak}! ✨)`;
               }
 
               addCollectBurst(item.x, item.y, '#00ff88');
-              addScorePopup(item.x, item.y - 20, popupText, sugarRushCount > 0 ? '#ff6ebe' : '#00ff88');
+              addScorePopup(item.x, item.y - 20, popupText, sugarRushCount > 0 ? '#ff6ebe' : (comboStreak >= 5 ? '#ffd700' : '#00ff88'));
               sfxCatch();
               haptic(15);
               items.splice(i, 1);
@@ -6187,14 +6541,42 @@ https://aishababu.vercel.app`;
       const trailH = 80;
       const grad = ctx.createLinearGradient(item.x, item.y - trailH, item.x, item.y + 15);
       if (item.isBad) {
-        // Warning-red trail / glowing halo
-        grad.addColorStop(0, 'rgba(255, 30, 60, 0)');
-        grad.addColorStop(0.65, 'rgba(255, 40, 70, 0.25)');
-        grad.addColorStop(1, 'rgba(255, 20, 50, 0.55)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(item.x - 26, item.y - trailH, 52, trailH + 20);
-        ctx.shadowColor = '#ff2040';
-        ctx.shadowBlur = 18;
+        const isAnvil = (item.kind === 'ANVIL');
+        const heatH = isAnvil ? 140 : 90;
+        const flameFlick = Math.sin(globalTime * 36 + item.y * 0.12) * (isAnvil ? 5 : 3);
+
+        // 🔥 Atmospheric Re-Entry Friction Plasma Plume (Molten Orange & Incandescent Core)
+        const reEntryGrad = ctx.createLinearGradient(item.x, item.y - heatH, item.x, item.y + 15);
+        reEntryGrad.addColorStop(0, 'rgba(255, 40, 0, 0)');
+        reEntryGrad.addColorStop(0.35, 'rgba(255, 80, 0, 0.28)');
+        reEntryGrad.addColorStop(0.70, 'rgba(255, 140, 0, 0.65)');
+        reEntryGrad.addColorStop(0.92, 'rgba(255, 210, 30, 0.85)');
+        reEntryGrad.addColorStop(1.0, 'rgba(255, 255, 230, 0.95)');
+
+        ctx.fillStyle = reEntryGrad;
+        ctx.shadowColor = isAnvil ? '#ff5500' : '#ff2200';
+        ctx.shadowBlur = isAnvil ? 26 : 18;
+
+        // Tapered supersonic friction shock cone
+        const baseW = isAnvil ? 28 : 22;
+        ctx.beginPath();
+        ctx.moveTo(item.x, item.y - heatH);
+        ctx.quadraticCurveTo(item.x + flameFlick, item.y - heatH * 0.5, item.x + baseW, item.y + 10);
+        ctx.lineTo(item.x - baseW, item.y + 10);
+        ctx.quadraticCurveTo(item.x - flameFlick, item.y - heatH * 0.5, item.x, item.y - heatH);
+        ctx.closePath();
+        ctx.fill();
+
+        // Incandescent re-entry bow shockwave curve at leading edge
+        if (isAnvil) {
+          ctx.strokeStyle = '#ffe066';
+          ctx.lineWidth = 3.5;
+          ctx.shadowColor = '#ff6600';
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.arc(item.x, item.y + 14, 25, 0.15 * Math.PI, 0.85 * Math.PI);
+          ctx.stroke();
+        }
       } else if (item.isPowerup) {
         // Shimmering Golden Power-Up Aura
         grad.addColorStop(0, 'rgba(255, 215, 0, 0)');
@@ -6265,6 +6647,9 @@ https://aishababu.vercel.app`;
       });
     }
 
+    // ✨ Cosmic Stardust Glide Trail (Kirby / Star-Wand Effect)
+    drawCosmicGlideTrail(ctx);
+
     // Playable Character (Aisha) — Scaled 1.25x with dynamic bank tilt & cake jiggle
     if (state === 'PLAYING' || state === 'STAGE_CLEAR' || state === 'PAUSED') {
       // Keep Aisha 100% solid and fully visible during Star-Fever and Frenzy (never disappears like a ghost)
@@ -6275,9 +6660,17 @@ https://aishababu.vercel.app`;
         const px = player.x;
         const py = player.y + bob;
 
-        ctx.translate(px, py);
-        ctx.scale(1.25, 1.25);
+        // 💥 Juicy Catch & Squish Bounce Scale
+        const sqX = 1.0 + (1.0 - player.squash) * 0.45;
+        const sqY = player.squash;
+        const groundAnchor = (1.0 - sqY) * 38;
+
+        ctx.translate(px, py + groundAnchor);
+        ctx.scale(1.25 * sqX, 1.25 * sqY);
         ctx.rotate(player.tilt);
+
+        // 👑 Streak Sparkle Aura (High-Combo Glow)
+        drawStreakSparkleAura(ctx, -36);
 
         // 1. Boot Thrusters with Animated Pixel-Jet Flame Cones
         [-15, 15].forEach(bx => {
@@ -6681,10 +7074,10 @@ https://aishababu.vercel.app`;
         ctx.font = fSize + 'px "Press Start 2P", monospace';
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#000000';
-        ctx.lineWidth = Math.max(2, Math.round(fSize / 4));
+        ctx.lineWidth = Math.max(3, Math.round(fSize / 3.5));
         ctx.strokeText(p.text, 0, 0);
         ctx.shadowColor = p.glowColor || p.color;
-        ctx.shadowBlur = p.glow || 10;
+        ctx.shadowBlur = p.glow || 14;
         ctx.fillText(p.text, 0, 0);
       } else {
         if (p.trail && p.vx !== undefined && p.vy !== undefined) {
@@ -6716,6 +7109,15 @@ https://aishababu.vercel.app`;
           ctx.lineTo(p.x, p.y + s);
           ctx.lineTo(p.x - s * 0.35, p.y);
           ctx.closePath();
+          ctx.fill();
+        } else if (p.shape === 'frosting') {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowBlur = 0;
+          ctx.beginPath();
+          ctx.arc(p.x - p.size * 0.28, p.y - p.size * 0.28, p.size * 0.35, 0, Math.PI * 2);
           ctx.fill();
         } else {
           ctx.beginPath();
