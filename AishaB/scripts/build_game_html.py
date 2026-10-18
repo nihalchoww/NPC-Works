@@ -685,61 +685,71 @@ html = """<!DOCTYPE html>
     transform: scale(0.92);
   }
 
-  /* ─── RETRO ARCADE HALL OF FAME MINI WINDOW ───────────────────────── */
+  /* ─── RETRO ARCADE HALL OF FAME RECTANGULAR POP-UP WINDOW ───────────── */
   #leaderboard-modal {
     display: none;
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100dvh;
-    background: rgba(6, 3, 18, 0.78);
-    z-index: 130;
+    background: rgba(4, 2, 14, 0.82);
+    z-index: 250;
     align-items: center;
     justify-content: center;
-    padding: 12px;
+    padding: 16px;
     box-sizing: border-box;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    touch-action: none;
   }
   #leaderboard-wrap {
     position: relative;
-    max-width: 320px;
-    width: 92%;
-    background: #0d0722;
+    max-width: 330px;
+    width: 90%;
+    background: #0d0824;
     border: 2px solid #00dcff;
-    border-radius: 14px;
-    padding: 14px 12px 12px 12px;
-    box-shadow: 0 0 30px rgba(0, 220, 255, 0.4), inset 0 0 15px rgba(255, 77, 166, 0.15);
+    border-radius: 12px;
+    padding: 16px 14px 14px 14px;
+    box-shadow: 0 0 35px rgba(0, 220, 255, 0.45), 0 12px 35px rgba(0, 0, 0, 0.9);
     display: flex;
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
     text-align: center;
     margin: auto;
+    animation: popupBoxOpen 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
-  .mini-close-x {
+  @keyframes popupBoxOpen {
+    0% { transform: scale(0.88); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .leaderboard-close-x, .mini-close-x {
     position: absolute;
     top: 8px;
     right: 8px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 1.5px solid #ff4da6;
-    background: rgba(255, 77, 166, 0.2);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1.5px solid #ff3388;
+    background: rgba(255, 0, 127, 0.25);
     color: #ffffff;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: bold;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 0 8px rgba(255, 77, 166, 0.4);
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
     touch-action: manipulation;
+    z-index: 10;
+    transition: all 0.15s ease;
   }
-  .mini-close-x:active {
+  .leaderboard-close-x:hover, .leaderboard-close-x:active,
+  .mini-close-x:hover, .mini-close-x:active {
     background: #ff007f;
-    transform: scale(0.92);
+    border-color: #ffd700;
+    transform: scale(1.1);
   }
   .leaderboard-badge {
     background: linear-gradient(135deg, #00dcff, #9b5de5);
@@ -992,10 +1002,10 @@ html = """<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- Retro Arcade Hall of Fame Leaderboard Modal (Mini Window) -->
+  <!-- Retro Arcade Hall of Fame Leaderboard Modal (Rectangle Pop-Up Window) -->
   <div id="leaderboard-modal">
     <div id="leaderboard-wrap">
-      <button class="mini-close-x" id="lb-close-x" title="Close" aria-label="Close">✕</button>
+      <button class="leaderboard-close-x" id="lb-close-x" title="Exit Leaderboard (Resume Game)" aria-label="Exit">✕</button>
       <div class="leaderboard-badge">🏆 RETRO ARCADE</div>
       <h3 style="font-size: 11px; color: #ffd700; margin: 6px 0 2px 0; text-align: center;">HALL OF FAME</h3>
       <p style="font-size: 7px; color: #ff6ebe; margin: 0 0 8px 0; text-align: center;">★ TOP 5 GALAXY BAKERS ★</p>
@@ -1011,7 +1021,7 @@ html = """<!DOCTYPE html>
       <div class="modal-actions" style="margin-top: 10px; gap: 6px;">
         <button class="modal-btn" id="lb-share-btn" style="background:#ff007f; color:#fff; font-size: 7.5px; padding: 5px 8px;">SHARE 📲</button>
         <button class="modal-btn" id="lb-reset-btn" style="background:#223366; font-size: 7px; padding: 5px 6px;">RESET ↺</button>
-        <button class="modal-btn modal-btn-close" id="lb-close-btn" style="font-size: 7.5px; padding: 5px 8px;">CLOSE ✕</button>
+        <button class="modal-btn modal-btn-close" id="lb-close-btn" style="font-size: 7.5px; padding: 5px 8px;">EXIT ✕</button>
       </div>
     </div>
   </div>
@@ -2108,6 +2118,12 @@ html = """<!DOCTYPE html>
       collapseSettingsDock();
     }
     if (e.target.closest('.hud-btn') || e.target.closest('.dock-btn')) return;
+    if (e.target.closest('#leaderboard-modal') ||
+        e.target.closest('#initials-modal') ||
+        e.target.closest('#polaroid-modal') ||
+        e.target.closest('#pwa-modal')) {
+      return;
+    }
     if (state === 'MENU') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxH = Math.min(HEIGHT - safeTop - safeBottom - 40, 520);
@@ -2204,6 +2220,8 @@ html = """<!DOCTYPE html>
       return;
     }
     if (state === 'PAUSED') {
+      const lb = document.getElementById('leaderboard-modal');
+      if (lb && lb.style.display === 'flex') return;
       state = 'PLAYING';
       return;
     }
@@ -2917,15 +2935,35 @@ https://aishababu.vercel.app`;
     }
   }
 
+  const leaderboardWrap = document.getElementById('leaderboard-wrap');
+  if (leaderboardWrap) {
+    leaderboardWrap.addEventListener('pointerdown', (e) => e.stopPropagation());
+    leaderboardWrap.addEventListener('click', (e) => e.stopPropagation());
+  }
+
   if (lbShareBtn) lbShareBtn.addEventListener('click', shareLeaderboard);
   if (lbResetBtn) lbResetBtn.addEventListener('click', resetLeaderboard);
-  if (lbCloseBtn) lbCloseBtn.addEventListener('click', closeLeaderboardModal);
-  if (lbCloseX) lbCloseX.addEventListener('click', closeLeaderboardModal);
-  if (leaderboardBtn) leaderboardBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    openLeaderboardModal();
-  });
+  if (lbCloseBtn) {
+    lbCloseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeLeaderboardModal();
+    });
+  }
+  if (lbCloseX) {
+    lbCloseX.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeLeaderboardModal();
+    });
+  }
+  if (leaderboardBtn) {
+    leaderboardBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openLeaderboardModal();
+    });
+  }
   if (leaderboardModal) {
     leaderboardModal.addEventListener('click', (e) => {
       if (e.target === leaderboardModal) closeLeaderboardModal();
