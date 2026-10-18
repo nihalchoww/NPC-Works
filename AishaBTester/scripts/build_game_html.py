@@ -3177,30 +3177,58 @@ html = """<!DOCTYPE html>
     }
   });
 
-  // Twinkling Pixel Stars with 4-point sparkle
-  const stars = [];
-  for (let i = 0; i < 140; i++) {
-    stars.push({
+  // ─── 🌌 PRESTIGE 3-TIER PARALLAX STARFIELD & CELESTIAL DUST ─────────────
+  // Layer 1: Deep Infinite Sub-Pixel Star Dust (120 microscopic suns)
+  const starsDeep = [];
+  for (let i = 0; i < 120; i++) {
+    starsDeep.push({
       x: Math.random() * 1400,
       y: Math.random() * 1600,
-      size: Math.random() < 0.6 ? 2 : (Math.random() < 0.85 ? 3 : 4),
-      speed: 0.15 + Math.random() * 0.45,
-      twinkle: Math.random() * Math.PI * 2,
-      color: Math.random() < 0.7 ? '#ffffff' : (Math.random() < 0.5 ? '#00dcff' : '#ffb3d9')
+      size: 0.8 + Math.random() * 0.7,
+      speed: 0.08 + Math.random() * 0.12,
+      baseAlpha: 0.18 + Math.random() * 0.22,
+      twinkle: Math.random() * Math.PI * 2
     });
   }
 
-  // Drifting Helium Balloons
-  const bColors = [COLORS.PINK, COLORS.CYAN, COLORS.GOLD, COLORS.PURPLE, COLORS.GREEN, COLORS.ORANGE];
-  const balloons = [];
-  for (let i = 0; i < 12; i++) {
-    balloons.push({
+  // Layer 2: Mid-Space Chromatic Twinkling Starseeds (70 stars)
+  const starsMid = [];
+  for (let i = 0; i < 70; i++) {
+    starsMid.push({
       x: Math.random() * 1400,
       y: Math.random() * 1600,
-      sz: 16 + Math.random() * 10,
-      dy: -0.4 - Math.random() * 0.45,
-      color: bColors[Math.floor(Math.random() * bColors.length)],
-      phase: Math.random() * Math.PI * 2
+      size: 2.0 + Math.random() * 1.5,
+      speed: 0.22 + Math.random() * 0.28,
+      twinkle: Math.random() * Math.PI * 2,
+      color: Math.random() < 0.65 ? '#ffffff' : (Math.random() < 0.5 ? '#b8f2e6' : '#ffd6e0')
+    });
+  }
+
+  // Layer 3: Rare Majestic 4-Point Diamond "Hero" Stars with Chromatic Halo (12 stars)
+  const starsHero = [];
+  for (let i = 0; i < 12; i++) {
+    starsHero.push({
+      x: Math.random() * 1400,
+      y: Math.random() * 1600,
+      outerRadius: 6.5 + Math.random() * 3.5,
+      speed: 0.40 + Math.random() * 0.35,
+      twinkle: Math.random() * Math.PI * 2,
+      rot: Math.random() * Math.PI,
+      rotSpeed: (Math.random() - 0.5) * 0.4,
+      color: ['#ffffff', '#ffeb99', '#a6f0ff', '#f3c4fb'][i % 4]
+    });
+  }
+
+  // Cosmic Stardust Filaments (Floating fairy dust motes)
+  const cosmicFilaments = [];
+  for (let i = 0; i < 20; i++) {
+    cosmicFilaments.push({
+      x: Math.random() * 1400,
+      y: Math.random() * 1600,
+      size: 2.5 + Math.random() * 3.5,
+      dy: -0.35 - Math.random() * 0.35,
+      phase: Math.random() * Math.PI * 2,
+      color: ['#ff85a1', '#70e000', '#00f5d4', '#ffd166', '#c77dff'][i % 5]
     });
   }
 
@@ -5297,18 +5325,29 @@ html = """<!DOCTYPE html>
     globalTime += dt;
     shakeTime = Math.max(0, shakeTime - dt);
 
-    // Stars
-    stars.forEach(s => {
+    // 🌌 3-Tier Parallax Starfield & Cosmic Filaments Update
+    starsDeep.forEach(s => {
       s.y += s.speed;
-      s.twinkle += dt * 3;
+      s.twinkle += dt * 1.5;
       if (s.y > HEIGHT) { s.y = 0; s.x = Math.random() * WIDTH; }
     });
+    starsMid.forEach(s => {
+      s.y += s.speed;
+      s.twinkle += dt * 3.2;
+      if (s.y > HEIGHT) { s.y = 0; s.x = Math.random() * WIDTH; }
+    });
+    starsHero.forEach(s => {
+      s.y += s.speed;
+      s.twinkle += dt * 2.2;
+      s.rot += s.rotSpeed * dt;
+      if (s.y > HEIGHT + 20) { s.y = -20; s.x = Math.random() * WIDTH; }
+    });
 
-    // Balloons
-    balloons.forEach(b => {
-      b.y += b.dy;
-      b.x += Math.sin(globalTime * 2 + b.phase) * 0.4;
-      if (b.y < -50) { b.y = HEIGHT + 30; b.x = Math.random() * WIDTH; }
+    // Cosmic Stardust Filaments
+    cosmicFilaments.forEach(cf => {
+      cf.y += cf.dy;
+      cf.x += Math.sin(globalTime * 1.8 + cf.phase) * 0.45;
+      if (cf.y < -30) { cf.y = HEIGHT + 20; cf.x = Math.random() * WIDTH; }
     });
 
     // Confetti
@@ -6113,135 +6152,165 @@ html = """<!DOCTYPE html>
 
     let bgGrad;
     if (stage <= 5) {
-      // Biome 1: Pastel Strawberry Nebula (Stages 1-5)
-      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 40, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.85);
-      bgGrad.addColorStop(0, '#380f33');
-      bgGrad.addColorStop(0.42, '#200728');
-      bgGrad.addColorStop(0.78, '#0d0218');
-      bgGrad.addColorStop(1, '#05010a');
+      // Biome 1: Strawberry Quartz Nebula (Stages 1-5)
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, '#34082e');
+      bgGrad.addColorStop(0.35, '#22052c');
+      bgGrad.addColorStop(0.65, '#12021d');
+      bgGrad.addColorStop(0.88, '#080112');
+      bgGrad.addColorStop(1.0, '#030008');
     } else if (stage <= 10) {
-      // Biome 2: Cotton Candy Aurora (Stages 6-10)
-      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 40, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.85);
-      bgGrad.addColorStop(0, '#042a38');
-      bgGrad.addColorStop(0.42, '#021824');
-      bgGrad.addColorStop(0.78, '#010e16');
-      bgGrad.addColorStop(1, '#00050a');
+      // Biome 2: Celestial Aurora Borealis (Stages 6-10)
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, '#032438');
+      bgGrad.addColorStop(0.35, '#021829');
+      bgGrad.addColorStop(0.65, '#010f1c');
+      bgGrad.addColorStop(0.88, '#010810');
+      bgGrad.addColorStop(1.0, '#000308');
     } else if (stage <= 15) {
       // Biome 3: Golden Honeycomb Deep Space (Stages 11-15)
-      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 40, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.85);
-      bgGrad.addColorStop(0, '#3a1f05');
-      bgGrad.addColorStop(0.42, '#221102');
-      bgGrad.addColorStop(0.78, '#110701');
-      bgGrad.addColorStop(1, '#050200');
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, '#341902');
+      bgGrad.addColorStop(0.35, '#231002');
+      bgGrad.addColorStop(0.65, '#140801');
+      bgGrad.addColorStop(0.88, '#0a0300');
+      bgGrad.addColorStop(1.0, '#030100');
     } else if (stage <= 25) {
-      // Biome 4: Cosmic Velvet Twilight (Stages 16-25)
-      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 40, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.85);
-      bgGrad.addColorStop(0, '#320640');
-      bgGrad.addColorStop(0.42, '#1b0324');
-      bgGrad.addColorStop(0.78, '#0c0111');
-      bgGrad.addColorStop(1, '#040007');
+      // Biome 4: Royal Velvet Twilight (Stages 16-25)
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, '#2b043b');
+      bgGrad.addColorStop(0.35, '#1c0229');
+      bgGrad.addColorStop(0.65, '#0f0119');
+      bgGrad.addColorStop(0.88, '#08000f');
+      bgGrad.addColorStop(1.0, '#030006');
     } else {
-      // Biome 5: Diamond Tiara Supernova (Stages 26-30) - Dynamic Prismatic Shift
+      // Biome 5: Prismatic Tiara Supernova (Stages 26-30)
       const rainbowHue = Math.floor((globalTime * 28) % 360);
-      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 40, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.85);
-      bgGrad.addColorStop(0, `hsl(${rainbowHue}, 60%, 18%)`);
-      bgGrad.addColorStop(0.45, '#12072e');
-      bgGrad.addColorStop(0.80, '#08031a');
-      bgGrad.addColorStop(1, '#020108');
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, `hsl(${rainbowHue}, 65%, 16%)`);
+      bgGrad.addColorStop(0.35, '#160833');
+      bgGrad.addColorStop(0.65, '#0c031f');
+      bgGrad.addColorStop(0.88, '#060112');
+      bgGrad.addColorStop(1.0, '#020008');
     }
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    // Glowing Nebula clouds & Biome-specific atmospheric phenomena
+    // ─── 🌌 VOLUMETRIC SCREEN-BLENDED NEBULA PLUMES ────────────────────
     ctx.save();
-    const comboPulse = (comboStreak >= 5) ? (Math.sin(globalTime * 9) * 0.12) : 0;
+    ctx.globalCompositeOperation = 'screen';
+    const comboPulse = (comboStreak >= 5) ? (Math.sin(globalTime * 9) * 0.10) : 0;
+
+    // Plume gentle breathing drift positions
+    const driftX1 = Math.sin(globalTime * 0.45) * 22;
+    const driftY1 = Math.cos(globalTime * 0.38) * 18;
+    const driftX2 = Math.cos(globalTime * 0.40) * 20;
+    const driftY2 = Math.sin(globalTime * 0.48) * 18;
 
     if (stage <= 5) {
-      // Biome 1: Strawberry Nebula Clouds
-      ctx.globalAlpha = 0.25 + comboPulse;
-      const neb1 = ctx.createRadialGradient(WIDTH * 0.25, HEIGHT * 0.32, 10, WIDTH * 0.25, HEIGHT * 0.32, 280);
-      neb1.addColorStop(0, '#ff4da6'); neb1.addColorStop(1, 'transparent');
+      // Biome 1: Strawberry Quartz Plumes
+      ctx.globalAlpha = 0.28 + comboPulse;
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.26 + driftX1, HEIGHT * 0.30 + driftY1, 20, WIDTH * 0.26 + driftX1, HEIGHT * 0.30 + driftY1, 310);
+      neb1.addColorStop(0, '#ff70a6');
+      neb1.addColorStop(0.5, '#701a75');
+      neb1.addColorStop(1, 'transparent');
       ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      const neb2 = ctx.createRadialGradient(WIDTH * 0.78, HEIGHT * 0.65, 10, WIDTH * 0.78, HEIGHT * 0.65, 300);
-      neb2.addColorStop(0, '#9900ff'); neb2.addColorStop(1, 'transparent');
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.76 + driftX2, HEIGHT * 0.64 + driftY2, 20, WIDTH * 0.76 + driftX2, HEIGHT * 0.64 + driftY2, 330);
+      neb2.addColorStop(0, '#c77dff');
+      neb2.addColorStop(0.55, '#3c096c');
+      neb2.addColorStop(1, 'transparent');
       ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
     } else if (stage <= 10) {
-      // Biome 2: Cotton Candy Aurora Ribbons
+      // Biome 2: Celestial Aurora Borealis Ribbons
       ctx.globalAlpha = 0.26 + comboPulse;
-      const neb1 = ctx.createRadialGradient(WIDTH * 0.22, HEIGHT * 0.30, 10, WIDTH * 0.22, HEIGHT * 0.30, 270);
-      neb1.addColorStop(0, '#00f0ff'); neb1.addColorStop(1, 'transparent');
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.24 + driftX1, HEIGHT * 0.28 + driftY1, 20, WIDTH * 0.24 + driftX1, HEIGHT * 0.28 + driftY1, 300);
+      neb1.addColorStop(0, '#00f5d4');
+      neb1.addColorStop(0.55, '#0077b6');
+      neb1.addColorStop(1, 'transparent');
       ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      const neb2 = ctx.createRadialGradient(WIDTH * 0.78, HEIGHT * 0.68, 10, WIDTH * 0.78, HEIGHT * 0.68, 290);
-      neb2.addColorStop(0, '#00ffaa'); neb2.addColorStop(1, 'transparent');
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.76 + driftX2, HEIGHT * 0.65 + driftY2, 20, WIDTH * 0.76 + driftX2, HEIGHT * 0.65 + driftY2, 320);
+      neb2.addColorStop(0, '#70e000');
+      neb2.addColorStop(0.55, '#005f73');
+      neb2.addColorStop(1, 'transparent');
       ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      // Shimmering flowing Aurora ribbon across the sky
-      ctx.globalAlpha = 0.20 + comboPulse;
-      const aurGrad = ctx.createLinearGradient(0, HEIGHT * 0.18, WIDTH, HEIGHT * 0.42);
-      aurGrad.addColorStop(0, 'rgba(0, 240, 255, 0)');
-      aurGrad.addColorStop(0.35, '#00f0ff');
-      aurGrad.addColorStop(0.65, '#00ffaa');
-      aurGrad.addColorStop(1, 'rgba(0, 255, 170, 0)');
+      // Shimmering anime-quality flowing dual Aurora curtains
+      ctx.globalAlpha = 0.22 + comboPulse;
+      const aurGrad = ctx.createLinearGradient(0, HEIGHT * 0.16, WIDTH, HEIGHT * 0.44);
+      aurGrad.addColorStop(0, 'rgba(0, 245, 212, 0)');
+      aurGrad.addColorStop(0.35, '#00f5d4');
+      aurGrad.addColorStop(0.68, '#70e000');
+      aurGrad.addColorStop(1, 'rgba(112, 224, 0, 0)');
       ctx.fillStyle = aurGrad;
       ctx.beginPath();
-      ctx.moveTo(0, HEIGHT * 0.22);
-      for (let ax = 0; ax <= WIDTH; ax += 25) {
-        const ay = HEIGHT * 0.24 + Math.sin(ax * 0.008 + globalTime * 1.6) * 28 + Math.cos(ax * 0.014 - globalTime * 1.1) * 16;
+      ctx.moveTo(0, HEIGHT * 0.20);
+      for (let ax = 0; ax <= WIDTH; ax += 20) {
+        const ay = HEIGHT * 0.22 + Math.sin(ax * 0.007 + globalTime * 1.5) * 32 + Math.cos(ax * 0.013 - globalTime * 1.2) * 18;
         ctx.lineTo(ax, ay);
       }
-      for (let ax = WIDTH; ax >= 0; ax -= 25) {
-        const ay2 = HEIGHT * 0.35 + Math.sin(ax * 0.007 + globalTime * 1.4) * 24;
+      for (let ax = WIDTH; ax >= 0; ax -= 20) {
+        const ay2 = HEIGHT * 0.36 + Math.sin(ax * 0.006 + globalTime * 1.3) * 26;
         ctx.lineTo(ax, ay2);
       }
       ctx.closePath();
       ctx.fill();
 
     } else if (stage <= 15) {
-      // Biome 3: Golden Honeycomb Starlight
-      ctx.globalAlpha = 0.26 + comboPulse;
-      const neb1 = ctx.createRadialGradient(WIDTH * 0.25, HEIGHT * 0.32, 10, WIDTH * 0.25, HEIGHT * 0.32, 280);
-      neb1.addColorStop(0, '#ffaa00'); neb1.addColorStop(1, 'transparent');
-      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-      const neb2 = ctx.createRadialGradient(WIDTH * 0.76, HEIGHT * 0.64, 10, WIDTH * 0.76, HEIGHT * 0.64, 300);
-      neb2.addColorStop(0, '#ff5500'); neb2.addColorStop(1, 'transparent');
-      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-    } else if (stage <= 25) {
-      // Biome 4: Cosmic Velvet Twilight
-      ctx.globalAlpha = 0.27 + comboPulse;
-      const neb1 = ctx.createRadialGradient(WIDTH * 0.26, HEIGHT * 0.34, 10, WIDTH * 0.26, HEIGHT * 0.34, 290);
-      neb1.addColorStop(0, '#cc00ff'); neb1.addColorStop(1, 'transparent');
-      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-      const neb2 = ctx.createRadialGradient(WIDTH * 0.75, HEIGHT * 0.66, 10, WIDTH * 0.75, HEIGHT * 0.66, 310);
-      neb2.addColorStop(0, '#ff0066'); neb2.addColorStop(1, 'transparent');
-      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-    } else {
-      // Biome 5: Diamond Tiara Supernova (Shimmering Rainbow Starlight)
-      const rHue = Math.floor((globalTime * 30) % 360);
-      ctx.globalAlpha = 0.30 + comboPulse;
-
-      const neb1 = ctx.createRadialGradient(WIDTH * 0.28, HEIGHT * 0.32, 10, WIDTH * 0.28, HEIGHT * 0.32, 300);
-      neb1.addColorStop(0, `hsl(${rHue}, 85%, 60%)`);
+      // Biome 3: Golden Honeycomb Deep Starlight Plumes
+      ctx.globalAlpha = 0.28 + comboPulse;
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.26 + driftX1, HEIGHT * 0.30 + driftY1, 20, WIDTH * 0.26 + driftX1, HEIGHT * 0.30 + driftY1, 310);
+      neb1.addColorStop(0, '#ffb703');
+      neb1.addColorStop(0.55, '#6a3805');
       neb1.addColorStop(1, 'transparent');
       ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      const neb2 = ctx.createRadialGradient(WIDTH * 0.74, HEIGHT * 0.65, 10, WIDTH * 0.74, HEIGHT * 0.65, 320);
-      neb2.addColorStop(0, `hsl(${(rHue + 140) % 360}, 90%, 62%)`);
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.76 + driftX2, HEIGHT * 0.64 + driftY2, 20, WIDTH * 0.76 + driftX2, HEIGHT * 0.64 + driftY2, 330);
+      neb2.addColorStop(0, '#fb8500');
+      neb2.addColorStop(0.55, '#4a1503');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    } else if (stage <= 25) {
+      // Biome 4: Royal Velvet Twilight
+      ctx.globalAlpha = 0.29 + comboPulse;
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.28 + driftX1, HEIGHT * 0.32 + driftY1, 20, WIDTH * 0.28 + driftX1, HEIGHT * 0.32 + driftY1, 320);
+      neb1.addColorStop(0, '#9d4edd');
+      neb1.addColorStop(0.55, '#3c096c');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.74 + driftX2, HEIGHT * 0.66 + driftY2, 20, WIDTH * 0.74 + driftX2, HEIGHT * 0.66 + driftY2, 340);
+      neb2.addColorStop(0, '#ff007f');
+      neb2.addColorStop(0.55, '#590d22');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    } else {
+      // Biome 5: Prismatic Tiara Supernova
+      const rHue = Math.floor((globalTime * 30) % 360);
+      ctx.globalAlpha = 0.32 + comboPulse;
+
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.28 + driftX1, HEIGHT * 0.30 + driftY1, 20, WIDTH * 0.28 + driftX1, HEIGHT * 0.30 + driftY1, 330);
+      neb1.addColorStop(0, `hsl(${rHue}, 88%, 65%)`);
+      neb1.addColorStop(0.55, `hsl(${(rHue + 60) % 360}, 60%, 25%)`);
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.74 + driftX2, HEIGHT * 0.65 + driftY2, 20, WIDTH * 0.74 + driftX2, HEIGHT * 0.65 + driftY2, 350);
+      neb2.addColorStop(0, `hsl(${(rHue + 150) % 360}, 92%, 65%)`);
+      neb2.addColorStop(0.55, `hsl(${(rHue + 210) % 360}, 60%, 25%)`);
       neb2.addColorStop(1, 'transparent');
       ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       // Supernova Diamond Halo Flare in deep space
-      ctx.globalAlpha = 0.16 + Math.sin(globalTime * 3) * 0.06;
-      ctx.strokeStyle = `hsl(${(rHue + 60) % 360}, 100%, 75%)`;
-      ctx.lineWidth = 1.8;
+      ctx.globalAlpha = 0.18 + Math.sin(globalTime * 3) * 0.08;
+      ctx.strokeStyle = `hsl(${(rHue + 60) % 360}, 100%, 78%)`;
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
-      ctx.arc(WIDTH / 2, HEIGHT * 0.35, 95 + Math.sin(globalTime * 2.5) * 15, 0, Math.PI * 2);
+      ctx.arc(WIDTH / 2, HEIGHT * 0.35, 100 + Math.sin(globalTime * 2.5) * 16, 0, Math.PI * 2);
       ctx.stroke();
     }
     ctx.restore();
@@ -6266,56 +6335,98 @@ html = """<!DOCTYPE html>
       ctx.restore();
     });
 
-    // Pixel Stars with sparkling 4-point shape and biome-adaptive tint
-    stars.forEach(s => {
-      ctx.save();
-      const alpha = 0.4 + 0.6 * Math.abs(Math.sin(s.twinkle));
+    // ─── 🌌 PRESTIGE 3-TIER PARALLAX STARFIELD RENDERING ───────────────
+    // Layer 1: Deep Infinite Sub-Pixel Star Dust
+    ctx.save();
+    starsDeep.forEach(s => {
+      const alpha = s.baseAlpha * (0.7 + 0.3 * Math.sin(s.twinkle));
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = '#d8dbe2';
+      ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+    ctx.restore();
+
+    // Layer 2: Mid-Space Chromatic Twinkling Starseeds
+    ctx.save();
+    starsMid.forEach(s => {
+      const alpha = 0.38 + 0.62 * Math.abs(Math.sin(s.twinkle));
       let sColor = s.color;
       if (stage > 25) {
-        // Prismatic diamond sparkles
         if (Math.sin(s.twinkle * 2) > 0.4) {
           sColor = `hsl(${(globalTime * 90 + s.x) % 360}, 100%, 85%)`;
         }
       } else if (stage >= 11 && stage <= 15) {
-        // Warm golden honeycomb starlight
         if (s.color === '#ffffff') sColor = '#ffd700';
       } else if (stage >= 6 && stage <= 10) {
-        // Mint & cyan aurora sparkles
         if (s.color === '#ffffff' && s.x % 2 === 0) sColor = '#a6ffff';
       } else if (stage <= 5) {
-        // Strawberry pink starlight
         if (s.color === '#ffffff' && s.x % 3 === 0) sColor = '#ffb3d9';
       }
       ctx.fillStyle = sColor;
       ctx.globalAlpha = alpha;
       const sz = s.size;
       ctx.fillRect(s.x, s.y, sz, sz);
-      if (sz >= 3) {
+      if (sz >= 2.8) {
         ctx.fillRect(s.x - 1, s.y + 1, sz + 2, sz - 2);
         ctx.fillRect(s.x + 1, s.y - 1, sz - 2, sz + 2);
       }
+    });
+    ctx.restore();
+
+    // Layer 3: Rare Majestic Diamond Lens-Flare "Hero" Stars
+    ctx.save();
+    starsHero.forEach(s => {
+      const alpha = 0.45 + 0.55 * Math.abs(Math.sin(s.twinkle));
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rot);
+      ctx.fillStyle = s.color;
+      ctx.shadowColor = s.color;
+      ctx.shadowBlur = 12;
+
+      // 4-point slender diffraction spikes
+      drawStarShape(ctx, 0, 0, 4, s.outerRadius, s.outerRadius * 0.22);
+      ctx.fill();
+
+      // Pure white sparkling jewel core
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(0, 0, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+    ctx.restore();
+
+    // ─── 🌌 COSMIC STARDUST FILAMENTS (Replaces Primitive Balloons) ────
+    cosmicFilaments.forEach(cf => {
+      ctx.save();
+      const flAlpha = 0.28 + 0.22 * Math.sin(globalTime * 2.2 + cf.phase);
+      ctx.globalAlpha = flAlpha;
+      ctx.fillStyle = cf.color;
+      ctx.shadowColor = cf.color;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(cf.x, cf.y, cf.size, 0, Math.PI * 2);
+      ctx.fill();
+      // White crystal core
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(cf.x - cf.size * 0.28, cf.y - cf.size * 0.28, cf.size * 0.35, 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
     });
 
-    // Background Balloons — Dimmed & darkened by ~70% (opacity ~28%)
+    // ─── 🌌 DEEP CINEMATIC VIGNETTE (The "Theatrical Stage" Effect) ────
     ctx.save();
-    ctx.globalAlpha = 0.28;
-    balloons.forEach(b => {
-      ctx.fillStyle = b.color;
-      ctx.beginPath();
-      ctx.ellipse(b.x, b.y, b.sz, b.sz * 1.35, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx.beginPath();
-      ctx.ellipse(b.x - b.sz * 0.35, b.y - b.sz * 0.4, b.sz * 0.3, b.sz * 0.4, -0.3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(160, 160, 180, 0.4)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(b.x, b.y + b.sz * 1.35);
-      ctx.lineTo(b.x + 3, b.y + b.sz * 1.35 + 16);
-      ctx.stroke();
-    });
+    const vignette = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, WIDTH * 0.32, WIDTH / 2, HEIGHT / 2, WIDTH * 0.82);
+    vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vignette.addColorStop(0.68, 'rgba(4, 2, 12, 0.32)');
+    vignette.addColorStop(1.0, 'rgba(2, 1, 8, 0.78)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
     ctx.restore();
 
     // Cockpit Side panels
