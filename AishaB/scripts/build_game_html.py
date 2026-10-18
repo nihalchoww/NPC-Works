@@ -980,24 +980,12 @@ html = """<!DOCTYPE html>
       <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 10px 0; line-height: 1.4;">ENTER YOUR 3-LETTER INITIALS FOR THE ARCADE BOARD:</p>
 
       <div class="initials-slots" id="initials-slots">
-        <span class="initial-slot active" id="slot-0">A</span>
-        <span class="initial-slot" id="slot-1">S</span>
-        <span class="initial-slot" id="slot-2">H</span>
+        <span class="initial-slot active" id="slot-0">_</span>
+        <span class="initial-slot" id="slot-1">_</span>
+        <span class="initial-slot" id="slot-2">_</span>
       </div>
 
       <input type="text" id="initials-input" maxlength="3" autocomplete="off" autocapitalize="characters" style="position:absolute; opacity:0; pointer-events:none;" />
-
-      <div class="quick-initials-row">
-        <div style="font-size: 6.5px; color: #859bb8; margin-bottom: 4px;">QUICK PICK INITIALS:</div>
-        <div class="quick-initials-chips">
-          <button class="quick-chip" data-initials="ASH">👑 ASH</button>
-          <button class="quick-chip" data-initials="MOM">💖 MOM</button>
-          <button class="quick-chip" data-initials="DAD">⭐ DAD</button>
-          <button class="quick-chip" data-initials="BFF">🍰 BFF</button>
-          <button class="quick-chip" data-initials="SIS">🎀 SIS</button>
-          <button class="quick-chip" data-initials="CAT">🐱 CAT</button>
-        </div>
-      </div>
 
       <div class="arcade-keypad" id="arcade-keypad">
         <div class="keypad-row">
@@ -2009,33 +1997,50 @@ html = """<!DOCTYPE html>
   }
 
   // Retro Arcade Hall of Fame Leaderboard
-  const DEFAULT_LEADERBOARD = [
-    { rank: 1, name: "ASH", score: 28500, stage: 30, date: "OCT 18" },
-    { rank: 2, name: "MOM", score: 19800, stage: 24, date: "OCT 18" },
-    { rank: 3, name: "DAD", score: 15400, stage: 18, date: "OCT 18" },
-    { rank: 4, name: "BFF", score: 12200, stage: 14, date: "OCT 18" },
-    { rank: 5, name: "CAT", score: 8600,  stage: 10, date: "OCT 18" }
-  ];
+  // Retro Arcade Hall of Fame Leaderboard (100% Real Player Scores Only)
+  const DEFAULT_LEADERBOARD = [];
 
   let runScoreSubmitted = false;
   let pendingScore = 0;
   let pendingStage = 1;
 
+  const LB_STORAGE_KEY = 'anti_grav_leaderboard';
+  const LB_CLEAN_KEY = 'anti_grav_lb_real_v2';
+
   function getLeaderboard() {
     try {
-      const stored = localStorage.getItem('anti_grav_leaderboard');
+      // Clear legacy dummy family records from localStorage
+      if (!localStorage.getItem(LB_CLEAN_KEY)) {
+        localStorage.setItem(LB_CLEAN_KEY, 'true');
+        const stored = localStorage.getItem(LB_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            const realOnly = parsed.filter(e => !(
+              (e.name === 'ASH' && e.score === 28500) ||
+              (e.name === 'MOM' && e.score === 19800) ||
+              (e.name === 'DAD' && e.score === 15400) ||
+              (e.name === 'BFF' && e.score === 12200) ||
+              (e.name === 'CAT' && e.score === 8600)
+            ));
+            localStorage.setItem(LB_STORAGE_KEY, JSON.stringify(realOnly));
+          }
+        }
+      }
+
+      const stored = localStorage.getItem(LB_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
       console.warn("Failed to read leaderboard:", e);
     }
-    return JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
+    return [];
   }
 
   function saveLeaderboard(list) {
-    localStorage.setItem('anti_grav_leaderboard', JSON.stringify(list));
+    localStorage.setItem(LB_STORAGE_KEY, JSON.stringify(list));
   }
 
   function isHighScoreEligible(s) {
@@ -2849,19 +2854,6 @@ html = """<!DOCTYPE html>
     }
   });
 
-  // Quick initial chips
-  document.querySelectorAll('.quick-chip').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const inits = (btn.getAttribute('data-initials') || 'ASH').slice(0, 3).toUpperCase();
-      slotChars = [inits[0] || '', inits[1] || '', inits[2] || ''];
-      activeSlotIdx = 2;
-      updateInitialsSlots();
-      haptic(20);
-      playTone(800, 'sine', 0.05, 0.15);
-    });
-  });
 
   // Arcade keypad buttons
   document.querySelectorAll('.arcade-key').forEach(btn => {
@@ -2948,6 +2940,18 @@ html = """<!DOCTYPE html>
     if (!leaderboardTable) return;
     leaderboardTable.innerHTML = '';
 
+    if (list.length === 0) {
+      const emptyRow = document.createElement('div');
+      emptyRow.style.cssText = 'padding: 22px 10px; text-align: center; color: #859bb8; font-family: "Press Start 2P", monospace;';
+      emptyRow.innerHTML = `
+        <div style="font-size: 20px; margin-bottom: 8px;">🏆</div>
+        <div style="color: #ffd700; font-size: 8px; margin-bottom: 6px;">NO HIGH SCORES YET!</div>
+        <div style="color: #859bb8; font-size: 6.5px; line-height: 1.6;">PLAY A RUN TO CLAIM RANK #1! 🎂</div>
+      `;
+      leaderboardTable.appendChild(emptyRow);
+      return;
+    }
+
     list.forEach(entry => {
       const row = document.createElement('div');
       row.className = `lb-row rank-${entry.rank}` + (highlightNew && entry.isNew ? ' new-entry-glow' : '');
@@ -2976,16 +2980,16 @@ html = """<!DOCTYPE html>
     initAudio();
     haptic(20);
     const list = getLeaderboard();
-    let text = `🏆 AISHA'S BIRTHDAY BAKE-OFF: HALL OF FAME 🏆
-`;
+    if (list.length === 0) {
+      toastFortune("🏆 No scores yet! Complete a run to claim #1!");
+      return;
+    }
+    let text = `🏆 AISHA'S BIRTHDAY BAKE-OFF: HALL OF FAME 🏆\n`;
     list.forEach(item => {
       const medal = item.rank === 1 ? "🥇" : (item.rank === 2 ? "🥈" : (item.rank === 3 ? "🥉" : `[#${item.rank}]`));
-      text += `${medal} ${item.name} — ${item.score.toLocaleString()} pts (Lvl ${item.stage})
-`;
+      text += `${medal} ${item.name} — ${item.score.toLocaleString()} pts (Lvl ${item.stage})\n`;
     });
-    text += `
-Can you beat Aisha and friends' cosmic high scores? 🎂✨
-https://aishababu.vercel.app`;
+    text += `\nCan you beat the cosmic high scores? 🎂✨\nhttps://aishababu.vercel.app`;
 
     if (navigator.share) {
       try {
@@ -3015,8 +3019,8 @@ https://aishababu.vercel.app`;
   function resetLeaderboard() {
     initAudio();
     haptic(30);
-    if (confirm("Reset Hall of Fame scores back to default family records?")) {
-      saveLeaderboard(DEFAULT_LEADERBOARD);
+    if (confirm("Clear all Hall of Fame scores?")) {
+      saveLeaderboard([]);
       renderLeaderboard(false);
       playTone(440, 'triangle', 0.1, 0.2);
     }
