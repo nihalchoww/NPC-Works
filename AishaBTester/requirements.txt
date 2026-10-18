@@ -1,0 +1,10 @@
+# Aisha's Birthday Bake-Off — Python dependencies
+#
+# Standard installation (Python 3.10–3.13):
+#   pip install pygame
+#
+# Python 3.14+ (pygame binary wheel may be unavailable):
+#   pip install pygame-ce        ← community edition, same API
+#
+# The game imports 'pygame', which is satisfied by either package.
+pygame

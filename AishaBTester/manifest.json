@@ -1,0 +1,28 @@
+{
+  "name": "Aisha's Birthday Bake-Off",
+  "short_name": "Aisha Bake-Off",
+  "description": "Celebrate Aisha's Birthday with a 30-level cosmic bakery arcade challenge! Catch cakes, blow real candles, and crack the Cosmic Piñata!",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0520",
+  "theme_color": "#ff3388",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "arcade", "entertainment"],
+  "lang": "en-US",
+  "dir": "ltr"
+}
