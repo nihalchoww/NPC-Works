@@ -47,17 +47,18 @@ html = """<!DOCTYPE html>
   #game-wrap {
     position: fixed;
     inset: 0;
-    width: 100vw;
+    width: 100%;
+    height: 100%;
     height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     background: radial-gradient(ellipse at center, #1b1248 0%, #0d0824 60%, #060312 100%);
+    overflow: hidden;
   }
   canvas {
     width: 100%;
     height: 100%;
-    object-fit: contain;
     display: block;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
@@ -206,123 +207,24 @@ html = """<!DOCTYPE html>
     z-index: 16;
   }
   /* Mobile Thumb Controls */
-  #touch-controls {
-    display: none;
+  /* Floating Microphone Button for Candle Ceremony */
+  #btn-mic {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 20;
-  }
-  @media (pointer: coarse), (max-width: 900px) {
-    #touch-controls { display: block; }
-  }
-
-  /* Left & Right moving icons shifted to the left and right middle sides of the screen */
-  .thumb-zone {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: auto;
+    top: max(12px, env(safe-area-inset-top));
+    right: calc(max(12px, env(safe-area-inset-right)) + 58px);
     z-index: 25;
-  }
-  .zone-left {
-    left: max(16px, env(safe-area-inset-left));
-  }
-  .zone-right {
-    right: max(16px, env(safe-area-inset-right));
-  }
-
-  .control-btn {
-    width: 74px;
-    height: 74px;
-    border-radius: 50%;
-    background: rgba(14, 18, 52, 0.75);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 2.5px solid #00dcff;
-    color: #00dcff;
-    font-size: 30px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 16px rgba(0, 220, 255, 0.35), inset 0 0 14px rgba(0, 220, 255, 0.2);
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    transition: transform 0.08s ease, background 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
-  }
-  .control-btn:active, .control-btn.active {
-    background: rgba(0, 220, 255, 0.45);
-    color: #ffffff;
-    border-color: #ffffff;
-    transform: scale(0.90);
-    box-shadow: 0 0 28px rgba(0, 220, 255, 0.9), inset 0 0 16px #ffffff;
-  }
-
-  /* Action buttons (START / RESUME / SHARE / MIC) at bottom center for menus & ceremonies */
-  .action-zone {
-    position: absolute;
-    bottom: max(16px, env(safe-area-inset-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: auto;
-    z-index: 22;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    max-width: 92vw;
-  }
-  .btn-action {
-    width: auto;
-    min-width: 130px;
-    height: 46px;
-    padding: 0 20px;
-    border-radius: 24px;
-    font-size: 11px;
-    letter-spacing: 1.2px;
-    border-color: #ffd700;
-    color: #ffd700;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.25);
-  }
-  .btn-action:active, .btn-action.active {
-    background: rgba(255, 215, 0, 0.4);
-    box-shadow: 0 0 26px rgba(255, 215, 0, 0.85), inset 0 0 14px #ffffff;
-    color: #ffffff;
-  }
-  .btn-resume {
-    border-color: #00dcff;
-    color: #00dcff;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 220, 255, 0.4), inset 0 0 10px rgba(0, 220, 255, 0.25);
-  }
-  .btn-resume:active, .btn-resume.active {
-    background: rgba(0, 220, 255, 0.4);
-    box-shadow: 0 0 26px rgba(0, 220, 255, 0.85), inset 0 0 14px #ffffff;
-    color: #ffffff;
-  }
-  .btn-share {
-    border-color: #ff6ebe;
-    color: #ff6ebe;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 110, 190, 0.4), inset 0 0 10px rgba(255, 110, 190, 0.25);
-  }
-  .btn-share:active, .btn-share.active {
-    background: rgba(255, 110, 190, 0.4);
-    box-shadow: 0 0 26px rgba(255, 110, 190, 0.85), inset 0 0 14px #ffffff;
-    color: #ffffff;
-  }
-  .btn-mic {
+    display: none;
+    font-size: 20px;
     border-color: #37be46;
     color: #37be46;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(55, 190, 70, 0.4), inset 0 0 10px rgba(55, 190, 70, 0.25);
+    box-shadow: 0 0 14px rgba(55, 190, 70, 0.4);
+    transition: all 0.2s ease;
   }
-  .btn-mic.active {
-    background: rgba(55, 190, 70, 0.5);
+  #btn-mic.active {
+    background: rgba(55, 190, 70, 0.45);
+    border-color: #00ff88;
     color: #ffffff;
-    box-shadow: 0 0 26px rgba(55, 190, 70, 0.9), inset 0 0 14px #ffffff;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.85), inset 0 0 10px #00ff88;
   }
   /* Shareable Victory Polaroid Purikura Certificate Modal */
   #polaroid-modal {
@@ -1198,20 +1100,7 @@ html = """<!DOCTYPE html>
     </div>
   </div>
   <button class="hud-btn" id="pause-btn" title="Pause / Resume">⏸</button>
-  <div id="touch-controls">
-    <div class="thumb-zone zone-left">
-      <button class="control-btn" id="btn-left" aria-label="Move Left">◀</button>
-    </div>
-    <div class="thumb-zone zone-right">
-      <button class="control-btn" id="btn-right" aria-label="Move Right">▶</button>
-    </div>
-    <div class="action-zone" id="action-zone">
-      <button class="control-btn btn-action" id="btn-action">START</button>
-      <button class="control-btn btn-action btn-resume" id="btn-resume" style="display:none;">★ RESUME ★</button>
-      <button class="control-btn btn-action btn-share" id="btn-share" style="display:none;">📸 POLAROID</button>
-      <button class="control-btn btn-action btn-mic" id="btn-mic" style="display:none;">🎤 BLOW MIC</button>
-    </div>
-  </div>
+  <button class="hud-btn" id="btn-mic" title="Blow candles with microphone" aria-label="Microphone">🎤</button>
   <div id="polaroid-modal">
     <div id="polaroid-wrap">
       <div class="purikura-header">
@@ -2246,30 +2135,54 @@ html = """<!DOCTYPE html>
     }
   }
 
-  // Dynamic Viewport
+  // Dynamic Viewport & Safe-Area Fitting
   let WIDTH = 720;
   let HEIGHT = 1280;
+  let safeTop = 20;
+  let safeBottom = 24;
+
+  function updateSafeInsets() {
+    try {
+      const div = document.createElement('div');
+      div.style.cssText = 'position:fixed;top:0;left:0;height:env(safe-area-inset-top, 0px);bottom:env(safe-area-inset-bottom, 0px);pointer-events:none;visibility:hidden;z-index:-999;';
+      document.body.appendChild(div);
+      const topPx = div.offsetHeight || 0;
+      document.body.removeChild(div);
+      const vh = window.innerHeight || 640;
+      const scale = HEIGHT / Math.max(vh, 1);
+      safeTop = Math.max(18, Math.round(topPx * scale) + 10);
+      safeBottom = Math.max(20, Math.round(16 * scale));
+    } catch(e) {
+      safeTop = 20;
+      safeBottom = 24;
+    }
+  }
 
   function handleResize() {
-    const isPortrait = window.innerHeight > window.innerWidth;
+    const vv = window.visualViewport;
+    const w = (vv ? vv.width : window.innerWidth) || 360;
+    const h = (vv ? vv.height : window.innerHeight) || 640;
+    const isPortrait = h >= w;
     if (isPortrait) {
       WIDTH = 720;
-      const ratio = window.innerHeight / window.innerWidth;
+      const ratio = h / w;
       HEIGHT = Math.round(720 * ratio);
-      HEIGHT = Math.max(1080, Math.min(1600, HEIGHT));
     } else {
       HEIGHT = 720;
-      const ratio = window.innerWidth / window.innerHeight;
+      const ratio = w / h;
       WIDTH = Math.round(720 * ratio);
-      WIDTH = Math.max(1080, Math.min(1600, WIDTH));
     }
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
-    player.y = HEIGHT - 115;
+    updateSafeInsets();
+    player.y = HEIGHT - safeBottom - 75;
     player.x = Math.max(player.w / 2, Math.min(WIDTH - player.w / 2, player.x));
   }
   window.addEventListener('resize', handleResize);
   window.addEventListener('orientationchange', () => setTimeout(handleResize, 200));
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleResize);
+  }
 
   // Game Constants
   const TOTAL_STAGES = 30;
@@ -2811,11 +2724,12 @@ html = """<!DOCTYPE html>
     if (!e.target.closest('#settings-dock-wrap')) {
       collapseSettingsDock();
     }
-    if (e.target.closest('.hud-btn') || e.target.closest('.dock-btn') || e.target.closest('#touch-controls')) return;
+    if (e.target.closest('.hud-btn') || e.target.closest('.dock-btn')) return;
     if (state === 'MENU') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
-      const boxY = HEIGHT / 2 - 265;
-      if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 450) {
+      const boxH = Math.min(HEIGHT - safeTop - safeBottom - 40, 520);
+      const boxY = HEIGHT / 2 - boxH / 2;
+      if (checkpointStage > 1 && coords.y >= boxY + boxH - 110 && coords.y <= boxY + boxH - 60) {
         resumeCheckpoint();
       } else {
         startGame();
@@ -2825,13 +2739,14 @@ html = """<!DOCTYPE html>
     }
     if (state === 'GAME_OVER') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
-      const boxY = HEIGHT / 2 - 265;
-      if (coords.y >= boxY + 456 && coords.y <= boxY + 494) {
+      const boxH = Math.min(HEIGHT - safeTop - safeBottom - 40, 520);
+      const boxY = HEIGHT / 2 - boxH / 2;
+      if (coords.y >= boxY + boxH - 52 && coords.y <= boxY + boxH - 24) {
         shareOrSavePolaroid();
         haptic(25);
         return;
       }
-      if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 450) {
+      if (checkpointStage > 1 && coords.y >= boxY + boxH - 110 && coords.y <= boxY + boxH - 60) {
         resumeCheckpoint();
       } else {
         startGame();
@@ -2841,13 +2756,14 @@ html = """<!DOCTYPE html>
     }
     if (state === 'WIN') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
-      const boxY = HEIGHT / 2 - 265;
-      if (coords.y >= boxY + 452 && coords.y <= boxY + 490 && Math.abs(coords.x - WIDTH / 2) < 220) {
+      const boxH = Math.min(HEIGHT - safeTop - safeBottom - 40, 530);
+      const boxY = HEIGHT / 2 - boxH / 2;
+      if (coords.y >= boxY + boxH - 56 && coords.y <= boxY + boxH - 28 && Math.abs(coords.x - WIDTH / 2) < 220) {
         shareOrSavePolaroid();
         haptic(25);
         return;
       }
-      if (coords.y >= boxY + 418 && coords.y <= boxY + 450 && Math.abs(coords.x - WIDTH / 2) < 180) {
+      if (coords.y >= boxY + boxH - 85 && coords.y <= boxY + boxH - 58 && Math.abs(coords.x - WIDTH / 2) < 180) {
         startGame();
         haptic(25);
         return;
@@ -2858,10 +2774,11 @@ html = """<!DOCTYPE html>
     }
     if (state === 'CANDLE_CEREMONY') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
-      const boxY = HEIGHT / 2 - Math.min(HEIGHT - 80, 560) / 2;
+      const boxH = Math.min(HEIGHT - safeTop - safeBottom - 30, 540);
+      const boxY = HEIGHT / 2 - boxH / 2;
       const cakeCenterY = HEIGHT / 2 + 75;
       if (!ceremonyAllBlown) {
-        if (coords.y >= boxY + 460 && coords.y <= boxY + 505 && Math.abs(coords.x - WIDTH / 2) < 160) {
+        if (coords.y >= boxY + boxH - 80 && coords.y <= boxY + boxH - 35 && Math.abs(coords.x - WIDTH / 2) < 160) {
           toggleMic();
           return;
         }
@@ -2882,15 +2799,15 @@ html = """<!DOCTYPE html>
             }
           }
         }
-        if (coords.y >= boxY + 516 && coords.y <= boxY + 540 && Math.abs(coords.x - WIDTH / 2) < 220) {
+        if (coords.y >= boxY + boxH - 32 && coords.y <= boxY + boxH && Math.abs(coords.x - WIDTH / 2) < 220) {
           openCakeTowerModal();
           return;
         }
-        if (coords.y >= boxY + 490 && coords.y <= boxY + 515 && Math.abs(coords.x - WIDTH / 2) < 220) {
+        if (coords.y >= boxY + boxH - 60 && coords.y <= boxY + boxH - 34 && Math.abs(coords.x - WIDTH / 2) < 220) {
           shareOrSavePolaroid();
           return;
         }
-        if (coords.y >= boxY + 465 && coords.y <= boxY + 490 && Math.abs(coords.x - WIDTH / 2) < 180) {
+        if (coords.y >= boxY + boxH - 90 && coords.y <= boxY + boxH - 62 && Math.abs(coords.x - WIDTH / 2) < 180) {
           if (stage >= TOTAL_STAGES) {
             startGame();
           } else {
@@ -2950,14 +2867,9 @@ html = """<!DOCTYPE html>
   });
   window.addEventListener('keyup', (e) => { keys[e.code] = false; });
 
-  // Touch Buttons
-  const btnL = document.getElementById('btn-left');
-  const btnR = document.getElementById('btn-right');
-  const btnAction = document.getElementById('btn-action');
-  const btnResume = document.getElementById('btn-resume');
-  const btnShare = document.getElementById('btn-share');
+  // Touch Buttons & HUD elements
+  const btnAction = { textContent: '' };
   const btnMic = document.getElementById('btn-mic');
-  const actionZone = document.getElementById('action-zone');
   const btnPause = document.getElementById('pause-btn');
   const gearBtn = document.getElementById('gear-btn');
   const settingsDock = document.getElementById('settings-dock');
@@ -3899,77 +3811,25 @@ html = """<!DOCTYPE html>
     checkpointStage = parseInt(localStorage.getItem('anti_grav_checkpoint') || '0');
     checkpointScore = parseInt(localStorage.getItem('anti_grav_checkpoint_score') || '0');
 
-    if (actionZone) {
-      if (state === 'PLAYING') {
-        actionZone.style.display = 'none';
-      } else {
-        actionZone.style.display = 'flex';
-      }
-    }
-
-    if (btnResume) {
-      if ((state === 'MENU' || state === 'GAME_OVER') && checkpointStage > 1) {
-        btnResume.style.display = 'block';
-        btnResume.textContent = '★ RESUME (LVL ' + checkpointStage + ')';
-      } else {
-        btnResume.style.display = 'none';
-      }
-    }
-
     if (btnMic) {
       if (state === 'CANDLE_CEREMONY' && !ceremonyAllBlown) {
-        btnMic.style.display = 'block';
+        btnMic.style.display = 'flex';
         btnMic.classList.toggle('active', micEnabled);
-        btnMic.textContent = micEnabled ? '🎤 MIC: LISTENING...' : '🎤 BLOW MIC';
       } else {
         btnMic.style.display = 'none';
       }
     }
-
-    if (btnShare) {
-      if (state === 'WIN' || (state === 'CANDLE_CEREMONY' && ceremonyAllBlown)) {
-        btnShare.style.display = 'block';
-        btnShare.textContent = '📸 SHARE POLAROID';
-      } else {
-        btnShare.style.display = 'none';
-      }
-    }
   }
 
-  function bindBtn(elem, code) {
-    elem.addEventListener('pointerdown', (e) => {
+  if (btnMic) {
+    btnMic.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       initAudio();
-      keys[code] = true;
-      elem.classList.add('active');
-      haptic(15);
+      toggleMic();
+      haptic(20);
     });
-    const release = (e) => {
-      e.preventDefault();
-      keys[code] = false;
-      elem.classList.remove('active');
-    };
-    elem.addEventListener('pointerup', release);
-    elem.addEventListener('pointercancel', release);
-    elem.addEventListener('pointerleave', release);
   }
-  bindBtn(btnL, 'ArrowLeft');
-  bindBtn(btnR, 'ArrowRight');
-
-  btnAction.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    collapseSettingsDock();
-    initAudio();
-    haptic(25);
-    if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
-    else if (state === 'CANDLE_CEREMONY') blowCandles();
-    else if (state === 'MILESTONE') continueMilestone();
-    else if (state === 'PLAYING') state = 'PAUSED';
-    else if (state === 'PAUSED') state = 'PLAYING';
-    syncUIState();
-  });
 
   btnPause.addEventListener('click', (e) => {
     e.preventDefault();
@@ -4568,7 +4428,8 @@ html = """<!DOCTYPE html>
     gachaWonBadge = null;
     gachaWonPerk = null;
 
-    const boxY = HEIGHT / 2 - Math.min(HEIGHT - 80, 560) / 2;
+    const boxH = Math.min(HEIGHT - safeTop - safeBottom - 30, 540);
+    const boxY = HEIGHT / 2 - boxH / 2;
     const offsets = [-140, 0, 140];
     const boxColors = [
       { box: '#ff007f', ribbon: '#ffd700', lid: '#ff4da6' },
@@ -7413,14 +7274,14 @@ html = """<!DOCTYPE html>
     });
 
     // ─── RETRO 16-BIT HUD ─────────────────────────────────────────────
-    // Top Score Box — Sharp Bright Yellow
+    // Top Score Box — Sharp Bright Yellow, indented past gear button
     ctx.save();
     ctx.fillStyle = '#ffd700';
     ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
     ctx.shadowBlur = 8;
-    ctx.font = '14px "Press Start 2P", monospace';
+    ctx.font = '13px "Press Start 2P", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText("SCORE: " + String(score).padStart(6, "0"), pw + 32, 35);
+    ctx.fillText("SCORE: " + String(score).padStart(6, "0"), pw + 72, safeTop + 14);
     ctx.restore();
 
     // Center Timer — Sharp Bright Cyan
@@ -7433,16 +7294,16 @@ html = """<!DOCTYPE html>
     ctx.fillStyle = tCol;
     ctx.shadowColor = tCol;
     ctx.shadowBlur = 8;
-    ctx.font = '16px "Press Start 2P", monospace';
+    ctx.font = '15px "Press Start 2P", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(tStr, WIDTH / 2, 35);
+    ctx.fillText(tStr, WIDTH / 2, safeTop + 14);
     ctx.restore();
 
     // Mini Cake Level Progress Bar (0 to 20 ingredients)
     const progW = 120;
     const progH = 6;
     const progX = WIDTH / 2 - progW / 2;
-    const progY = 48;
+    const progY = safeTop + 24;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
     ctx.fillRect(progX, progY, progW, progH);
     const progRatio = Math.min(1.0, itemsCaughtStage / ITEMS_PER_STAGE);
@@ -7506,7 +7367,7 @@ html = """<!DOCTYPE html>
       const boxW = Math.min(WIDTH - 40, 520);
       const boxH = 46;
       const boxX = WIDTH / 2 - boxW / 2;
-      const boxY = 132;
+      const boxY = safeTop + 86;
 
       ctx.fillStyle = 'rgba(15, 8, 38, 0.94)';
       ctx.shadowColor = '#ffd700';
@@ -7533,7 +7394,7 @@ html = """<!DOCTYPE html>
     }
 
     // Active Power-up Badges in HUD
-    let puY = 78;
+    let puY = safeTop + 54;
     if (pinataFrenzyTime > 0) {
       ctx.fillStyle = '#ffd700';
       ctx.shadowColor = '#ffd700';
@@ -7583,24 +7444,24 @@ html = """<!DOCTYPE html>
       puY += 15;
     }
 
-    // Pixel Hearts (Lives) — Top Right
-    const hx = WIDTH - pw - 60;
+    // Pixel Hearts (Lives) — Top Right, indented past pause button
+    const hx = WIDTH - pw - 72;
     for (let i = 0; i < MAX_LIVES; i++) {
       const active = i < lives;
-      const lx = hx - (MAX_LIVES - 1 - i) * 28;
+      const lx = hx - (MAX_LIVES - 1 - i) * 26;
       ctx.save();
       ctx.fillStyle = active ? '#ff2a55' : '#331520';
       if (active) {
         ctx.shadowColor = '#ff2a55';
         ctx.shadowBlur = 8;
       }
-      ctx.fillRect(lx - 10, 22, 9, 9);
-      ctx.fillRect(lx - 1, 22, 9, 9);
-      ctx.fillRect(lx - 9, 31, 16, 7);
-      ctx.fillRect(lx - 5, 38, 8, 4);
+      ctx.fillRect(lx - 10, safeTop + 5, 9, 9);
+      ctx.fillRect(lx - 1, safeTop + 5, 9, 9);
+      ctx.fillRect(lx - 9, safeTop + 14, 16, 7);
+      ctx.fillRect(lx - 5, safeTop + 21, 8, 4);
       if (active) {
         ctx.fillStyle = '#ffb3c6';
-        ctx.fillRect(lx - 8, 24, 3, 3);
+        ctx.fillRect(lx - 8, safeTop + 7, 3, 3);
       }
       ctx.restore();
     }
@@ -7612,7 +7473,7 @@ html = """<!DOCTYPE html>
     ctx.shadowBlur = 10;
     ctx.font = '13px "Press Start 2P", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText("ZERO-G MODE", pw + 18, HEIGHT - 20);
+    ctx.fillText("ZERO-G MODE", pw + 18, HEIGHT - safeBottom - 8);
     ctx.restore();
 
     // Gyroscope / Tilt Steering Horizon Bubble Indicator
@@ -7621,7 +7482,7 @@ html = """<!DOCTYPE html>
       const tIndW = 86;
       const tIndH = 14;
       const tIndX = WIDTH / 2 - tIndW / 2;
-      const tIndY = HEIGHT - 30;
+      const tIndY = HEIGHT - safeBottom - 18;
 
       ctx.fillStyle = 'rgba(8, 14, 38, 0.88)';
       ctx.strokeStyle = '#00dcff';
@@ -7660,7 +7521,7 @@ html = """<!DOCTYPE html>
       const waveStart = pw + 180;
       const waveWidth = Math.max(100, WIDTH - pw * 2 - 370);
       for (let wx = 0; wx < waveWidth; wx += 4) {
-        const wy = HEIGHT - 23 + Math.sin(wx * 0.08 + globalTime * 7) * 7;
+        const wy = HEIGHT - safeBottom - 11 + Math.sin(wx * 0.08 + globalTime * 7) * 7;
         if (wx === 0) ctx.moveTo(waveStart + wx, wy);
         else ctx.lineTo(waveStart + wx, wy);
       }
@@ -7673,12 +7534,12 @@ html = """<!DOCTYPE html>
     ctx.shadowBlur = 10;
     ctx.font = '13px "Press Start 2P", monospace';
     ctx.textAlign = 'right';
-    ctx.fillText("STAGE " + stage + "/" + TOTAL_STAGES, WIDTH - pw - 18, HEIGHT - 20);
+    ctx.fillText("STAGE " + stage + "/" + TOTAL_STAGES, WIDTH - pw - 18, HEIGHT - safeBottom - 8);
 
     const costumeTitle = stage >= 30 ? "💎 TIARA" : (stage >= 20 ? "🧑‍🍳 CHEF" : (stage >= 10 ? "👑 CROWN" : "🎀 PARTY"));
     ctx.fillStyle = stage >= 30 ? '#00f0ff' : (stage >= 20 ? '#ffffff' : (stage >= 10 ? '#ffd700' : '#ff6ebe'));
     ctx.font = '8px "Press Start 2P", monospace';
-    ctx.fillText(costumeTitle, WIDTH - pw - 18, HEIGHT - 36);
+    ctx.fillText(costumeTitle, WIDTH - pw - 18, HEIGHT - safeBottom - 22);
     ctx.restore();
 
     // ─── OVERLAY SCREENS ──────────────────────────────────────────────
@@ -7687,8 +7548,8 @@ html = """<!DOCTYPE html>
 
     if (state === 'MENU') {
       btnAction.textContent = 'START';
-      const boxW = 660;
-      const boxH = 530;
+      const boxW = Math.min(WIDTH - 32, 640);
+      const boxH = Math.min(HEIGHT - safeTop - safeBottom - 40, 520);
       const boxX = WIDTH / 2 - boxW / 2;
       const boxY = HEIGHT / 2 - boxH / 2;
 
@@ -7708,51 +7569,51 @@ html = """<!DOCTYPE html>
       ctx.fillStyle = COLORS.GOLD;
       ctx.font = '18px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("★ AISHA'S ★", WIDTH / 2, boxY + 36);
+      ctx.fillText("★ AISHA'S ★", WIDTH / 2, boxY + 34);
 
       ctx.fillStyle = COLORS.PINK;
       ctx.font = '15px "Press Start 2P", monospace';
-      ctx.fillText("BIRTHDAY BAKE-OFF!", WIDTH / 2, boxY + 64);
+      ctx.fillText("BIRTHDAY BAKE-OFF!", WIDTH / 2, boxY + 60);
 
       // Centerpiece Portrait of Aisha (Floating 16-bit framed portrait)
       const floatY = Math.sin(globalTime * 2.2) * 5;
-      const portW = 180;
-      const portH = 240;
-      const portY = boxY + 200;
+      const portH = Math.min(210, Math.round(boxH * 0.42));
+      const portW = Math.round(portH * 0.75);
+      const portY = boxY + 70 + portH / 2;
       drawAishaPortrait(ctx, WIDTH / 2, portY, portW, portH, floatY);
 
       // Birthday Girl Ribbon Tag
       ctx.fillStyle = COLORS.GOLD;
       ctx.font = '11px "Press Start 2P", monospace';
-      ctx.fillText("★ THE BIRTHDAY GIRL ★", WIDTH / 2, portY + portH / 2 + 22 + floatY);
+      ctx.fillText("★ THE BIRTHDAY GIRL ★", WIDTH / 2, portY + portH / 2 + 18 + floatY);
 
       // Checkpoint resume option or new game prompt
       if (checkpointStage > 1) {
         ctx.fillStyle = COLORS.CYAN;
         ctx.font = '10px "Press Start 2P", monospace';
-        ctx.fillText(`★ CHECKPOINT: STAGE ${checkpointStage} (${checkpointScore.toLocaleString()} PTS) ★`, WIDTH / 2, boxY + 392);
+        ctx.fillText(`★ CHECKPOINT: STAGE ${checkpointStage} (${checkpointScore.toLocaleString()} PTS) ★`, WIDTH / 2, boxY + boxH - 100);
 
         const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
         ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
         ctx.font = '12px "Press Start 2P", monospace';
-        ctx.fillText(`★ TAP TO RESUME STAGE ${checkpointStage} ★`, WIDTH / 2, boxY + 426);
+        ctx.fillText(`★ TAP TO RESUME STAGE ${checkpointStage} ★`, WIDTH / 2, boxY + boxH - 72);
       } else {
         ctx.fillStyle = '#c8d4f0';
         ctx.font = '10px "Press Start 2P", monospace';
-        ctx.fillText("CATCH FALLING CAKES - DODGE ANVILS!", WIDTH / 2, boxY + 392);
+        ctx.fillText("CATCH FALLING CAKES - DODGE ANVILS!", WIDTH / 2, boxY + boxH - 100);
 
         const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
         ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
         ctx.font = '14px "Press Start 2P", monospace';
-        ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + 428);
+        ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + boxH - 72);
       }
 
       ctx.fillStyle = '#859bb8';
       ctx.font = '8px "Press Start 2P", monospace';
-      ctx.fillText(`BEST: ${hiScore.toLocaleString()}   |   🛸 BONUS PIÑATA: LVL 9, 19, 29`, WIDTH / 2, boxY + 472);
+      ctx.fillText(`BEST: ${hiScore.toLocaleString()}   |   🛸 BONUS PIÑATA: LVL 9, 19, 29`, WIDTH / 2, boxY + boxH - 42);
       ctx.fillStyle = '#ff94c2';
       ctx.font = '7px "Press Start 2P", monospace';
-      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + 498);
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + boxH - 18);
     } else if (state === 'PAUSED') {
       btnAction.textContent = 'RESUME';
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -7800,8 +7661,8 @@ html = """<!DOCTYPE html>
       ctx.fillText("WARPING TO LEVEL " + (stage + 1) + "...", WIDTH / 2, HEIGHT / 2 + 35);
       ctx.shadowBlur = 0;
     } else if (state === 'CANDLE_CEREMONY') {
-      const boxW = Math.min(WIDTH - 24, 670);
-      const boxH = Math.min(HEIGHT - 80, 560);
+      const boxW = Math.min(WIDTH - 24, 660);
+      const boxH = Math.min(HEIGHT - safeTop - safeBottom - 30, 540);
       const boxX = WIDTH / 2 - boxW / 2;
       const boxY = HEIGHT / 2 - boxH / 2;
 
@@ -8095,8 +7956,8 @@ html = """<!DOCTYPE html>
       }
     } else if (state === 'GAME_OVER') {
       btnAction.textContent = 'RETRY';
-      const boxW = 660;
-      const boxH = 530;
+      const boxW = Math.min(WIDTH - 32, 640);
+      const boxH = Math.min(HEIGHT - safeTop - safeBottom - 40, 520);
       const boxX = WIDTH / 2 - boxW / 2;
       const boxY = HEIGHT / 2 - boxH / 2;
 
@@ -8115,37 +7976,40 @@ html = """<!DOCTYPE html>
       ctx.fillStyle = COLORS.RED;
       ctx.font = '20px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("CAKE DISASTER!", WIDTH / 2, boxY + 40);
+      ctx.fillText("CAKE DISASTER!", WIDTH / 2, boxY + 36);
 
       // Aisha Portrait on game over
-      drawAishaPortrait(ctx, WIDTH / 2, boxY + 185, 135, 180, 0);
+      const portH = Math.min(170, Math.round(boxH * 0.36));
+      const portW = Math.round(portH * 0.75);
+      const portY = boxY + 54 + portH / 2;
+      drawAishaPortrait(ctx, WIDTH / 2, portY, portW, portH, 0);
 
       ctx.fillStyle = COLORS.PINK;
-      ctx.font = '11px "Press Start 2P", monospace';
-      ctx.fillText("DON'T GIVE UP ON AISHA'S CAKE!", WIDTH / 2, boxY + 300);
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillText("DON'T GIVE UP ON AISHA'S CAKE!", WIDTH / 2, portY + portH / 2 + 16);
 
       ctx.fillStyle = COLORS.WHITE;
-      ctx.font = '12px "Press Start 2P", monospace';
-      ctx.fillText("Score: " + score.toLocaleString(), WIDTH / 2, boxY + 348);
+      ctx.font = '11px "Press Start 2P", monospace';
+      ctx.fillText("Score: " + score.toLocaleString(), WIDTH / 2, boxY + boxH - 110);
       ctx.fillStyle = COLORS.GOLD;
-      ctx.fillText("Hi-Score: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 382);
+      ctx.fillText("Hi-Score: " + hiScore.toLocaleString(), WIDTH / 2, boxY + boxH - 86);
 
       const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
       ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
-      ctx.font = '14px "Press Start 2P", monospace';
-      ctx.fillText("▶ TAP TO RETRY ◀", WIDTH / 2, boxY + 424);
+      ctx.font = '13px "Press Start 2P", monospace';
+      ctx.fillText("▶ TAP TO RETRY ◀", WIDTH / 2, boxY + boxH - 62);
 
       ctx.fillStyle = '#ff6ebe';
-      ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 472);
+      ctx.font = '8.5px "Press Start 2P", monospace';
+      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + boxH - 36);
 
       ctx.fillStyle = '#859bb8';
       ctx.font = '7px "Press Start 2P", monospace';
-      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + 504);
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + boxH - 16);
     } else if (state === 'WIN') {
       btnAction.textContent = 'AGAIN';
-      const boxW = 660;
-      const boxH = 530;
+      const boxW = Math.min(WIDTH - 32, 660);
+      const boxH = Math.min(HEIGHT - safeTop - safeBottom - 40, 530);
       const boxX = WIDTH / 2 - boxW / 2;
       const boxY = HEIGHT / 2 - boxH / 2;
 
@@ -8164,46 +8028,46 @@ html = """<!DOCTYPE html>
       ctx.fillStyle = COLORS.GOLD;
       ctx.font = '18px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("★ GRAND CHAMPION BAKER! ★", WIDTH / 2, boxY + 36);
+      ctx.fillText("★ GRAND CHAMPION BAKER! ★", WIDTH / 2, boxY + 34);
 
       ctx.fillStyle = COLORS.PINK;
-      ctx.font = '15px "Press Start 2P", monospace';
-      ctx.fillText("HAPPY BIRTHDAY AISHA! 🎂", WIDTH / 2, boxY + 64);
+      ctx.font = '14px "Press Start 2P", monospace';
+      ctx.fillText("HAPPY BIRTHDAY AISHA! 🎂", WIDTH / 2, boxY + 58);
 
       ctx.fillStyle = '#ff6ebe';
-      ctx.font = '8px "Press Start 2P", monospace';
-      ctx.fillText("✨ TOUCH OR DRAG SKY FOR 💖 ⭐ 🔤 FIREWORKS! ✨", WIDTH / 2, boxY + 84);
+      ctx.font = '7.5px "Press Start 2P", monospace';
+      ctx.fillText("✨ TOUCH OR DRAG SKY FOR 💖 ⭐ 🔤 FIREWORKS! ✨", WIDTH / 2, boxY + 76);
 
       const floatY = Math.sin(globalTime * 2.2) * 5;
-      const portW = 180;
-      const portH = 240;
-      const portY = boxY + 200;
+      const portH = Math.min(200, Math.round(boxH * 0.40));
+      const portW = Math.round(portH * 0.75);
+      const portY = boxY + 88 + portH / 2;
       drawAishaPortrait(ctx, WIDTH / 2, portY, portW, portH, floatY);
 
       ctx.fillStyle = COLORS.GOLD;
-      ctx.font = '11px "Press Start 2P", monospace';
-      ctx.fillText("★ ALL 30 LEVELS CONQUERED! ★", WIDTH / 2, portY + portH / 2 + 22 + floatY);
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillText("★ ALL 30 LEVELS CONQUERED! ★", WIDTH / 2, portY + portH / 2 + 16 + floatY);
 
       ctx.fillStyle = COLORS.WHITE;
-      ctx.font = '12px "Press Start 2P", monospace';
-      ctx.fillText("FINAL SCORE: " + score.toLocaleString(), WIDTH / 2, boxY + 396);
+      ctx.font = '11px "Press Start 2P", monospace';
+      ctx.fillText("FINAL SCORE: " + score.toLocaleString(), WIDTH / 2, boxY + boxH - 96);
 
       const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
       ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
       ctx.font = '13px "Press Start 2P", monospace';
-      ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + 428);
+      ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + boxH - 68);
 
       ctx.fillStyle = '#ff6ebe';
-      ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 468);
+      ctx.font = '8.5px "Press Start 2P", monospace';
+      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + boxH - 42);
 
       ctx.fillStyle = '#859bb8';
       ctx.font = '8px "Press Start 2P", monospace';
-      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 494);
+      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + boxH - 22);
 
       ctx.fillStyle = '#ff94c2';
       ctx.font = '7px "Press Start 2P", monospace';
-      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + 516);
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + boxH - 6);
     }
 
     ctx.restore();
