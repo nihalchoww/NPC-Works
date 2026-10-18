@@ -689,67 +689,74 @@ html = """<!DOCTYPE html>
   #leaderboard-modal {
     display: none;
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100vw;
+    height: 100vh;
     height: 100dvh;
-    background: rgba(4, 2, 14, 0.82);
-    z-index: 250;
+    background: rgba(4, 2, 14, 0.88);
+    z-index: 999999;
     align-items: center;
     justify-content: center;
     padding: 16px;
     box-sizing: border-box;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     touch-action: none;
   }
   #leaderboard-wrap {
     position: relative;
     max-width: 330px;
     width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
     background: #0d0824;
-    border: 2px solid #00dcff;
-    border-radius: 12px;
-    padding: 16px 14px 14px 14px;
-    box-shadow: 0 0 35px rgba(0, 220, 255, 0.45), 0 12px 35px rgba(0, 0, 0, 0.9);
+    border: 2.5px solid #00dcff;
+    border-radius: 14px;
+    padding: 20px 14px 14px 14px;
+    box-shadow: 0 0 45px rgba(0, 220, 255, 0.55), 0 15px 45px rgba(0, 0, 0, 0.95);
     display: flex;
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
     text-align: center;
-    margin: auto;
-    animation: popupBoxOpen 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    animation: popupBoxOpen 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
   @keyframes popupBoxOpen {
-    0% { transform: scale(0.88); opacity: 0; }
+    0% { transform: scale(0.85); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
   }
   .leaderboard-close-x, .mini-close-x {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    border: 1.5px solid #ff3388;
-    background: rgba(255, 0, 127, 0.25);
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid #ff3388;
+    background: #ff007f;
     color: #ffffff;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: bold;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+    box-shadow: 0 0 14px rgba(255, 0, 127, 0.6);
     touch-action: manipulation;
     z-index: 10;
     transition: all 0.15s ease;
   }
   .leaderboard-close-x:hover, .leaderboard-close-x:active,
   .mini-close-x:hover, .mini-close-x:active {
-    background: #ff007f;
+    background: #ff3388;
     border-color: #ffd700;
-    transform: scale(1.1);
+    transform: scale(1.12);
   }
   .leaderboard-badge {
     background: linear-gradient(135deg, #00dcff, #9b5de5);
@@ -1001,28 +1008,28 @@ html = """<!DOCTYPE html>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Retro Arcade Hall of Fame Leaderboard Modal (Rectangle Pop-Up Window) -->
-  <div id="leaderboard-modal">
-    <div id="leaderboard-wrap">
-      <button class="leaderboard-close-x" id="lb-close-x" title="Exit Leaderboard (Resume Game)" aria-label="Exit">✕</button>
-      <div class="leaderboard-badge">🏆 RETRO ARCADE</div>
-      <h3 style="font-size: 11px; color: #ffd700; margin: 6px 0 2px 0; text-align: center;">HALL OF FAME</h3>
-      <p style="font-size: 7px; color: #ff6ebe; margin: 0 0 8px 0; text-align: center;">★ TOP 5 GALAXY BAKERS ★</p>
+<!-- Retro Arcade Hall of Fame Leaderboard Modal (Separate Rectangular Pop-Up Window) -->
+<div id="leaderboard-modal">
+  <div id="leaderboard-wrap">
+    <button class="leaderboard-close-x" id="lb-close-x" title="Exit Leaderboard (Resume Game)" aria-label="Exit">✕</button>
+    <div class="leaderboard-badge">🏆 RETRO ARCADE</div>
+    <h3 style="font-size: 11px; color: #ffd700; margin: 6px 0 2px 0; text-align: center;">HALL OF FAME</h3>
+    <p style="font-size: 7px; color: #ff6ebe; margin: 0 0 8px 0; text-align: center;">★ TOP 5 GALAXY BAKERS ★</p>
 
-      <div class="leaderboard-table" id="leaderboard-table">
-        <!-- Rendered dynamically -->
-      </div>
+    <div class="leaderboard-table" id="leaderboard-table">
+      <!-- Rendered dynamically -->
+    </div>
 
-      <div id="leaderboard-current-stat" style="font-size: 6.5px; color: #859bb8; margin-top: 5px; font-family: 'Press Start 2P', monospace;">
-        CURRENT RUN: 0 PTS
-      </div>
+    <div id="leaderboard-current-stat" style="font-size: 6.5px; color: #859bb8; margin-top: 5px; font-family: 'Press Start 2P', monospace;">
+      CURRENT RUN: 0 PTS
+    </div>
 
-      <div class="modal-actions" style="margin-top: 10px; gap: 6px;">
-        <button class="modal-btn" id="lb-share-btn" style="background:#ff007f; color:#fff; font-size: 7.5px; padding: 5px 8px;">SHARE 📲</button>
-        <button class="modal-btn" id="lb-reset-btn" style="background:#223366; font-size: 7px; padding: 5px 6px;">RESET ↺</button>
-        <button class="modal-btn modal-btn-close" id="lb-close-btn" style="font-size: 7.5px; padding: 5px 8px;">EXIT ✕</button>
-      </div>
+    <div class="modal-actions" style="margin-top: 10px; gap: 6px;">
+      <button class="modal-btn" id="lb-share-btn" style="background:#ff007f; color:#fff; font-size: 7.5px; padding: 5px 8px;">SHARE 📲</button>
+      <button class="modal-btn" id="lb-reset-btn" style="background:#223366; font-size: 7px; padding: 5px 6px;">RESET ↺</button>
+      <button class="modal-btn modal-btn-close" id="lb-close-btn" style="font-size: 7.5px; padding: 5px 8px;">EXIT ✕</button>
     </div>
   </div>
 </div>
@@ -2297,22 +2304,26 @@ html = """<!DOCTYPE html>
   }
 
   if (gearBtn) {
-    gearBtn.addEventListener('click', (e) => {
+    const handleGear = (e) => {
       e.preventDefault();
       e.stopPropagation();
       toggleSettingsDock();
-    });
+    };
+    gearBtn.addEventListener('pointerdown', handleGear);
+    gearBtn.addEventListener('click', handleGear);
   }
 
   if (btnMute) {
     btnMute.textContent = bgmMuted ? '🔇' : '🔊';
-    btnMute.addEventListener('click', (e) => {
+    const handleMute = (e) => {
       e.preventDefault();
       e.stopPropagation();
       initAudio();
       setMuted(!bgmMuted);
       haptic(20);
-    });
+    };
+    btnMute.addEventListener('pointerdown', handleMute);
+    btnMute.addEventListener('click', handleMute);
   }
 
   const btnCRT = document.getElementById('crt-btn');
@@ -2840,7 +2851,10 @@ html = """<!DOCTYPE html>
   }
 
   function closeLeaderboardModal() {
+    initAudio();
+    haptic(15);
     if (leaderboardModal) leaderboardModal.style.display = 'none';
+    collapseSettingsDock();
 
     // Auto-resume gameplay if it was paused when opening
     if (wasPlayingBeforeLeaderboard) {
@@ -2941,28 +2955,38 @@ https://aishababu.vercel.app`;
     leaderboardWrap.addEventListener('click', (e) => e.stopPropagation());
   }
 
-  if (lbShareBtn) lbShareBtn.addEventListener('click', shareLeaderboard);
-  if (lbResetBtn) lbResetBtn.addEventListener('click', resetLeaderboard);
+  if (lbShareBtn) {
+    lbShareBtn.addEventListener('click', shareLeaderboard);
+  }
+  if (lbResetBtn) {
+    lbResetBtn.addEventListener('click', resetLeaderboard);
+  }
   if (lbCloseBtn) {
-    lbCloseBtn.addEventListener('click', (e) => {
+    const handleCloseBtn = (e) => {
       e.preventDefault();
       e.stopPropagation();
       closeLeaderboardModal();
-    });
+    };
+    lbCloseBtn.addEventListener('pointerdown', handleCloseBtn);
+    lbCloseBtn.addEventListener('click', handleCloseBtn);
   }
   if (lbCloseX) {
-    lbCloseX.addEventListener('click', (e) => {
+    const handleCloseX = (e) => {
       e.preventDefault();
       e.stopPropagation();
       closeLeaderboardModal();
-    });
+    };
+    lbCloseX.addEventListener('pointerdown', handleCloseX);
+    lbCloseX.addEventListener('click', handleCloseX);
   }
   if (leaderboardBtn) {
-    leaderboardBtn.addEventListener('click', (e) => {
+    const handleOpenLeaderboard = (e) => {
       e.preventDefault();
       e.stopPropagation();
       openLeaderboardModal();
-    });
+    };
+    leaderboardBtn.addEventListener('pointerdown', handleOpenLeaderboard);
+    leaderboardBtn.addEventListener('click', handleOpenLeaderboard);
   }
   if (leaderboardModal) {
     leaderboardModal.addEventListener('click', (e) => {
