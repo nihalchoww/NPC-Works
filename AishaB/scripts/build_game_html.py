@@ -324,61 +324,178 @@ html = """<!DOCTYPE html>
     color: #ffffff;
     box-shadow: 0 0 26px rgba(55, 190, 70, 0.9), inset 0 0 14px #ffffff;
   }
-  /* Shareable Victory Polaroid Certificate Modal */
+  /* Shareable Victory Polaroid Purikura Certificate Modal */
   #polaroid-modal {
     display: none;
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100dvh;
-    background: rgba(6, 3, 18, 0.92);
+    background: rgba(6, 3, 18, 0.95);
     z-index: 100;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     flex-direction: column;
-    padding: 16px;
+    padding: 12px 10px;
     box-sizing: border-box;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   #polaroid-wrap {
-    max-width: 90vw;
-    max-height: 82dvh;
+    max-width: 400px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 7px;
+    margin: auto 0;
   }
-  #polaroid-img {
-    max-width: 100%;
-    max-height: 68dvh;
+  .purikura-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .purikura-badge {
+    background: linear-gradient(135deg, #ff007f, #9b5de5);
+    color: #ffffff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    box-shadow: 0 0 14px rgba(255, 0, 127, 0.5);
+    letter-spacing: 0.5px;
+  }
+  .photo-switcher-bar {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    max-width: 320px;
+    justify-content: center;
+  }
+  .photo-tab-btn {
+    flex: 1;
+    padding: 6px 3px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
     border-radius: 8px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), 0 0 24px rgba(255, 215, 0, 0.35);
+    border: 1.5px solid #ff4da6;
+    background: rgba(255, 77, 166, 0.15);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .photo-tab-btn.active {
+    background: linear-gradient(135deg, #ff007f, #ffd700);
+    color: #000;
+    font-weight: bold;
+    border-color: #ffd700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  }
+  #polaroid-canvas {
+    width: 100%;
+    max-width: 310px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 215, 0, 0.35);
     display: block;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #polaroid-canvas:active {
+    cursor: grabbing;
+  }
+  /* Purikura Sticker Toolbar */
+  .sticker-toolbar-wrap {
+    width: 100%;
+    max-width: 320px;
+    background: rgba(18, 10, 40, 0.95);
+    border: 1.5px solid #ff4da6;
+    border-radius: 10px;
+    padding: 7px 8px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 0 14px rgba(255, 77, 166, 0.25);
+  }
+  .sticker-tray {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    width: 100%;
+    padding: 3px 2px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .sticker-tray::-webkit-scrollbar {
+    display: none;
+  }
+  .sticker-btn {
+    min-width: 36px;
+    height: 36px;
+    font-size: 19px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.1s ease;
+  }
+  .sticker-btn:active {
+    transform: scale(1.25);
+  }
+  .sticker-actions-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+  }
+  .sticker-util-btn {
+    padding: 4px 7px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6.5px;
+    border-radius: 6px;
+    border: 1px solid #00dcff;
+    background: rgba(0, 220, 255, 0.15);
+    color: #00dcff;
+    cursor: pointer;
+  }
+  .sticker-util-btn:hover {
+    background: rgba(0, 220, 255, 0.3);
   }
   /* Custom Wish Box in Polaroid Modal */
   .polaroid-wish-box {
-    margin-top: 10px;
+    margin-top: 3px;
     width: 100%;
-    max-width: 380px;
+    max-width: 320px;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
   .wish-input-row {
     display: flex;
-    gap: 6px;
+    gap: 5px;
     width: 100%;
-    margin-top: 6px;
+    margin-top: 4px;
   }
   #polaroid-wish-input {
     flex: 1;
     background: #0f0826;
     border: 1.5px solid #00dcff;
     color: #ffd700;
-    padding: 8px 10px;
+    padding: 7px 8px;
     border-radius: 8px;
     font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
+    font-size: 7.5px;
     outline: none;
     box-shadow: inset 0 0 8px rgba(0, 220, 255, 0.2);
   }
@@ -391,17 +508,17 @@ html = """<!DOCTYPE html>
     color: #000;
     border: none;
     border-radius: 8px;
-    padding: 8px 10px;
+    padding: 7px 9px;
     font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
+    font-size: 7.5px;
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
   }
   .wish-chips {
     display: flex;
-    gap: 6px;
-    margin-top: 6px;
+    gap: 5px;
+    margin-top: 4px;
     flex-wrap: wrap;
     justify-content: center;
   }
@@ -410,8 +527,8 @@ html = """<!DOCTYPE html>
     border: 1px solid #ff4da6;
     color: #ffb3c6;
     border-radius: 12px;
-    padding: 4px 8px;
-    font-size: 7px;
+    padding: 4px 7px;
+    font-size: 6.5px;
     cursor: pointer;
     transition: all 0.1s ease;
   }
@@ -527,6 +644,472 @@ html = """<!DOCTYPE html>
     margin-top: 10px;
     width: 100%;
     box-sizing: border-box;
+  /* ─── RETRO ARCADE HIGH SCORE INITIALS MODAL ───────────────────────── */
+  #initials-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(6, 3, 18, 0.95);
+    z-index: 130;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 12px;
+    box-sizing: border-box;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #initials-wrap {
+    max-width: 380px;
+    width: 94%;
+    background: #0d0722;
+    border: 2.5px solid #ffd700;
+    border-radius: 16px;
+    padding: 16px 14px;
+    box-shadow: 0 0 35px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 0, 127, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    text-align: center;
+    margin: auto;
+  }
+  .initials-badge {
+    background: linear-gradient(135deg, #ffd700, #ff8800);
+    color: #000;
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    border-radius: 12px;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.5);
+  }
+  .initials-slots {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 12px 0 8px 0;
+  }
+  .initial-slot {
+    width: 44px;
+    height: 52px;
+    border: 2.5px solid #00dcff;
+    border-radius: 8px;
+    background: rgba(0, 220, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-family: 'Press Start 2P', monospace;
+    color: #ffffff;
+    box-shadow: inset 0 0 8px rgba(0, 220, 255, 0.3);
+    transition: all 0.15s ease;
+  }
+  .initial-slot.active {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.22);
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.6), inset 0 0 8px #ffd700;
+    animation: slotBlink 1s infinite alternate;
+  }
+  @keyframes slotBlink {
+    0% { transform: scale(1); border-color: #ffd700; }
+    100% { transform: scale(1.04); border-color: #ff007f; }
+  }
+  .quick-initials-row {
+    margin: 6px 0 10px 0;
+    width: 100%;
+  }
+  .quick-initials-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+  }
+  .quick-chip {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    color: #ffd700;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .quick-chip:active {
+    background: #ffd700;
+    color: #000;
+    transform: scale(0.94);
+  }
+  .arcade-keypad {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    max-width: 330px;
+    margin: 4px auto 0;
+  }
+  .keypad-row {
+    display: flex;
+    gap: 3px;
+    justify-content: center;
+  }
+  .arcade-key {
+    flex: 1;
+    min-width: 25px;
+    height: 30px;
+    background: #182245;
+    border: 1px solid #36497f;
+    color: #ffffff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .arcade-key:active {
+    background: #ff007f;
+    border-color: #ffd700;
+    color: #ffffff;
+    transform: scale(0.92);
+  }
+
+  /* ─── RETRO ARCADE HALL OF FAME MODAL ──────────────────────────────── */
+  #leaderboard-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(6, 3, 18, 0.95);
+    z-index: 125;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 14px;
+    box-sizing: border-box;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #leaderboard-wrap {
+    max-width: 440px;
+    width: 95%;
+    background: #0d0722;
+    border: 2px solid #00dcff;
+    border-radius: 16px;
+    padding: 18px 14px;
+    box-shadow: 0 0 35px rgba(0, 220, 255, 0.35), inset 0 0 20px rgba(255, 77, 166, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    text-align: center;
+    margin: auto;
+  }
+  .leaderboard-badge {
+    background: linear-gradient(135deg, #00dcff, #9b5de5);
+    color: #000;
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    box-shadow: 0 0 14px rgba(0, 220, 255, 0.5);
+  }
+  .leaderboard-table {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 10px 0;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(0, 220, 255, 0.25);
+    border-radius: 10px;
+    padding: 9px 10px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+  .lb-row.rank-1 {
+    border-color: #ffd700;
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.22), rgba(255, 77, 166, 0.1));
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.35);
+  }
+  .lb-row.rank-2 {
+    border-color: #d1d5db;
+    background: linear-gradient(90deg, rgba(209, 213, 219, 0.18), rgba(60, 80, 140, 0.1));
+    box-shadow: 0 0 14px rgba(209, 213, 219, 0.25);
+  }
+  .lb-row.rank-3 {
+    border-color: #cd7f32;
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), rgba(80, 40, 20, 0.1));
+    box-shadow: 0 0 14px rgba(205, 127, 50, 0.25);
+  }
+  .lb-row.new-entry-glow {
+    border-color: #00ff88;
+    background: linear-gradient(90deg, rgba(0, 255, 136, 0.25), rgba(0, 220, 255, 0.15));
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+    animation: newRowGlow 1.2s infinite alternate;
+  }
+  @keyframes newRowGlow {
+    0% { transform: scale(1); box-shadow: 0 0 12px rgba(0, 255, 136, 0.4); }
+    100% { transform: scale(1.02); box-shadow: 0 0 22px rgba(0, 255, 136, 0.85); }
+  }
+  .lb-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lb-trophy {
+    font-size: 16px;
+    line-height: 1;
+    width: 22px;
+    text-align: center;
+  }
+  .lb-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #ffffff;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .lb-stage-tag {
+    font-size: 6.5px;
+    color: #ff94c2;
+    background: rgba(255, 77, 166, 0.2);
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 77, 166, 0.4);
+  }
+  .lb-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .lb-score {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #ffd700;
+  }
+  .lb-date {
+    font-size: 6.5px;
+    color: #859bb8;
+  }
+
+  /* ─── 30-TIER GIANT CAKE TOWER & RECIPE CARD MODAL ─────────────────── */
+  #cake-tower-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(6, 3, 18, 0.95);
+    z-index: 125;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    padding: 14px 10px;
+    box-sizing: border-box;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #cake-tower-wrap {
+    max-width: 440px;
+    width: 96%;
+    background: #0d0722;
+    border: 2px solid #ff4da6;
+    border-radius: 18px;
+    padding: 16px 12px;
+    box-shadow: 0 0 35px rgba(255, 77, 166, 0.4), inset 0 0 20px rgba(0, 220, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    text-align: center;
+    margin: auto 0;
+  }
+  .cake-tower-badge {
+    background: linear-gradient(135deg, #ff007f, #ffd700);
+    color: #000;
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    box-shadow: 0 0 14px rgba(255, 0, 127, 0.5);
+  }
+  .bakery-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    width: 100%;
+    margin: 8px 0;
+  }
+  .b-stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 77, 166, 0.4);
+    border-radius: 8px;
+    padding: 7px 4px;
+    text-align: center;
+  }
+  .b-stat-val {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9.5px;
+    color: #ffd700;
+    margin-bottom: 3px;
+  }
+  .b-stat-lbl {
+    font-size: 6.5px;
+    color: #ff94c2;
+    letter-spacing: 0.5px;
+  }
+  .tower-progress-bar-wrap {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 220, 255, 0.3);
+    border-radius: 10px;
+    padding: 6px 8px;
+    box-sizing: border-box;
+    margin: 4px 0 8px 0;
+  }
+  .tower-progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 7px;
+    color: #00dcff;
+    margin-bottom: 4px;
+  }
+  .tower-progress-track {
+    width: 100%;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .tower-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff007f, #ffd700);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px #ffd700;
+  }
+  .tower-canvas-container {
+    width: 100%;
+    max-width: 320px;
+    background: rgba(5, 2, 16, 0.85);
+    border: 1.5px solid #ff4da6;
+    border-radius: 12px;
+    padding: 8px;
+    box-sizing: border-box;
+    margin: 4px 0 8px 0;
+  }
+  #cake-tower-canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: pan-y;
+  }
+  .recipe-cards-container {
+    width: 100%;
+    max-height: 220px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 6px 0;
+    padding-right: 2px;
+  }
+  .recipe-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px;
+    text-align: left;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+  .recipe-card.unlocked {
+    border-color: #ff4da6;
+    background: rgba(255, 77, 166, 0.08);
+  }
+  .recipe-card.milestone {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 77, 166, 0.08));
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+  }
+  .recipe-card.locked {
+    opacity: 0.55;
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .recipe-card.highlight {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.18);
+    box-shadow: 0 0 16px rgba(0, 255, 136, 0.5);
+    transform: scale(1.02);
+  }
+  .rc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .rc-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7.5px;
+    color: #ffd700;
+  }
+  .rc-tag {
+    font-size: 6px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+  .rc-tag.unlocked {
+    background: #00ff88;
+    color: #000;
+  }
+  .rc-tag.locked {
+    background: #334155;
+    color: #94a3b8;
+  }
+  .rc-flavor {
+    font-size: 7px;
+    color: #ffffff;
+    line-height: 1.4;
+    margin-bottom: 3px;
+  }
+  .rc-secret {
+    font-size: 6.5px;
+    color: #ff94c2;
+    line-height: 1.4;
+  }
+  .rc-note {
+    font-size: 6.5px;
+    color: #00dcff;
+    font-style: italic;
+    margin-top: 3px;
   }
 </style>
 </head>
@@ -541,6 +1124,8 @@ html = """<!DOCTYPE html>
   <div id="settings-dock-wrap">
     <button class="hud-btn" id="gear-btn" title="Quick Settings ⚙️" aria-label="Quick Settings">⚙️</button>
     <div id="settings-dock" class="collapsed">
+      <button class="dock-btn" id="leaderboard-btn" title="🏆 Hall of Fame Leaderboard">🏆</button>
+      <button class="dock-btn" id="cake-tower-btn" title="🍰 Cake Tower & Recipe Card">🍰</button>
       <button class="dock-btn" id="mute-btn" title="Toggle Sound">🔊</button>
       <button class="dock-btn" id="tilt-btn" title="Toggle Phone Tilt / Gyroscope Steering">📳</button>
       <button class="dock-btn" id="crt-btn" title="Toggle CRT Arcade Cabinet Mode">📺</button>
@@ -565,9 +1150,43 @@ html = """<!DOCTYPE html>
   </div>
   <div id="polaroid-modal">
     <div id="polaroid-wrap">
-      <img id="polaroid-img" alt="Aisha Polaroid Certificate" />
+      <div class="purikura-header">
+        <div class="purikura-badge">📸 PURIKURA PHOTO BOOTH</div>
+        <div style="font-size: 7.5px; color: #ffd700;">★ DECORATE AISHA'S BIRTHDAY CARD ★</div>
+      </div>
+
+      <div class="photo-switcher-bar">
+        <button class="photo-tab-btn active" id="tab-portrait" data-photo="portrait">👑 Portrait</button>
+        <button class="photo-tab-btn" id="tab-candid" data-photo="candid">🥤 Candid</button>
+        <button class="photo-tab-btn" id="tab-pixel" data-photo="pixel">👾 Pixel-Art</button>
+      </div>
+
+      <canvas id="polaroid-canvas" width="640" height="880"></canvas>
+
+      <div class="sticker-toolbar-wrap">
+        <div style="font-size: 7px; color: #ff6ebe; letter-spacing: 0.5px;">✨ TAP STICKERS TO STAMP (DRAG TO MOVE):</div>
+        <div class="sticker-tray">
+          <button class="sticker-btn" data-sticker="👑" title="Birthday Crown">👑</button>
+          <button class="sticker-btn" data-sticker="🎀" title="Pink Bow">🎀</button>
+          <button class="sticker-btn" data-sticker="🎈" title="Balloons">🎈</button>
+          <button class="sticker-btn" data-sticker="✨" title="Sparkles">✨</button>
+          <button class="sticker-btn" data-sticker="💖" title="Heart">💖</button>
+          <button class="sticker-btn" data-sticker="🍰" title="Cupcake">🍰</button>
+          <button class="sticker-btn" data-sticker="🐱" title="Cute Cat Ears">🐱</button>
+          <button class="sticker-btn" data-sticker="🎉" title="Party Popper">🎉</button>
+          <button class="sticker-btn" data-sticker="⭐" title="Gold Star">⭐</button>
+          <button class="sticker-btn" data-sticker="🍓" title="Strawberry">🍓</button>
+          <button class="sticker-btn" data-sticker="🌸" title="Flower">🌸</button>
+          <button class="sticker-btn" data-sticker="🍭" title="Lollipop">🍭</button>
+        </div>
+        <div class="sticker-actions-row">
+          <button class="sticker-util-btn" id="sticker-undo-btn">↺ REMOVE LAST</button>
+          <button class="sticker-util-btn" id="sticker-clear-btn">✕ CLEAR ALL</button>
+        </div>
+      </div>
+
       <div class="polaroid-wish-box">
-        <label for="polaroid-wish-input" style="font-size: 8px; color: #ff6ebe; letter-spacing: 1px;">💌 WRITE YOUR WISH FOR AISHA:</label>
+        <label for="polaroid-wish-input" style="font-size: 7.5px; color: #ff6ebe; letter-spacing: 1px;">💌 WRITE YOUR WISH FOR AISHA:</label>
         <div class="wish-input-row">
           <input type="text" id="polaroid-wish-input" maxlength="34" placeholder="Happy Birthday Aisha! 🎂" value="Happy Birthday Aisha! 🎂" />
           <button id="polaroid-wish-btn" class="wish-apply-btn">UPDATE ✨</button>
@@ -578,8 +1197,11 @@ html = """<!DOCTYPE html>
           <span class="wish-chip" data-wish="Endless joy, love & laughter! 💖">💖 Endless Joy</span>
         </div>
       </div>
-      <p style="font-size: 9px; color: #ffd700; margin-top: 10px; text-align: center; text-shadow: 0 0 8px #000;">★ TAP &amp; HOLD IMAGE TO SAVE TO PHOTOS ★</p>
-      <div class="modal-actions">
+
+      <p style="font-size: 7.5px; color: #ffd700; margin: 4px 0; text-align: center; text-shadow: 0 0 8px #000;">★ TAP &amp; DRAG STICKERS • READY TO SHARE ★</p>
+
+      <div class="modal-actions" style="margin-top: 4px;">
+        <button class="modal-btn" id="modal-share-btn" style="background:#ff007f; color:#fff;">SHARE 💌</button>
         <button class="modal-btn" id="modal-download-btn">DOWNLOAD 📥</button>
         <button class="modal-btn modal-btn-close" id="modal-close-btn">CLOSE ✕</button>
       </div>
@@ -615,6 +1237,135 @@ html = """<!DOCTYPE html>
       </div>
     </div>
   </div>
+
+  <!-- Retro Arcade High Score Name Entry Modal -->
+  <div id="initials-modal">
+    <div id="initials-wrap">
+      <div class="initials-badge">★ NEW HIGH SCORE! ★</div>
+      <h3 style="font-size: 11px; color: #ffd700; margin: 8px 0 3px 0; text-align: center;" id="initials-rank-title">TOP 5 BAKER: RANK #1!</h3>
+      <div style="font-size: 14px; color: #00dcff; font-family: 'Press Start 2P', monospace; margin-bottom: 8px;" id="initials-score-text">28,500 PTS</div>
+      <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 10px 0; line-height: 1.4;">ENTER YOUR 3-LETTER INITIALS FOR THE ARCADE BOARD:</p>
+
+      <div class="initials-slots" id="initials-slots">
+        <span class="initial-slot active" id="slot-0">A</span>
+        <span class="initial-slot" id="slot-1">S</span>
+        <span class="initial-slot" id="slot-2">H</span>
+      </div>
+
+      <input type="text" id="initials-input" maxlength="3" autocomplete="off" autocapitalize="characters" style="position:absolute; opacity:0; pointer-events:none;" />
+
+      <div class="quick-initials-row">
+        <div style="font-size: 6.5px; color: #859bb8; margin-bottom: 4px;">QUICK PICK INITIALS:</div>
+        <div class="quick-initials-chips">
+          <button class="quick-chip" data-initials="ASH">👑 ASH</button>
+          <button class="quick-chip" data-initials="MOM">💖 MOM</button>
+          <button class="quick-chip" data-initials="DAD">⭐ DAD</button>
+          <button class="quick-chip" data-initials="BFF">🍰 BFF</button>
+          <button class="quick-chip" data-initials="SIS">🎀 SIS</button>
+          <button class="quick-chip" data-initials="CAT">🐱 CAT</button>
+        </div>
+      </div>
+
+      <div class="arcade-keypad" id="arcade-keypad">
+        <div class="keypad-row">
+          <button class="arcade-key" data-char="A">A</button><button class="arcade-key" data-char="B">B</button><button class="arcade-key" data-char="C">C</button><button class="arcade-key" data-char="D">D</button><button class="arcade-key" data-char="E">E</button><button class="arcade-key" data-char="F">F</button><button class="arcade-key" data-char="G">G</button><button class="arcade-key" data-char="H">H</button><button class="arcade-key" data-char="I">I</button>
+        </div>
+        <div class="keypad-row">
+          <button class="arcade-key" data-char="J">J</button><button class="arcade-key" data-char="K">K</button><button class="arcade-key" data-char="L">L</button><button class="arcade-key" data-char="M">M</button><button class="arcade-key" data-char="N">N</button><button class="arcade-key" data-char="O">O</button><button class="arcade-key" data-char="P">P</button><button class="arcade-key" data-char="Q">Q</button><button class="arcade-key" data-char="R">R</button>
+        </div>
+        <div class="keypad-row">
+          <button class="arcade-key" data-char="S">S</button><button class="arcade-key" data-char="T">T</button><button class="arcade-key" data-char="U">U</button><button class="arcade-key" data-char="V">V</button><button class="arcade-key" data-char="W">W</button><button class="arcade-key" data-char="X">X</button><button class="arcade-key" data-char="Y">Y</button><button class="arcade-key" data-char="Z">Z</button><button class="arcade-key" data-char="★">★</button>
+        </div>
+        <div class="keypad-row">
+          <button class="arcade-key" data-char="0">0</button><button class="arcade-key" data-char="1">1</button><button class="arcade-key" data-char="2">2</button><button class="arcade-key" data-char="3">3</button><button class="arcade-key" data-char="4">4</button><button class="arcade-key" data-char="5">5</button><button class="arcade-key" data-char="6">6</button><button class="arcade-key" data-char="7">7</button><button class="arcade-key" data-char="8">8</button><button class="arcade-key" data-char="9">9</button><button class="arcade-key" id="key-backspace" title="Backspace">⌫</button>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 12px;">
+        <button class="modal-btn" id="initials-submit-btn" style="background: linear-gradient(135deg, #ffd700, #ff8800); color: #000; font-weight: bold;">SUBMIT 🏆</button>
+        <button class="modal-btn modal-btn-close" id="initials-skip-btn">SKIP ✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Retro Arcade Hall of Fame Leaderboard Modal -->
+  <div id="leaderboard-modal">
+    <div id="leaderboard-wrap">
+      <div class="leaderboard-badge">🏆 RETRO ARCADE</div>
+      <h3 style="font-size: 13px; color: #ffd700; margin: 8px 0 3px 0; text-align: center;">HALL OF FAME</h3>
+      <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 10px 0; text-align: center;">★ TOP 5 GALAXY BAKERS ★</p>
+
+      <div class="leaderboard-table" id="leaderboard-table">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div id="leaderboard-current-stat" style="font-size: 7.5px; color: #859bb8; margin-top: 8px; font-family: 'Press Start 2P', monospace;">
+        CURRENT RUN: 0 PTS
+      </div>
+
+      <div class="modal-actions" style="margin-top: 12px;">
+        <button class="modal-btn" id="lb-share-btn" style="background:#ff007f; color:#fff;">SHARE 📲</button>
+        <button class="modal-btn" id="lb-reset-btn" style="background:#223366; font-size: 8px;">RESET ↺</button>
+        <button class="modal-btn modal-btn-close" id="lb-close-btn">CLOSE ✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Giant Cake Tower Showcase & Bakery Recipe Card Modal -->
+  <div id="cake-tower-modal">
+    <div id="cake-tower-wrap">
+      <div class="cake-tower-badge">🍰 30-TIER CONFECTION</div>
+      <h3 style="font-size: 12px; color: #ffd700; margin: 8px 0 3px 0; text-align: center;">GIANT CAKE TOWER</h3>
+      <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 8px 0; text-align: center;">★ AISHA'S BIRTHDAY RECIPE CARD ★</p>
+
+      <!-- Funny Bakery Stats Grid -->
+      <div class="bakery-stats-grid">
+        <div class="b-stat-card">
+          <div class="b-stat-val">48 M</div>
+          <div class="b-stat-lbl">TOTAL HEIGHT 📏</div>
+        </div>
+        <div class="b-stat-card">
+          <div class="b-stat-val">99,999%</div>
+          <div class="b-stat-lbl">SWEETNESS 🍯</div>
+        </div>
+        <div class="b-stat-card">
+          <div class="b-stat-val">100%</div>
+          <div class="b-stat-lbl">AISHA LOVE 💖</div>
+        </div>
+        <div class="b-stat-card">
+          <div class="b-stat-val">0 KCAL</div>
+          <div class="b-stat-lbl">ZERO-G CALORIES 🚀</div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="tower-progress-bar-wrap">
+        <div class="tower-progress-info">
+          <span id="tower-unlocked-text">UNLOCKED: 1 / 30 TIERS</span>
+          <span id="tower-percent-text">3%</span>
+        </div>
+        <div class="tower-progress-track">
+          <div class="tower-progress-fill" id="tower-progress-fill" style="width: 3%;"></div>
+        </div>
+      </div>
+
+      <!-- Visual 30-Tier Tower Graphic -->
+      <div class="tower-canvas-container">
+        <canvas id="cake-tower-canvas" width="400" height="660"></canvas>
+        <div style="font-size: 6.5px; color: #ffd700; margin-top: 4px;">★ TAP ANY TIER TO JUMP TO RECIPE ★</div>
+      </div>
+
+      <!-- Scrollable Recipe Card List -->
+      <div class="recipe-cards-container" id="recipe-cards-container">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="modal-actions" style="margin-top: 12px;">
+        <button class="modal-btn" id="cake-share-btn" style="background:#ff007f; color:#fff;">SHARE RECIPE 💌</button>
+        <button class="modal-btn modal-btn-close" id="cake-close-btn">CLOSE ✕</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -622,9 +1373,12 @@ html = """<!DOCTYPE html>
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
 
-  // Load Aisha Portrait & Head Sprites
+  // Load Aisha Portrait, Candid & Head Sprites
   const aishaPortrait = new Image();
   aishaPortrait.src = "data:image/jpeg;base64,%%AISHA_PORTRAIT_B64%%";
+
+  const aishaCandid = new Image();
+  aishaCandid.src = "data:image/jpeg;base64,%%AISHA_CANDID_B64%%";
 
   const aishaHead = new Image();
   aishaHead.src = "data:image/png;base64,%%AISHA_HEAD_B64%%";
@@ -803,6 +1557,85 @@ html = """<!DOCTYPE html>
     setTimeout(() => playTone(1174, 'triangle', 0.16, 0.22), 60);
   }
 
+  function sfxFireworkLaunch() {
+    initAudio();
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      const now = audioCtx.currentTime;
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.exponentialRampToValueAtTime(780, now + 0.16);
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.14, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.17);
+    } catch(e) {}
+  }
+
+  function sfxSparkleBurst() {
+    initAudio();
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+    // Acoustic sparkle cascade: crystal glockenspiel arpeggio + crisp sparkle pop
+    const sparkleNotes = [1318, 1568, 1760, 2093, 2637];
+    sparkleNotes.forEach((f, i) => {
+      setTimeout(() => {
+        playTone(f, 'sine', 0.13, 0.11);
+      }, i * 26);
+    });
+    try {
+      const bufLen = Math.floor(audioCtx.sampleRate * 0.14);
+      const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufLen * 0.22));
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buf;
+      const flt = audioCtx.createBiquadFilter();
+      flt.type = 'highpass';
+      flt.frequency.value = 2400;
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.14);
+      noise.connect(flt);
+      flt.connect(g);
+      g.connect(audioCtx.destination);
+      noise.start();
+    } catch(e) {}
+  }
+
+  function sfxHeartBurst() {
+    initAudio();
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+    const heartMelody = [659, 830, 987, 1318];
+    heartMelody.forEach((f, i) => {
+      setTimeout(() => playTone(f, 'triangle', 0.15, 0.14), i * 35);
+    });
+  }
+
+  function sfxLetterBurst(letter) {
+    initAudio();
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+    const letterFreqs = { 'A': 523, 'I': 659, 'S': 784, 'H': 987 };
+    const f = letterFreqs[letter] || 880;
+    playTone(f, 'square', 0.12, 0.14);
+    setTimeout(() => playTone(f * 1.5, 'triangle', 0.18, 0.16), 30);
+  }
+
+  function sfxSkyBarrage() {
+    initAudio();
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+    const fanfare = [523, 659, 784, 1046, 1318, 1568];
+    fanfare.forEach((f, i) => {
+      setTimeout(() => playTone(f, 'triangle', 0.20, 0.18), i * 65);
+    });
+  }
+
   // Full 8-Bit Happy Birthday to You Chiptune
   function stopHappyBirthdaySong() {
     hbTimeoutIds.forEach(id => clearTimeout(id));
@@ -957,11 +1790,23 @@ html = """<!DOCTYPE html>
     micBlowFrames = 0;
   }
 
-  // Shareable Victory Polaroid Certificate Generator
-  function generatePolaroidCanvas() {
-    const cw = 700;
-    const ch = 920;
-    const pCanvas = document.createElement('canvas');
+  // Interactive Purikura Polaroid Certificate & Sticker Decorator
+  let currentPolaroidPhoto = 'portrait';
+  let currentMilestoneBadge = "Queen of Frosting 👑";
+  let stickersOnCard = [
+    { id: 1, emoji: '👑', x: 320, y: 155, size: 46, rot: 0 },
+    { id: 2, emoji: '✨', x: 135, y: 175, size: 36, rot: 0.12 },
+    { id: 3, emoji: '💖', x: 505, y: 175, size: 36, rot: -0.12 }
+  ];
+  let selectedStickerId = null;
+  let isDraggingSticker = false;
+  let dragOffsetStickerX = 0;
+  let dragOffsetStickerY = 0;
+
+  function generatePolaroidCanvas(existingCanvas) {
+    const cw = 640;
+    const ch = 880;
+    const pCanvas = existingCanvas || document.createElement('canvas');
     pCanvas.width = cw;
     pCanvas.height = ch;
     const pCtx = pCanvas.getContext('2d');
@@ -974,13 +1819,13 @@ html = """<!DOCTYPE html>
     pCtx.fillRect(0, 0, cw, ch);
 
     // Polaroid Outer Card
-    const pad = 36;
+    const pad = 32;
     const cardW = cw - pad * 2;
     const cardH = ch - pad * 2;
-    pCtx.fillStyle = '#faf8f5';
-    pCtx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-    pCtx.shadowBlur = 35;
-    pCtx.shadowOffsetY = 15;
+    pCtx.fillStyle = '#fdfbf7';
+    pCtx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+    pCtx.shadowBlur = 30;
+    pCtx.shadowOffsetY = 14;
     if (pCtx.roundRect) pCtx.roundRect(pad, pad, cardW, cardH, 8);
     else pCtx.rect(pad, pad, cardW, cardH);
     pCtx.fill();
@@ -988,20 +1833,20 @@ html = """<!DOCTYPE html>
     pCtx.shadowOffsetY = 0;
 
     // Polaroid Card Header
-    pCtx.fillStyle = '#ff4da6';
-    pCtx.font = 'bold 15px "Press Start 2P", sans-serif';
+    pCtx.fillStyle = '#ff007f';
+    pCtx.font = 'bold 14px "Press Start 2P", sans-serif';
     pCtx.textAlign = 'center';
-    pCtx.fillText("★ AISHA'S BIRTHDAY BAKE-OFF ★", cw / 2, pad + 38);
+    pCtx.fillText("★ AISHA'S BIRTHDAY BAKE-OFF ★", cw / 2, pad + 35);
 
-    pCtx.fillStyle = '#4a5568';
-    pCtx.font = 'bold 9px "Press Start 2P", sans-serif';
-    pCtx.fillText("OFFICIAL COSMIC BAKER CERTIFICATE", cw / 2, pad + 58);
+    pCtx.fillStyle = '#718096';
+    pCtx.font = 'bold 8.5px "Press Start 2P", sans-serif';
+    pCtx.fillText("OFFICIAL COSMIC BAKER CERTIFICATE", cw / 2, pad + 54);
 
     // Photo Cutout Frame
-    const photoX = pad + 24;
-    const photoY = pad + 75;
-    const photoW = cardW - 48;
-    const photoH = 500;
+    const photoX = pad + 20;
+    const photoY = pad + 68;
+    const photoW = cardW - 40;
+    const photoH = 480;
     pCtx.fillStyle = '#0f0826';
     pCtx.fillRect(photoX, photoY, photoW, photoH);
 
@@ -1014,37 +1859,119 @@ html = """<!DOCTYPE html>
 
     // Stardust Sparkles in photo background
     const pColors = ['#ffd700', '#00dcff', '#ff6ebe', '#37be46', '#ffffff'];
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 35; i++) {
       pCtx.fillStyle = pColors[i % pColors.length];
-      const sx = photoX + 20 + ((i * 47) % (photoW - 40));
-      const sy = photoY + 20 + ((i * 31) % (photoH - 40));
+      const sx = photoX + 16 + ((i * 47) % (photoW - 32));
+      const sy = photoY + 16 + ((i * 31) % (photoH - 32));
       pCtx.fillRect(sx, sy, 3, 3);
     }
 
-    // Centered Aisha Portrait
-    const imgW = 280;
-    const imgH = 370;
+    // Centered Photo Image Area
+    const imgW = 270;
+    const imgH = 360;
     const imgX = photoX + (photoW - imgW) / 2;
-    const imgY = photoY + (photoH - imgH) / 2 + 20;
+    const imgY = photoY + (photoH - imgH) / 2 + 15;
 
     pCtx.save();
     pCtx.strokeStyle = '#ffd700';
     pCtx.lineWidth = 4;
     pCtx.strokeRect(imgX - 2, imgY - 2, imgW + 4, imgH + 4);
 
-    if (aishaPortrait.complete && aishaPortrait.naturalWidth > 0) {
-      pCtx.drawImage(aishaPortrait, imgX, imgY, imgW, imgH);
-    } else if (aishaHead.complete && aishaHead.naturalWidth > 0) {
-      pCtx.drawImage(aishaHead, imgX, imgY, imgW, imgH);
+    if (currentPolaroidPhoto === 'candid') {
+      // Photo 2: Candid Drinking Photo
+      if (aishaCandid.complete && aishaCandid.naturalWidth > 0) {
+        pCtx.drawImage(aishaCandid, imgX, imgY, imgW, imgH);
+      } else if (aishaPortrait.complete && aishaPortrait.naturalWidth > 0) {
+        pCtx.drawImage(aishaPortrait, imgX, imgY, imgW, imgH);
+      }
+    } else if (currentPolaroidPhoto === 'pixel') {
+      // Photo 3: Pixel-Art Aisha in Galactic Bakery
+      pCtx.fillStyle = '#1a0b36';
+      pCtx.fillRect(imgX, imgY, imgW, imgH);
+
+      // Floor tiles
+      pCtx.fillStyle = '#2f155c';
+      for (let px = 0; px < imgW; px += 20) {
+        for (let py = 0; py < imgH; py += 20) {
+          if ((Math.floor(px / 20) + Math.floor(py / 20)) % 2 === 0) {
+            pCtx.fillRect(imgX + px, imgY + py, 20, 20);
+          }
+        }
+      }
+
+      // Pixel Stars in room
+      pCtx.fillStyle = '#ffd700';
+      [[35, 45], [215, 55], [25, 270], [235, 250]].forEach(([sx, sy]) => {
+        pCtx.fillRect(imgX + sx, imgY + sy, 5, 5);
+      });
+
+      const pxMid = imgX + imgW / 2;
+      const pxY = imgY + imgH / 2 + 15;
+
+      // Chef apron / dress
+      pCtx.fillStyle = '#ff007f';
+      pCtx.fillRect(pxMid - 26, pxY + 10, 52, 70);
+      pCtx.fillStyle = '#ffffff';
+      pCtx.fillRect(pxMid - 16, pxY + 16, 32, 55);
+      pCtx.fillStyle = '#ffd700';
+      pCtx.fillRect(pxMid - 5, pxY + 26, 10, 10);
+
+      // Arms holding cake
+      pCtx.fillStyle = '#fcd5b5';
+      pCtx.fillRect(pxMid - 38, pxY + 22, 12, 22);
+      pCtx.fillRect(pxMid + 26, pxY + 22, 12, 22);
+
+      // 3-Tier Birthday Cake
+      pCtx.fillStyle = '#00dcff';
+      pCtx.fillRect(pxMid - 24, pxY + 42, 48, 15);
+      pCtx.fillStyle = '#ffd700';
+      pCtx.fillRect(pxMid - 17, pxY + 31, 34, 11);
+      pCtx.fillStyle = '#ff4da6';
+      pCtx.fillRect(pxMid - 11, pxY + 22, 22, 9);
+      // Candles
+      pCtx.fillStyle = '#ffea00';
+      pCtx.fillRect(pxMid - 5, pxY + 14, 3, 8);
+      pCtx.fillRect(pxMid + 3, pxY + 14, 3, 8);
+      pCtx.fillStyle = '#ff7700';
+      pCtx.fillRect(pxMid - 6, pxY + 10, 5, 4);
+      pCtx.fillRect(pxMid + 2, pxY + 10, 5, 4);
+
+      // Head
+      if (aishaHead.complete && aishaHead.naturalWidth > 0) {
+        const headW = 86;
+        const headH = 104;
+        pCtx.drawImage(aishaHead, pxMid - headW / 2, pxY - headH + 16, headW, headH);
+      } else {
+        pCtx.fillStyle = '#fcd5b5';
+        pCtx.beginPath();
+        pCtx.arc(pxMid, pxY - 32, 32, 0, Math.PI * 2);
+        pCtx.fill();
+      }
+
+      // Baker Chef Hat
+      pCtx.fillStyle = '#ffffff';
+      pCtx.fillRect(pxMid - 28, pxY - 92, 56, 18);
+      pCtx.beginPath();
+      pCtx.arc(pxMid, pxY - 94, 28, Math.PI, 0);
+      pCtx.fill();
+      pCtx.fillStyle = '#ff007f';
+      pCtx.fillRect(pxMid - 28, pxY - 78, 56, 4);
+    } else {
+      // Default: Official Celebration Portrait
+      if (aishaPortrait.complete && aishaPortrait.naturalWidth > 0) {
+        pCtx.drawImage(aishaPortrait, imgX, imgY, imgW, imgH);
+      } else if (aishaHead.complete && aishaHead.naturalWidth > 0) {
+        pCtx.drawImage(aishaHead, imgX, imgY, imgW, imgH);
+      }
     }
     pCtx.restore();
 
-    // Golden Birthday Tiara & Crown atop Aisha's head in portrait
+    // Golden Birthday Tiara atop Aisha's head in photo
     const crownCenterX = imgX + imgW / 2;
     const crownTopY = imgY - 14;
     pCtx.save();
     pCtx.translate(crownCenterX, crownTopY);
-    pCtx.scale(2.2, 2.2);
+    pCtx.scale(2.0, 2.0);
     pCtx.fillStyle = '#ffd700';
     pCtx.beginPath();
     pCtx.moveTo(-16, 4);
@@ -1071,113 +1998,171 @@ html = """<!DOCTYPE html>
     pCtx.lineWidth = 2;
     pCtx.strokeRect(photoX, photoY, photoW, photoH);
 
+    // Render Placed Interactive Stickers
+    stickersOnCard.forEach(st => {
+      pCtx.save();
+      pCtx.translate(st.x, st.y);
+      pCtx.rotate(st.rot || 0);
+      if (selectedStickerId === st.id) {
+        pCtx.strokeStyle = '#00f0ff';
+        pCtx.lineWidth = 2.5;
+        pCtx.setLineDash([5, 5]);
+        pCtx.beginPath();
+        pCtx.arc(0, 0, (st.size || 42) * 0.65, 0, Math.PI * 2);
+        pCtx.stroke();
+        pCtx.setLineDash([]);
+      }
+      pCtx.font = `${st.size || 42}px sans-serif`;
+      pCtx.textAlign = 'center';
+      pCtx.textBaseline = 'middle';
+      pCtx.fillText(st.emoji, 0, 0);
+      pCtx.restore();
+    });
+
     // Polaroid Bottom Margin
-    const marginY = photoY + photoH + 28;
+    const marginY = photoY + photoH + 24;
 
     // Gold Certified Master Baker Seal with Satin Ribbon
-    const sealX = photoX + photoW - 70;
-    const sealY = marginY + 68;
+    const sealX = photoX + photoW - 65;
+    const sealY = marginY + 65;
     pCtx.save();
     pCtx.fillStyle = '#ffd700';
     pCtx.shadowColor = 'rgba(218, 165, 32, 0.4)';
     pCtx.shadowBlur = 12;
     pCtx.beginPath();
-    pCtx.arc(sealX, sealY, 36, 0, Math.PI * 2);
+    pCtx.arc(sealX, sealY, 34, 0, Math.PI * 2);
     pCtx.fill();
     pCtx.strokeStyle = '#b8860b';
-    pCtx.lineWidth = 3;
+    pCtx.lineWidth = 2.5;
     pCtx.stroke();
 
     pCtx.fillStyle = '#e6005c';
     pCtx.beginPath();
-    pCtx.moveTo(sealX - 14, sealY + 28);
-    pCtx.lineTo(sealX - 22, sealY + 70);
-    pCtx.lineTo(sealX - 10, sealY + 60);
-    pCtx.lineTo(sealX, sealY + 70);
-    pCtx.lineTo(sealX - 4, sealY + 28);
+    pCtx.moveTo(sealX - 13, sealY + 26);
+    pCtx.lineTo(sealX - 20, sealY + 65);
+    pCtx.lineTo(sealX - 9, sealY + 56);
+    pCtx.lineTo(sealX, sealY + 65);
+    pCtx.lineTo(sealX - 3, sealY + 26);
     pCtx.fill();
     pCtx.beginPath();
-    pCtx.moveTo(sealX + 4, sealY + 28);
-    pCtx.lineTo(sealX, sealY + 70);
-    pCtx.lineTo(sealX + 10, sealY + 60);
-    pCtx.lineTo(sealX + 22, sealY + 70);
-    pCtx.lineTo(sealX + 14, sealY + 28);
+    pCtx.moveTo(sealX + 3, sealY + 26);
+    pCtx.lineTo(sealX, sealY + 65);
+    pCtx.lineTo(sealX + 9, sealY + 56);
+    pCtx.lineTo(sealX + 20, sealY + 65);
+    pCtx.lineTo(sealX + 13, sealY + 26);
     pCtx.fill();
 
     pCtx.fillStyle = '#000000';
-    pCtx.font = 'bold 7px sans-serif';
+    pCtx.font = 'bold 6.5px sans-serif';
     pCtx.textAlign = 'center';
-    pCtx.fillText("★ CERTIFIED ★", sealX, sealY - 8);
+    pCtx.fillText("★ CERTIFIED ★", sealX, sealY - 7);
     pCtx.fillText("MASTER", sealX, sealY + 2);
-    pCtx.fillText("BAKER 👑", sealX, sealY + 12);
+    pCtx.fillText("BAKER 👑", sealX, sealY + 11);
     pCtx.restore();
 
     // Handwritten Birthday Message & Stats (Custom Wish)
     const wish = (currentPolaroidWish || "HAPPY BIRTHDAY AISHA! 🎂").trim();
     pCtx.fillStyle = '#1a202c';
-    const wishFontSz = wish.length > 28 ? 14 : (wish.length > 20 ? 17 : 20);
+    const wishFontSz = wish.length > 28 ? 13 : (wish.length > 20 ? 15 : 18);
     pCtx.font = `bold ${wishFontSz}px "Press Start 2P", cursive, sans-serif`;
     pCtx.textAlign = 'left';
-    pCtx.fillText(wish, photoX, marginY + 12);
+    pCtx.fillText(wish, photoX, marginY + 10);
 
     pCtx.fillStyle = '#2b6cb0';
-    pCtx.font = 'bold 12px "Press Start 2P", monospace';
+    pCtx.font = 'bold 11px "Press Start 2P", monospace';
     const stageTitle = (stage >= TOTAL_STAGES) ? "★ GRAND CHAMPION BAKER (ALL 30 LEVELS) ★" : `★ CERTIFIED COSMIC BAKER (STAGE ${stage}) ★`;
-    pCtx.fillText(stageTitle, photoX, marginY + 45);
+    pCtx.fillText(stageTitle, photoX, marginY + 42);
 
     pCtx.fillStyle = '#4a5568';
-    pCtx.font = '11px "Press Start 2P", monospace';
-    pCtx.fillText(`FINAL SCORE: ${score.toLocaleString()} PTS`, photoX, marginY + 78);
-    pCtx.fillText("RANK: GALAXY QUEEN BAKER 👑", photoX, marginY + 102);
+    pCtx.font = '10px "Press Start 2P", monospace';
+    pCtx.fillText(`FINAL SCORE: ${score.toLocaleString()} PTS`, photoX, marginY + 72);
+
+    const badgeText = currentMilestoneBadge || "Queen of Frosting 👑";
+    pCtx.fillStyle = '#b83280';
+    pCtx.fillText(`BADGE: ${badgeText.toUpperCase()}`, photoX, marginY + 96);
 
     const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     pCtx.fillStyle = '#a0aec0';
-    pCtx.font = '9px "Press Start 2P", monospace';
-    pCtx.fillText(`DATE: ${dateStr} • VERIFIED BIRTHDAY EDITION`, photoX, marginY + 134);
+    pCtx.font = '8px "Press Start 2P", monospace';
+    pCtx.fillText(`DATE: ${dateStr} • VERIFIED PURIKURA EDITION`, photoX, marginY + 126);
 
     return pCanvas;
   }
 
-  let latestPolaroidBlob = null;
-  function shareOrSavePolaroid() {
-    initAudio();
-    haptic([30, 40]);
-    const pCanvas = generatePolaroidCanvas();
-    pCanvas.toBlob(async (blob) => {
-      if (!blob) return;
-      latestPolaroidBlob = blob;
-      const file = new File([blob], 'aisha-birthday-champion.png', { type: 'image/png' });
-
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            title: "Aisha's Birthday Bake-Off 🎂",
-            text: `Aisha conquered the Galaxy Bake-Off with ${score.toLocaleString()} points! Happy Birthday Aisha! 🎂👑`,
-            files: [file]
-          });
-          return;
-        } catch (err) {
-          if (err.name !== 'AbortError') console.warn("Share failed, falling back to modal:", err);
-        }
-      }
-
-      const url = URL.createObjectURL(blob);
-      showPolaroidModal(url);
-    }, 'image/png');
+  function renderPolaroid() {
+    const pCanvas = document.getElementById('polaroid-canvas');
+    if (!pCanvas) return;
+    generatePolaroidCanvas(pCanvas);
   }
 
-  function showPolaroidModal(imgUrl) {
+  function addSticker(emoji) {
+    initAudio();
+    haptic(25);
+    sfxCatch();
+    const newSticker = {
+      id: Date.now() + Math.random(),
+      emoji: emoji,
+      x: 320 + (Math.random() - 0.5) * 60,
+      y: 330 + (Math.random() - 0.5) * 60,
+      size: 42,
+      rot: (Math.random() - 0.5) * 0.25
+    };
+    stickersOnCard.push(newSticker);
+    selectedStickerId = newSticker.id;
+    renderPolaroid();
+  }
+
+  function showPolaroidModal() {
     const modal = document.getElementById('polaroid-modal');
-    const img = document.getElementById('polaroid-img');
-    if (modal && img) {
-      img.src = imgUrl;
+    if (modal) {
+      renderPolaroid();
       modal.style.display = 'flex';
+      haptic(30);
     }
   }
 
   function closePolaroidModal() {
     const modal = document.getElementById('polaroid-modal');
     if (modal) modal.style.display = 'none';
+  }
+
+  function shareOrSavePolaroid() {
+    initAudio();
+    showPolaroidModal();
+  }
+
+  async function sharePolaroid() {
+    initAudio();
+    haptic([30, 40]);
+    const pCanvas = document.getElementById('polaroid-canvas') || generatePolaroidCanvas();
+    pCanvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], 'aisha-purikura-birthday.png', { type: 'image/png' });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: "Aisha's Birthday Purikura 🎂",
+            text: `Happy Birthday Aisha! Conquered the Galaxy Bake-Off with ${score.toLocaleString()} points! 🎂👑`,
+            files: [file]
+          });
+          return;
+        } catch(e) {
+          if (e.name !== 'AbortError') downloadPolaroid();
+        }
+      } else {
+        downloadPolaroid();
+      }
+    }, 'image/png');
+  }
+
+  function downloadPolaroid() {
+    initAudio();
+    haptic(30);
+    const pCanvas = document.getElementById('polaroid-canvas') || generatePolaroidCanvas();
+    const link = document.createElement('a');
+    link.download = `aisha-purikura-birthday-${Date.now()}.png`;
+    link.href = pCanvas.toDataURL('image/png');
+    link.click();
   }
 
   // Haptic feedback
@@ -1312,6 +2297,388 @@ html = """<!DOCTYPE html>
   // Custom Wish for Polaroid Certificate
   let currentPolaroidWish = "HAPPY BIRTHDAY AISHA! 🎂";
 
+  // Furthest Stage Reached (Cake Tower Progression)
+  let hiStage = parseInt(localStorage.getItem('anti_grav_histage') || '1');
+  function updateHiStage(s) {
+    if (s > hiStage) {
+      hiStage = s;
+      localStorage.setItem('anti_grav_histage', hiStage);
+    }
+  }
+
+  // Retro Arcade Hall of Fame Leaderboard
+  const DEFAULT_LEADERBOARD = [
+    { rank: 1, name: "ASH", score: 28500, stage: 30, date: "OCT 18" },
+    { rank: 2, name: "MOM", score: 19800, stage: 24, date: "OCT 18" },
+    { rank: 3, name: "DAD", score: 15400, stage: 18, date: "OCT 18" },
+    { rank: 4, name: "BFF", score: 12200, stage: 14, date: "OCT 18" },
+    { rank: 5, name: "CAT", score: 8600,  stage: 10, date: "OCT 18" }
+  ];
+
+  let runScoreSubmitted = false;
+  let pendingScore = 0;
+  let pendingStage = 1;
+
+  function getLeaderboard() {
+    try {
+      const stored = localStorage.getItem('anti_grav_leaderboard');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.warn("Failed to read leaderboard:", e);
+    }
+    return JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
+  }
+
+  function saveLeaderboard(list) {
+    localStorage.setItem('anti_grav_leaderboard', JSON.stringify(list));
+  }
+
+  function isHighScoreEligible(s) {
+    if (s <= 0) return false;
+    const list = getLeaderboard();
+    if (list.length < 5) return true;
+    return s > list[list.length - 1].score;
+  }
+
+  function getScoreRank(s) {
+    const list = getLeaderboard();
+    for (let i = 0; i < list.length; i++) {
+      if (s > list[i].score) return i + 1;
+    }
+    return Math.min(list.length + 1, 5);
+  }
+
+  function addLeaderboardEntry(name, s, st) {
+    let clean = (name || "ASH").trim().toUpperCase().slice(0, 3);
+    if (!clean) clean = "ASH";
+    const list = getLeaderboard();
+    const now = new Date();
+    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const dateStr = `${months[now.getMonth()]} ${now.getDate()}`;
+    const newEntry = {
+      name: clean,
+      score: s,
+      stage: st,
+      date: dateStr,
+      isNew: true
+    };
+    list.push(newEntry);
+    list.sort((a, b) => b.score - a.score);
+    const top5 = list.slice(0, 5);
+    top5.forEach((item, idx) => {
+      item.rank = idx + 1;
+    });
+    saveLeaderboard(top5);
+    return top5;
+  }
+
+  // Giant Cake Tower 30-Tier Confection Recipes
+  const CAKE_TIER_RECIPES = [
+    {
+      tier: 1,
+      name: "Strawberry Stardust Sponge",
+      icon: "🍓",
+      color: "#ff3366",
+      accent: "#ff99bb",
+      flavor: "Fluffy vanilla sponge soaked in celestial strawberry nectar & golden sugar.",
+      secret: "Fresh hand-picked galaxy strawberries",
+      note: "The foundation of Aisha's cosmic tower! Delicate and dreamy."
+    },
+    {
+      tier: 2,
+      name: "Cosmic Vanilla Cloud",
+      icon: "☁️",
+      color: "#f5f3e9",
+      accent: "#ffe494",
+      flavor: "Whipped zero-gravity cream infused with crushed starlight blossoms.",
+      secret: "A pinch of powdered meteorite sugar",
+      note: "Light enough to drift away if you don't hold the plate tight!"
+    },
+    {
+      tier: 3,
+      name: "Golden Honeycomb Glaze",
+      icon: "🍯",
+      color: "#ffaa00",
+      accent: "#ffe680",
+      flavor: "Crunchy caramelized space honeycomb dripped over warm chiffon.",
+      secret: "Nectar gathered by cosmic worker bees",
+      note: "Sticky, golden perfection that crackles pleasantly with every bite."
+    },
+    {
+      tier: 4,
+      name: "Blueberry Comet Crunch",
+      icon: "🫐",
+      color: "#4d62cd",
+      accent: "#8da0ff",
+      flavor: "Wild frozen comet blueberries folded with sparkling sapphire sugar crystals.",
+      secret: "Deep space wild berry compote",
+      note: "Leaves your tongue glowing with friendly blue sparkles!"
+    },
+    {
+      tier: 5,
+      name: "Raspberry Nebula Ganache",
+      icon: "🌌",
+      color: "#c01368",
+      accent: "#ff6bb5",
+      flavor: "Rich ruby chocolate ganache swirling with tart raspberry nebula dust.",
+      secret: "Milestone Tier 5 star essence",
+      note: "Aisha unlocked the Level 5 Milestone with this cosmic masterpiece!"
+    },
+    {
+      tier: 6,
+      name: "Matcha Moonbeam Sponge",
+      icon: "🍵",
+      color: "#4e8c37",
+      accent: "#a3e58c",
+      flavor: "Earthy ceremonial matcha dusted with luminescent lunar powder.",
+      secret: "High-grade Japanese Uji matcha & sweet red bean",
+      note: "Zen tranquility balanced with gentle galactic sweetness."
+    },
+    {
+      tier: 7,
+      name: "Caramel Asteroid Truffle",
+      icon: "🪐",
+      color: "#b86b24",
+      accent: "#f5b778",
+      flavor: "Salted butter caramel studded with melt-in-your-mouth asteroid truffles.",
+      secret: "Pink Himalayan stardust rock salt",
+      note: "Rich, decadent, and pulls like gravity itself."
+    },
+    {
+      tier: 8,
+      name: "Pistachio Supernova",
+      icon: "💫",
+      color: "#729b4e",
+      accent: "#c2eb9d",
+      flavor: "Roasted galactic pistachios in an explosion of creamy emerald frosting.",
+      secret: "Toasted Mediterranean space pistachios",
+      note: "An explosion of nutty flavor lighting up the entire bakery!"
+    },
+    {
+      tier: 9,
+      name: "Piñata Rainbow Confetti",
+      icon: "🛸",
+      color: "#e62282",
+      accent: "#ffe600",
+      flavor: "Candy-stuffed confetti sponge that pops with sweet sparks on every bite.",
+      secret: "Confection harvested from the Cosmic Piñata Frenzy",
+      note: "Bursting with fun surprises gathered during Stage 9!"
+    },
+    {
+      tier: 10,
+      name: "Royal Birthday Velvet",
+      icon: "👑",
+      color: "#990033",
+      accent: "#ffd700",
+      flavor: "Aisha's signature crimson velvet cake with royal crown cream cheese frosting.",
+      secret: "Milestone Tier 10 Royal Birthday Crown",
+      note: "Fit for Queen Aisha! Level 10 Golden Crown unlocked!"
+    },
+    {
+      tier: 11,
+      name: "Lavender Solar Swirl",
+      icon: "💜",
+      color: "#7e57c2",
+      accent: "#d1c4e9",
+      flavor: "Calming French lavender blossoms kissed by gentle solar heat.",
+      secret: "Organic botanical lavender starlight syrup",
+      note: "A soothing floral layer that perfumes the bakery."
+    },
+    {
+      tier: 12,
+      name: "Passionfruit Pulsar",
+      icon: "💥",
+      color: "#ff6d00",
+      accent: "#ffd180",
+      flavor: "Electric passionfruit curd that pulses with tangy tropical energy.",
+      secret: "Sun-ripened tropical pulsar extract",
+      note: "Zingy, bright, and wakes up every tastebud in the galaxy!"
+    },
+    {
+      tier: 13,
+      name: "Dark Chocolate Black Hole",
+      icon: "🍫",
+      color: "#2a150e",
+      accent: "#795548",
+      flavor: "So intensely rich and chocolatey, not even light can escape its deliciousness!",
+      secret: "85% Single-origin interstellar cocoa beans",
+      note: "Gravitationally irresistible to all chocoholics."
+    },
+    {
+      tier: 14,
+      name: "Dragonfruit Aurora",
+      icon: "🐲",
+      color: "#d81b60",
+      accent: "#ff80ab",
+      flavor: "Vibrant magenta dragonfruit jam ribboned like the northern space lights.",
+      secret: "Exotic dragonfruit seeds & lime zest",
+      note: "A dazzling spectacle of electric magenta flavor ribbons."
+    },
+    {
+      tier: 15,
+      name: "Midnight Blackberry Frosting",
+      icon: "🌙",
+      color: "#311b92",
+      accent: "#b388ff",
+      flavor: "Deep purple moon-harvested blackberries whipped into velvety mousse.",
+      secret: "Milestone Tier 15 lunar dark berries",
+      note: "Halfway to the 30-tier summit! Aisha's halfway candle blown!"
+    },
+    {
+      tier: 16,
+      name: "Roasted Marshmallow Meteor",
+      icon: "🍡",
+      color: "#e09f67",
+      accent: "#fff3e0",
+      flavor: "Toasted campfire space mallows gooey enough to stretch across orbits.",
+      secret: "Torched vanilla marshmallow fluff",
+      note: "Warm, gooey comfort that brings back childhood campfire smiles."
+    },
+    {
+      tier: 17,
+      name: "Churro Starlight Crisp",
+      icon: "🥨",
+      color: "#b2732c",
+      accent: "#ffe082",
+      flavor: "Cinnamon starlight churros baked into a satisfying buttery crisp crust.",
+      secret: "Cinnamon bark ground by asteroid impacts",
+      note: "Crispy edges with tender cinnamon-sugar warmth."
+    },
+    {
+      tier: 18,
+      name: "Tiramisu Zero-Gravity",
+      icon: "☕",
+      color: "#5d4037",
+      accent: "#d7ccc8",
+      flavor: "Espresso-soaked ladyfingers that float gently in mascarpone clouds.",
+      secret: "Roasted dark roast orbital espresso",
+      note: "Elegant Italian bakery perfection defying all physics."
+    },
+    {
+      tier: 19,
+      name: "Star-Candy Sugar Shower",
+      icon: "🍬",
+      color: "#f06292",
+      accent: "#ffd54f",
+      flavor: "Golden rock candy and spun starlight gathered during Piñata Frenzy.",
+      secret: "Stage 19 Golden Piñata cascade drops",
+      note: "Crunchy star sparkles that light up with every slice."
+    },
+    {
+      tier: 20,
+      name: "Master Chef Golden Genoise",
+      icon: "🧑‍🍳",
+      color: "#e6ac00",
+      accent: "#ffffff",
+      flavor: "Hand-whisked golden egg ribbons folded into an impossibly airy genoise.",
+      secret: "Milestone Tier 20 Master Chef Toque & Golden Whisk",
+      note: "Certified Master Chef Aisha! Only legendary bakers reach this height!"
+    },
+    {
+      tier: 21,
+      name: "Peach Blossom Comet",
+      icon: "🌸",
+      color: "#ff7043",
+      accent: "#ffccbc",
+      flavor: "Sweet white peaches steeped in edible cosmic blossom water.",
+      secret: "Spring peach blossoms from the Orion sector",
+      note: "Sweet, fragrant, and gentle as a summer afternoon."
+    },
+    {
+      tier: 22,
+      name: "Mango Galaxy Glaze",
+      icon: "🥭",
+      color: "#ff8f00",
+      accent: "#ffe082",
+      flavor: "Sun-ripened Alphonso mangoes mirrored in a shimmering planetary glaze.",
+      secret: "Royal Alphonso mango puree & passion nectar",
+      note: "A mirror glaze so shiny Aisha can check her butterfly clip in it!"
+    },
+    {
+      tier: 23,
+      name: "Lychee Stardust Cream",
+      icon: "🍧",
+      color: "#f48fb1",
+      accent: "#fce4ec",
+      flavor: "Floral lychees paired with tender coconut cream from the outer rim.",
+      secret: "Fresh peeled tropical lychees & coconut milk",
+      note: "Exquisite tropical aroma with pure pearlescent cream."
+    },
+    {
+      tier: 24,
+      name: "Butterscotch Solar Flare",
+      icon: "☀️",
+      color: "#d87a00",
+      accent: "#ffe082",
+      flavor: "Warm bubbling butterscotch with a pinch of sparkling sea salt.",
+      secret: "Brown sugar caramelized over solar prominence",
+      note: "Deep molasses richness with an addictive caramelized warmth."
+    },
+    {
+      tier: 25,
+      name: "Galaxy Butterfly Mousse",
+      icon: "🦋",
+      color: "#5c6bc0",
+      accent: "#c5cae9",
+      flavor: "Inspired by Aisha's iconic hair clip: blue pea tea butterfly mousse!",
+      secret: "Milestone Tier 25 Butterfly Clip extract",
+      note: "Changes from royal blue to regal purple with a squeeze of lemon!"
+    },
+    {
+      tier: 26,
+      name: "Cotton Candy Nebula",
+      icon: "🍭",
+      color: "#ec407a",
+      accent: "#80deea",
+      flavor: "Spun cloud sugar that melts instantly into sweet dreams.",
+      secret: "Nebula cloud cotton candy threads",
+      note: "Dissolves on the tongue like a sweet whisper."
+    },
+    {
+      tier: 27,
+      name: "Ruby Chocolate Quasar",
+      icon: "💎",
+      color: "#ad1457",
+      accent: "#f48fb1",
+      flavor: "Naturally pink rare cocoa beans emitting radiant cosmic sweetness.",
+      secret: "100% natural berry-fruit ruby chocolate",
+      note: "No berry added — the cocoa bean itself is pink and berry-flavored!"
+    },
+    {
+      tier: 28,
+      name: "Champagne Sparkler Meringue",
+      icon: "🥂",
+      color: "#fff8e1",
+      accent: "#ffe57f",
+      flavor: "Effervescent bubbly meringue that crackles like celebration sparklers.",
+      secret: "Pop rocks & non-alcoholic sparkling grape elixir",
+      note: "Fizzes and crackles in celebration of approaching Stage 30!"
+    },
+    {
+      tier: 29,
+      name: "Supreme Piñata Gold Cluster",
+      icon: "⭐",
+      color: "#ffd700",
+      accent: "#ffffff",
+      flavor: "Solid gold candy nuggets harvested from the ultimate cosmic piñata!",
+      secret: "Final Piñata Frenzy star harvest",
+      note: "Shines with pure 24-karat edible gold stardust!"
+    },
+    {
+      tier: 30,
+      name: "Celestial Tiara Birthday Grand Tier",
+      icon: "🎂",
+      color: "#00e5ff",
+      accent: "#ffd700",
+      flavor: "The crowning 30th masterpiece! Topped with sparklers, edible diamonds, and 30 glowing candles!",
+      secret: "100% Aisha Birthday Magic & Infinite Love 💖",
+      note: "THE GRAND FINALE! Crowned with the Birthday Tiara of Eternity!"
+    }
+  ];
+
   // Cosmic Birthday Piñata "Bonus Frenzy" (Stages 9, 19, 29)
   let pinata = {
     active: false,
@@ -1374,7 +2741,19 @@ html = """<!DOCTYPE html>
     if (state === 'MENU') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxY = HEIGHT / 2 - 265;
-      if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 455) {
+      const btnY = boxY + 456;
+      const btnW = 190;
+      const btnH = 28;
+      if (coords.y >= btnY && coords.y <= btnY + btnH) {
+        if (coords.x >= WIDTH / 2 - btnW - 8 && coords.x <= WIDTH / 2 - 8) {
+          openLeaderboardModal();
+          return;
+        } else if (coords.x >= WIDTH / 2 + 8 && coords.x <= WIDTH / 2 + btnW + 8) {
+          openCakeTowerModal();
+          return;
+        }
+      }
+      if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 450) {
         resumeCheckpoint();
       } else {
         startGame();
@@ -1385,7 +2764,24 @@ html = """<!DOCTYPE html>
     if (state === 'GAME_OVER') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxY = HEIGHT / 2 - 265;
-      if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 455) {
+      const btnY = boxY + 456;
+      const btnW = 190;
+      const btnH = 28;
+      if (coords.y >= btnY && coords.y <= btnY + btnH) {
+        if (coords.x >= WIDTH / 2 - btnW - 8 && coords.x <= WIDTH / 2 - 8) {
+          openLeaderboardModal();
+          return;
+        } else if (coords.x >= WIDTH / 2 + 8 && coords.x <= WIDTH / 2 + btnW + 8) {
+          openCakeTowerModal();
+          return;
+        }
+      }
+      if (coords.y >= boxY + 490 && coords.y <= boxY + 524) {
+        shareOrSavePolaroid();
+        haptic(25);
+        return;
+      }
+      if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 450) {
         resumeCheckpoint();
       } else {
         startGame();
@@ -1396,27 +2792,78 @@ html = """<!DOCTYPE html>
     if (state === 'WIN') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxY = HEIGHT / 2 - 265;
-      if (coords.y >= boxY + 450 && coords.y <= boxY + 500) {
-        shareOrSavePolaroid();
-      } else {
-        startGame();
+      const btnY = boxY + 454;
+      const btnW = 190;
+      const btnH = 28;
+      if (coords.y >= btnY && coords.y <= btnY + btnH) {
+        if (coords.x >= WIDTH / 2 - btnW - 8 && coords.x <= WIDTH / 2 - 8) {
+          openLeaderboardModal();
+          return;
+        } else if (coords.x >= WIDTH / 2 + 8 && coords.x <= WIDTH / 2 + btnW + 8) {
+          openCakeTowerModal();
+          return;
+        }
       }
-      haptic(25);
+      if (coords.y >= boxY + 482 && coords.y <= boxY + 514 && Math.abs(coords.x - WIDTH / 2) < 220) {
+        shareOrSavePolaroid();
+        haptic(25);
+        return;
+      }
+      if (coords.y >= boxY + 418 && coords.y <= boxY + 450 && Math.abs(coords.x - WIDTH / 2) < 180) {
+        startGame();
+        haptic(25);
+        return;
+      }
+      launchInteractiveFirework(coords.x, coords.y);
+      isSkyDragging = true;
       return;
     }
     if (state === 'CANDLE_CEREMONY') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxY = HEIGHT / 2 - Math.min(HEIGHT - 80, 560) / 2;
-      if (!ceremonyAllBlown && coords.y >= boxY + 490 && coords.y <= boxY + 530) {
-        toggleMic();
+      const cakeCenterY = HEIGHT / 2 + 75;
+      if (!ceremonyAllBlown) {
+        if (coords.y >= boxY + 460 && coords.y <= boxY + 505 && Math.abs(coords.x - WIDTH / 2) < 160) {
+          toggleMic();
+          return;
+        }
+        if (coords.y >= cakeCenterY - 145 && coords.y <= cakeCenterY + 70 && Math.abs(coords.x - WIDTH / 2) < 150) {
+          blowCandles(coords.x, coords.y);
+          return;
+        }
+        launchInteractiveFirework(coords.x, coords.y);
+        isSkyDragging = true;
+        return;
+      } else {
+        if (presentGachaActive && !presentGachaOpened) {
+          for (let p of presents) {
+            const floatY = Math.sin(globalTime * 3.5 + p.floatOffset) * 6;
+            if (Math.hypot(p.x - coords.x, (p.y + floatY) - coords.y) < 55) {
+              unboxPresent(p.id);
+              return;
+            }
+          }
+        }
+        if (coords.y >= boxY + 516 && coords.y <= boxY + 540 && Math.abs(coords.x - WIDTH / 2) < 220) {
+          openCakeTowerModal();
+          return;
+        }
+        if (coords.y >= boxY + 490 && coords.y <= boxY + 515 && Math.abs(coords.x - WIDTH / 2) < 220) {
+          shareOrSavePolaroid();
+          return;
+        }
+        if (coords.y >= boxY + 465 && coords.y <= boxY + 490 && Math.abs(coords.x - WIDTH / 2) < 180) {
+          if (stage >= TOTAL_STAGES) {
+            startGame();
+          } else {
+            continueMilestone();
+          }
+          return;
+        }
+        launchInteractiveFirework(coords.x, coords.y);
+        isSkyDragging = true;
         return;
       }
-      if (ceremonyAllBlown && coords.y >= boxY + 460 && coords.y <= boxY + 510) {
-        shareOrSavePolaroid();
-        return;
-      }
-      blowCandles(coords.x, coords.y);
-      return;
     }
     if (state === 'MILESTONE') {
       continueMilestone();
@@ -1431,12 +2878,22 @@ html = """<!DOCTYPE html>
   }, { passive: true });
 
   window.addEventListener('pointermove', (e) => {
+    if (isSkyDragging && (state === 'WIN' || state === 'CANDLE_CEREMONY')) {
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      handleSkyDrag(coords.x, coords.y);
+    }
     if (!isDragging) return;
     targetX = getCanvasCoords(e.clientX, e.clientY).x;
   }, { passive: true });
 
-  window.addEventListener('pointerup', () => { isDragging = false; });
-  window.addEventListener('pointercancel', () => { isDragging = false; });
+  window.addEventListener('pointerup', () => { 
+    isDragging = false; 
+    isSkyDragging = false; 
+  });
+  window.addEventListener('pointercancel', () => { 
+    isDragging = false; 
+    isSkyDragging = false; 
+  });
 
   // Keyboard controls
   const keys = {};
@@ -1615,14 +3072,104 @@ html = """<!DOCTYPE html>
   function updatePolaroidWish(newWish) {
     currentPolaroidWish = newWish.trim() || "HAPPY BIRTHDAY AISHA! 🎂";
     if (wishInput) wishInput.value = currentPolaroidWish;
-    const pCanvas = generatePolaroidCanvas();
-    pCanvas.toBlob((blob) => {
-      if (!blob) return;
-      latestPolaroidBlob = blob;
-      const url = URL.createObjectURL(blob);
-      showPolaroidModal(url);
-    }, 'image/png');
+    renderPolaroid();
     haptic(15);
+  }
+
+  // Photo Switcher Tabs
+  const photoTabs = document.querySelectorAll('.photo-tab-btn');
+  photoTabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pMode = btn.getAttribute('data-photo');
+      if (pMode) {
+        currentPolaroidPhoto = pMode;
+        photoTabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        sfxCatch();
+        haptic(20);
+        renderPolaroid();
+      }
+    });
+  });
+
+  // Purikura Sticker Tray Stamping
+  const stickerBtns = document.querySelectorAll('.sticker-btn');
+  stickerBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const emoji = btn.getAttribute('data-sticker');
+      if (emoji) addSticker(emoji);
+    });
+  });
+
+  const btnUndoSticker = document.getElementById('sticker-undo-btn');
+  if (btnUndoSticker) {
+    btnUndoSticker.addEventListener('click', () => {
+      stickersOnCard.pop();
+      selectedStickerId = null;
+      haptic(15);
+      renderPolaroid();
+    });
+  }
+
+  const btnClearStickers = document.getElementById('sticker-clear-btn');
+  if (btnClearStickers) {
+    btnClearStickers.addEventListener('click', () => {
+      stickersOnCard = [];
+      selectedStickerId = null;
+      haptic([20, 20]);
+      renderPolaroid();
+    });
+  }
+
+  // Interactive Drag & Drop of Stickers on Polaroid Canvas
+  const pModalCanvas = document.getElementById('polaroid-canvas');
+  if (pModalCanvas) {
+    pModalCanvas.addEventListener('pointerdown', (e) => {
+      const rect = pModalCanvas.getBoundingClientRect();
+      const scaleX = pModalCanvas.width / rect.width;
+      const scaleY = pModalCanvas.height / rect.height;
+      const cx = (e.clientX - rect.left) * scaleX;
+      const cy = (e.clientY - rect.top) * scaleY;
+
+      let found = null;
+      for (let i = stickersOnCard.length - 1; i >= 0; i--) {
+        const st = stickersOnCard[i];
+        if (Math.hypot(st.x - cx, st.y - cy) < (st.size * 0.75)) {
+          found = st;
+          break;
+        }
+      }
+      if (found) {
+        selectedStickerId = found.id;
+        isDraggingSticker = true;
+        dragOffsetStickerX = cx - found.x;
+        dragOffsetStickerY = cy - found.y;
+        haptic(20);
+        renderPolaroid();
+      } else {
+        selectedStickerId = null;
+        renderPolaroid();
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isDraggingSticker || !selectedStickerId) return;
+      const rect = pModalCanvas.getBoundingClientRect();
+      const scaleX = pModalCanvas.width / rect.width;
+      const scaleY = pModalCanvas.height / rect.height;
+      const cx = (e.clientX - rect.left) * scaleX;
+      const cy = (e.clientY - rect.top) * scaleY;
+
+      const st = stickersOnCard.find(s => s.id === selectedStickerId);
+      if (st) {
+        st.x = Math.max(30, Math.min(pModalCanvas.width - 30, cx - dragOffsetStickerX));
+        st.y = Math.max(30, Math.min(pModalCanvas.height - 30, cy - dragOffsetStickerY));
+        renderPolaroid();
+      }
+    });
+
+    window.addEventListener('pointerup', () => { isDraggingSticker = false; });
+    window.addEventListener('pointercancel', () => { isDraggingSticker = false; });
   }
 
   if (wishBtn && wishInput) {
@@ -1640,19 +3187,16 @@ html = """<!DOCTYPE html>
       if (wish) updatePolaroidWish(wish);
     });
   });
-  if (modalDownloadBtn) {
-    modalDownloadBtn.addEventListener('click', () => {
-      if (!latestPolaroidBlob) return;
-      const url = URL.createObjectURL(latestPolaroidBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'aisha-birthday-champion.png';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      haptic(20);
-    });
+
+  const modalShareBtn = document.getElementById('modal-share-btn');
+  if (modalShareBtn) {
+    modalShareBtn.addEventListener('click', sharePolaroid);
   }
+
+  if (modalDownloadBtn) {
+    modalDownloadBtn.addEventListener('click', downloadPolaroid);
+  }
+
   const polaroidModal = document.getElementById('polaroid-modal');
   if (polaroidModal) {
     polaroidModal.addEventListener('click', (e) => {
@@ -1779,6 +3323,525 @@ html = """<!DOCTYPE html>
   if (pwaModal) {
     pwaModal.addEventListener('click', (e) => {
       if (e.target === pwaModal) pwaModal.style.display = 'none';
+    });
+  }
+
+  function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // ─── RETRO ARCADE INITIALS ENTRY UI LOGIC ─────────────────────────────
+  const initialsModal = document.getElementById('initials-modal');
+  const initialsRankTitle = document.getElementById('initials-rank-title');
+  const initialsScoreText = document.getElementById('initials-score-text');
+  const initialsInput = document.getElementById('initials-input');
+  const initialsSubmitBtn = document.getElementById('initials-submit-btn');
+  const initialsSkipBtn = document.getElementById('initials-skip-btn');
+  const slot0 = document.getElementById('slot-0');
+  const slot1 = document.getElementById('slot-1');
+  const slot2 = document.getElementById('slot-2');
+  let currentInitials = "ASH";
+
+  function promptInitials(s, st) {
+    pendingScore = s;
+    pendingStage = st;
+    const rank = getScoreRank(s);
+    if (initialsRankTitle) initialsRankTitle.textContent = `TOP 5 BAKER: RANK #${rank}!`;
+    if (initialsScoreText) initialsScoreText.textContent = `${s.toLocaleString()} PTS (STAGE ${st})`;
+    currentInitials = "ASH";
+    updateInitialsSlots();
+    if (initialsModal) initialsModal.style.display = 'flex';
+    if (initialsInput) {
+      initialsInput.value = currentInitials;
+      try { initialsInput.focus(); } catch(e){}
+    }
+    playTone(587, 'triangle', 0.1, 0.2);
+    setTimeout(() => playTone(880, 'triangle', 0.2, 0.25), 100);
+  }
+
+  function closeInitialsModal() {
+    if (initialsModal) initialsModal.style.display = 'none';
+  }
+
+  function updateInitialsSlots() {
+    const chars = currentInitials.padEnd(3, ' ').split('');
+    if (slot0) slot0.textContent = chars[0] !== ' ' ? chars[0] : '_';
+    if (slot1) slot1.textContent = chars[1] !== ' ' ? chars[1] : '_';
+    if (slot2) slot2.textContent = chars[2] !== ' ' ? chars[2] : '_';
+
+    const activeIdx = Math.min(currentInitials.length, 2);
+    [slot0, slot1, slot2].forEach((el, idx) => {
+      if (el) el.classList.toggle('active', idx === activeIdx);
+    });
+  }
+
+  function appendInitialChar(ch) {
+    initAudio();
+    haptic(15);
+    playTone(700, 'square', 0.04, 0.1);
+    if (currentInitials.length < 3) {
+      currentInitials += ch.toUpperCase();
+      updateInitialsSlots();
+    }
+  }
+
+  function backspaceInitial() {
+    initAudio();
+    haptic(15);
+    playTone(400, 'triangle', 0.05, 0.1);
+    if (currentInitials.length > 0) {
+      currentInitials = currentInitials.slice(0, -1);
+      updateInitialsSlots();
+    }
+  }
+
+  function submitPlayerInitials() {
+    initAudio();
+    haptic([30, 40, 60]);
+    let name = currentInitials.trim().toUpperCase() || 'ASH';
+    addLeaderboardEntry(name, pendingScore, pendingStage);
+    runScoreSubmitted = true;
+    closeInitialsModal();
+    playTone(523, 'sine', 0.1, 0.2);
+    setTimeout(() => playTone(659, 'sine', 0.1, 0.2), 90);
+    setTimeout(() => playTone(784, 'sine', 0.15, 0.25), 180);
+    setTimeout(() => playTone(1046, 'sine', 0.3, 0.3), 270);
+    openLeaderboardModal(true);
+  }
+
+  if (initialsSubmitBtn) {
+    initialsSubmitBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      submitPlayerInitials();
+    });
+  }
+
+  if (initialsSkipBtn) {
+    initialsSkipBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeInitialsModal();
+    });
+  }
+
+  // Quick initial chips
+  document.querySelectorAll('.quick-chip').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const inits = btn.getAttribute('data-initials') || 'ASH';
+      currentInitials = inits.slice(0, 3).toUpperCase();
+      updateInitialsSlots();
+      haptic(20);
+      playTone(800, 'sine', 0.05, 0.15);
+    });
+  });
+
+  // Arcade keypad buttons
+  document.querySelectorAll('.arcade-key').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (btn.id === 'key-backspace') {
+        backspaceInitial();
+      } else {
+        const char = btn.getAttribute('data-char');
+        if (char) appendInitialChar(char);
+      }
+    });
+  });
+
+  // Native input sync
+  if (initialsInput) {
+    initialsInput.addEventListener('input', () => {
+      currentInitials = initialsInput.value.replace(/[^a-zA-Z0-9★]/g, '').toUpperCase().slice(0, 3);
+      updateInitialsSlots();
+    });
+    initialsInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitPlayerInitials();
+      }
+    });
+  }
+
+  // ─── RETRO ARCADE HALL OF FAME LEADERBOARD UI LOGIC ──────────────────
+  const leaderboardModal = document.getElementById('leaderboard-modal');
+  const leaderboardTable = document.getElementById('leaderboard-table');
+  const lbCurrentStat = document.getElementById('leaderboard-current-stat');
+  const lbShareBtn = document.getElementById('lb-share-btn');
+  const lbResetBtn = document.getElementById('lb-reset-btn');
+  const lbCloseBtn = document.getElementById('lb-close-btn');
+  const leaderboardBtn = document.getElementById('leaderboard-btn');
+
+  function openLeaderboardModal(highlightNew = false) {
+    initAudio();
+    haptic(20);
+    collapseSettingsDock();
+    renderLeaderboard(highlightNew);
+    if (leaderboardModal) leaderboardModal.style.display = 'flex';
+  }
+
+  function closeLeaderboardModal() {
+    if (leaderboardModal) leaderboardModal.style.display = 'none';
+  }
+
+  function renderLeaderboard(highlightNew = false) {
+    const list = getLeaderboard();
+    if (lbCurrentStat) {
+      lbCurrentStat.textContent = `LATEST RUN: ${score.toLocaleString()} PTS (STAGE ${stage})`;
+    }
+    if (!leaderboardTable) return;
+    leaderboardTable.innerHTML = '';
+
+    list.forEach(entry => {
+      const row = document.createElement('div');
+      row.className = `lb-row rank-${entry.rank}` + (highlightNew && entry.isNew ? ' new-entry-glow' : '');
+      const trophy = entry.rank === 1 ? '🥇' : (entry.rank === 2 ? '🥈' : (entry.rank === 3 ? '🥉' : `#${entry.rank}`));
+      const stageText = `LVL ${entry.stage || 1}`;
+
+      row.innerHTML = `
+        <div class="lb-left">
+          <div class="lb-trophy">${trophy}</div>
+          <div>
+            <div class="lb-name">${escapeHTML(entry.name)}</div>
+            <div style="font-size: 6px; color: #859bb8; margin-top: 2px;">${entry.date || 'OCT 18'}</div>
+          </div>
+        </div>
+        <div class="lb-right">
+          <div class="lb-score">${(entry.score || 0).toLocaleString()} <span style="font-size:7px; color:#ff6ebe;">PTS</span></div>
+          <div class="lb-stage-tag">${stageText}</div>
+        </div>
+      `;
+      leaderboardTable.appendChild(row);
+      delete entry.isNew;
+    });
+  }
+
+  async function shareLeaderboard() {
+    initAudio();
+    haptic(20);
+    const list = getLeaderboard();
+    let text = `🏆 AISHA'S BIRTHDAY BAKE-OFF: HALL OF FAME 🏆\n`;
+    list.forEach(item => {
+      const medal = item.rank === 1 ? "🥇" : (item.rank === 2 ? "🥈" : (item.rank === 3 ? "🥉" : `[#${item.rank}]`));
+      text += `${medal} ${item.name} — ${item.score.toLocaleString()} pts (Lvl ${item.stage})\n`;
+    });
+    text += `\nCan you beat Aisha and friends' cosmic high scores? 🎂✨\nhttps://aishababu.vercel.app`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Aisha's Bake-Off Hall of Fame 🏆",
+          text: text,
+          url: "https://aishababu.vercel.app"
+        });
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') console.warn(err);
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      if (lbShareBtn) {
+        const orig = lbShareBtn.textContent;
+        lbShareBtn.textContent = "COPIED! ✨";
+        setTimeout(() => { lbShareBtn.textContent = orig; }, 1800);
+      }
+      toastFortune("🏆 Leaderboard copied to clipboard!");
+    } catch (e) {
+      prompt("Copy Hall of Fame:", text);
+    }
+  }
+
+  function resetLeaderboard() {
+    initAudio();
+    haptic(30);
+    if (confirm("Reset Hall of Fame scores back to default family records?")) {
+      saveLeaderboard(DEFAULT_LEADERBOARD);
+      renderLeaderboard(false);
+      playTone(440, 'triangle', 0.1, 0.2);
+    }
+  }
+
+  if (lbShareBtn) lbShareBtn.addEventListener('click', shareLeaderboard);
+  if (lbResetBtn) lbResetBtn.addEventListener('click', resetLeaderboard);
+  if (lbCloseBtn) lbCloseBtn.addEventListener('click', closeLeaderboardModal);
+  if (leaderboardBtn) leaderboardBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openLeaderboardModal();
+  });
+  if (leaderboardModal) {
+    leaderboardModal.addEventListener('click', (e) => {
+      if (e.target === leaderboardModal) closeLeaderboardModal();
+    });
+  }
+
+  // ─── 30-TIER GIANT CAKE TOWER & RECIPE CARD UI LOGIC ───────────────────
+  const cakeTowerModal = document.getElementById('cake-tower-modal');
+  const cakeTowerCanvas = document.getElementById('cake-tower-canvas');
+  const cakeCardsContainer = document.getElementById('recipe-cards-container');
+  const towerUnlockedText = document.getElementById('tower-unlocked-text');
+  const towerPercentText = document.getElementById('tower-percent-text');
+  const towerProgressFill = document.getElementById('tower-progress-fill');
+  const cakeShareBtn = document.getElementById('cake-share-btn');
+  const cakeCloseBtn = document.getElementById('cake-close-btn');
+  const cakeTowerBtn = document.getElementById('cake-tower-btn');
+
+  function openCakeTowerModal() {
+    initAudio();
+    haptic(20);
+    collapseSettingsDock();
+    updateHiStage(stage);
+    const unlocked = Math.min(Math.max(hiStage, 1), 30);
+    const pct = Math.round((unlocked / 30) * 100);
+
+    if (towerUnlockedText) towerUnlockedText.textContent = `UNLOCKED: ${unlocked} / 30 TIERS`;
+    if (towerPercentText) towerPercentText.textContent = `${pct}%`;
+    if (towerProgressFill) towerProgressFill.style.width = `${pct}%`;
+
+    drawCakeTowerGraphic();
+    renderRecipeCards();
+    if (cakeTowerModal) cakeTowerModal.style.display = 'flex';
+  }
+
+  function closeCakeTowerModal() {
+    if (cakeTowerModal) cakeTowerModal.style.display = 'none';
+  }
+
+  function drawCakeTowerGraphic() {
+    if (!cakeTowerCanvas) return;
+    const cCtx = cakeTowerCanvas.getContext('2d');
+    const cw = cakeTowerCanvas.width;
+    const ch = cakeTowerCanvas.height;
+
+    cCtx.clearRect(0, 0, cw, ch);
+
+    // Deep space gradient backdrop inside canvas
+    const bgGrad = cCtx.createLinearGradient(0, 0, 0, ch);
+    bgGrad.addColorStop(0, '#0d041e');
+    bgGrad.addColorStop(0.5, '#180738');
+    bgGrad.addColorStop(1, '#070214');
+    cCtx.fillStyle = bgGrad;
+    cCtx.fillRect(0, 0, cw, ch);
+
+    // Background stardust speckles
+    for (let s = 0; s < 45; s++) {
+      const sx = (Math.sin(s * 91.3) * 0.5 + 0.5) * cw;
+      const sy = (Math.cos(s * 47.7) * 0.5 + 0.5) * ch;
+      cCtx.fillStyle = s % 3 === 0 ? 'rgba(255, 215, 0, 0.6)' : 'rgba(255, 110, 190, 0.5)';
+      cCtx.fillRect(sx, sy, 2, 2);
+    }
+
+    // Pedestal Plate at bottom
+    const pedW = 360;
+    const pedH = 14;
+    const pedX = cw / 2 - pedW / 2;
+    const pedY = ch - 20;
+    cCtx.fillStyle = '#e2e8f0';
+    cCtx.fillRect(pedX, pedY, pedW, pedH);
+    cCtx.fillStyle = '#cbd5e1';
+    cCtx.fillRect(pedX, pedY + pedH - 4, pedW, 4);
+    cCtx.fillStyle = '#ffd700';
+    cCtx.fillRect(pedX + 10, pedY + 3, pedW - 20, 2);
+
+    const unlocked = Math.min(Math.max(hiStage, 1), 30);
+
+    // Draw all 30 stacked tiers from 1 (bottom) to 30 (top)
+    for (let i = 1; i <= 30; i++) {
+      const recipe = CAKE_TIER_RECIPES[i - 1];
+      const prog = (i - 1) / 29; // 0 (bottom) to 1 (top)
+      const tierW = Math.round(330 - prog * 230); // 330px at bottom down to 100px at top
+      const tierH = 16;
+      const tierX = Math.round(cw / 2 - tierW / 2);
+      const tierY = Math.round(ch - 36 - (i - 1) * 18);
+      const isUnlocked = i <= unlocked;
+
+      if (isUnlocked) {
+        // Unlocked vibrant tier with gradient & frosting
+        const grad = cCtx.createLinearGradient(tierX, tierY, tierX, tierY + tierH);
+        grad.addColorStop(0, recipe.accent || '#ff99bb');
+        grad.addColorStop(0.3, recipe.color || '#ff3366');
+        grad.addColorStop(1, '#1a0520');
+        cCtx.fillStyle = grad;
+        cCtx.fillRect(tierX, tierY, tierW, tierH);
+
+        // Tier border
+        cCtx.strokeStyle = recipe.accent || '#ffd700';
+        cCtx.lineWidth = 1;
+        cCtx.strokeRect(tierX, tierY, tierW, tierH);
+
+        // Frosting scalloped drip on top edge
+        cCtx.fillStyle = '#ffffff';
+        cCtx.fillRect(tierX, tierY, tierW, 3);
+        const dripCount = Math.max(4, Math.floor(tierW / 14));
+        const dripStep = tierW / dripCount;
+        for (let d = 0; d < dripCount; d++) {
+          const dx = tierX + d * dripStep + 2;
+          const dh = (d % 2 === 0) ? 6 : 4;
+          cCtx.fillRect(dx, tierY + 2, 4, dh);
+        }
+
+        // Sprinkles on tier body
+        cCtx.fillStyle = '#ffd700';
+        for (let sp = 1; sp < Math.min(8, tierW / 25); sp++) {
+          cCtx.fillRect(tierX + sp * 24, tierY + 9, 3, 2);
+        }
+
+        // Tier milestone marker on the sides
+        if (i % 5 === 0) {
+          cCtx.fillStyle = '#ffd700';
+          cCtx.font = '8px "Press Start 2P", monospace';
+          cCtx.textAlign = 'right';
+          cCtx.fillText("★", tierX - 4, tierY + 12);
+        }
+
+        // Tier Number label
+        cCtx.fillStyle = '#ffffff';
+        cCtx.font = '7px "Press Start 2P", monospace';
+        cCtx.textAlign = 'center';
+        cCtx.fillText(`T${i} ${recipe.icon}`, cw / 2, tierY + 12);
+      } else {
+        // Locked silhouette tier
+        cCtx.fillStyle = 'rgba(30, 20, 50, 0.7)';
+        cCtx.fillRect(tierX, tierY, tierW, tierH);
+        cCtx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+        cCtx.setLineDash([3, 3]);
+        cCtx.strokeRect(tierX, tierY, tierW, tierH);
+        cCtx.setLineDash([]);
+
+        cCtx.fillStyle = 'rgba(180, 160, 220, 0.5)';
+        cCtx.font = '6.5px "Press Start 2P", monospace';
+        cCtx.textAlign = 'center';
+        cCtx.fillText(`🔒 TIER ${i}`, cw / 2, tierY + 11);
+      }
+    }
+
+    // Top Crown / Tiara & Sparklers on top of Tier 30!
+    const topY = ch - 36 - 29 * 18 - 8;
+    if (unlocked >= 30) {
+      // Golden Tiara & Celebration Sparklers
+      cCtx.fillStyle = '#ffd700';
+      cCtx.font = '14px sans-serif';
+      cCtx.textAlign = 'center';
+      cCtx.fillText("👑", cw / 2, topY);
+      cCtx.font = '10px sans-serif';
+      cCtx.fillText("✨", cw / 2 - 25, topY - 6);
+      cCtx.fillText("✨", cw / 2 + 25, topY - 6);
+    } else {
+      // Glowing Candle on current highest tier
+      const currTopY = ch - 36 - (unlocked - 1) * 18 - 10;
+      cCtx.fillStyle = '#ff6ebe';
+      cCtx.fillRect(cw / 2 - 2, currTopY + 2, 4, 8);
+      cCtx.fillStyle = '#ffd700';
+      cCtx.beginPath();
+      cCtx.arc(cw / 2, currTopY, 3, 0, Math.PI * 2);
+      cCtx.fill();
+    }
+  }
+
+  function renderRecipeCards() {
+    if (!cakeCardsContainer) return;
+    cakeCardsContainer.innerHTML = '';
+    const unlocked = Math.min(Math.max(hiStage, 1), 30);
+
+    // Render from Tier 30 down to Tier 1 so players see the crown first
+    for (let i = 30; i >= 1; i--) {
+      const r = CAKE_TIER_RECIPES[i - 1];
+      const isUnlocked = i <= unlocked;
+      const isMilestone = i % 5 === 0;
+
+      const card = document.createElement('div');
+      card.id = `recipe-tier-${i}`;
+      card.className = `recipe-card ${isUnlocked ? 'unlocked' : 'locked'} ${isMilestone ? 'milestone' : ''}`;
+
+      card.innerHTML = `
+        <div class="rc-header">
+          <div class="rc-title">${r.icon} TIER ${r.tier}: ${escapeHTML(r.name)}</div>
+          <span class="rc-tag ${isUnlocked ? 'unlocked' : 'locked'}">${isUnlocked ? 'UNLOCKED ✨' : `LVL ${i} 🔒`}</span>
+        </div>
+        <div class="rc-flavor">${escapeHTML(r.flavor)}</div>
+        <div class="rc-secret"><b>✨ Secret:</b> ${escapeHTML(r.secret)}</div>
+        <div class="rc-note"><b>👩‍🍳 Note:</b> "${escapeHTML(r.note)}"</div>
+      `;
+      cakeCardsContainer.appendChild(card);
+    }
+  }
+
+  // Tap canvas tier to jump to recipe card
+  if (cakeTowerCanvas) {
+    cakeTowerCanvas.addEventListener('pointerdown', (e) => {
+      initAudio();
+      haptic(15);
+      const rect = cakeTowerCanvas.getBoundingClientRect();
+      const scaleY = cakeTowerCanvas.height / rect.height;
+      const tapY = (e.clientY - rect.top) * scaleY;
+      const ch = cakeTowerCanvas.height;
+
+      // Inverse formula: tierY = ch - 36 - (i - 1) * 18
+      const rawI = Math.round((ch - 36 - tapY) / 18) + 1;
+      const tierClicked = Math.max(1, Math.min(30, rawI));
+
+      const targetEl = document.getElementById(`recipe-tier-${tierClicked}`);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetEl.classList.add('highlight');
+        setTimeout(() => targetEl.classList.remove('highlight'), 1200);
+        playTone(660 + tierClicked * 15, 'triangle', 0.08, 0.15);
+      }
+    });
+  }
+
+  async function shareCakeRecipe() {
+    initAudio();
+    haptic(20);
+    const unlocked = Math.min(Math.max(hiStage, 1), 30);
+    const text = `🎂 AISHA'S GIANT CAKE TOWER 🍰\n` +
+      `Master Baker: Aisha Babu 👑\n` +
+      `Height: 48 Meters | Sweetness: 99,999% | 100% Love 💖\n` +
+      `Tiers Conquered: ${unlocked} / 30 Cosmic Layers!\n` +
+      `Zero Calories in Outer Space ✨\n\n` +
+      `Check out Aisha's 30-Tier Birthday Confection:\nhttps://aishababu.vercel.app`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Aisha's 30-Tier Giant Cake Tower 🍰",
+          text: text,
+          url: "https://aishababu.vercel.app"
+        });
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') console.warn(err);
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      if (cakeShareBtn) {
+        const orig = cakeShareBtn.textContent;
+        cakeShareBtn.textContent = "COPIED! ✨";
+        setTimeout(() => { cakeShareBtn.textContent = orig; }, 1800);
+      }
+      toastFortune("🍰 Recipe card copied to clipboard!");
+    } catch (e) {
+      prompt("Copy Cake Tower Recipe:", text);
+    }
+  }
+
+  if (cakeShareBtn) cakeShareBtn.addEventListener('click', shareCakeRecipe);
+  if (cakeCloseBtn) cakeCloseBtn.addEventListener('click', closeCakeTowerModal);
+  if (cakeTowerBtn) cakeTowerBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openCakeTowerModal();
+  });
+  if (cakeTowerModal) {
+    cakeTowerModal.addEventListener('click', (e) => {
+      if (e.target === cakeTowerModal) closeCakeTowerModal();
     });
   }
 
@@ -1964,6 +4027,78 @@ html = """<!DOCTYPE html>
     });
   }
 
+  function drawStarShape(ctx, cx, cy, spikes=5, outerRadius=12, innerRadius=5.5) {
+    let rot = Math.PI / 2 * 3;
+    let x = cx;
+    let y = cy;
+    const step = Math.PI / spikes;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - outerRadius);
+    for (let i = 0; i < spikes; i++) {
+      x = cx + Math.cos(rot) * outerRadius;
+      y = cy + Math.sin(rot) * outerRadius;
+      ctx.lineTo(x, y);
+      rot += step;
+      x = cx + Math.cos(rot) * innerRadius;
+      y = cy + Math.sin(rot) * innerRadius;
+      ctx.lineTo(x, y);
+      rot += step;
+    }
+    ctx.lineTo(cx, cy - outerRadius);
+    ctx.closePath();
+  }
+
+  function drawHeartShape(ctx, cx, cy, size=12) {
+    ctx.beginPath();
+    const topCurveHeight = size * 0.35;
+    const topY = cy - size * 0.35;
+    ctx.moveTo(cx, topY + topCurveHeight);
+    ctx.bezierCurveTo(cx, topY, cx - size / 2, topY, cx - size / 2, topY + topCurveHeight);
+    ctx.bezierCurveTo(cx - size / 2, topY + (size + topCurveHeight) / 2, cx, topY + size, cx, topY + size);
+    ctx.bezierCurveTo(cx, topY + size, cx + size / 2, topY + (size + topCurveHeight) / 2, cx + size / 2, topY + topCurveHeight);
+    ctx.bezierCurveTo(cx + size / 2, topY, cx, topY, cx, topY + topCurveHeight);
+    ctx.closePath();
+  }
+
+  const LETTER_MATRICES = {
+    'A': [
+      "  XXX  ",
+      " X   X ",
+      " X   X ",
+      " XXXXX ",
+      " X   X ",
+      " X   X ",
+      " X   X "
+    ],
+    'I': [
+      " XXXXX ",
+      "   X   ",
+      "   X   ",
+      "   X   ",
+      "   X   ",
+      "   X   ",
+      " XXXXX "
+    ],
+    'S': [
+      "  XXXX ",
+      " X     ",
+      " X     ",
+      "  XXX  ",
+      "     X ",
+      "     X ",
+      " XXXX  "
+    ],
+    'H': [
+      " X   X ",
+      " X   X ",
+      " X   X ",
+      " XXXXX ",
+      " X   X ",
+      " X   X ",
+      " X   X "
+    ]
+  };
+
   function addFireworks(x, y, color) {
     for (let i = 0; i < 30; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -1977,6 +4112,295 @@ html = """<!DOCTYPE html>
         color: color,
         size: 4
       });
+    }
+  }
+
+  function addHeartFireworks(x, y, color) {
+    sfxFireworkLaunch();
+    setTimeout(() => {
+      sfxHeartBurst();
+      haptic([30, 20, 45]);
+
+      const heartCols = ['#ff007f', '#ff4da6', '#ff6ebe', '#ff85c0', '#ffffff', '#ff1493'];
+      const count = 42;
+      for (let i = 0; i < count; i++) {
+        const t = (i / count) * Math.PI * 2;
+        const hx = 16 * Math.pow(Math.sin(t), 3);
+        const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+        const spd = 9.8 + (Math.random() - 0.5) * 0.8;
+        const col = color || heartCols[i % heartCols.length];
+        particles.push({
+          x: x,
+          y: y,
+          vx: hx * spd,
+          vy: hy * spd,
+          life: 1.3,
+          maxLife: 1.3,
+          color: col,
+          size: 3.5,
+          shape: 'heart',
+          drag: 0.65,
+          gravity: 28,
+          glow: 14,
+          trail: true
+        });
+      }
+
+      // Inner glitter love embers
+      for (let k = 0; k < 16; k++) {
+        const t = Math.random() * Math.PI * 2;
+        const hx = 16 * Math.pow(Math.sin(t), 3);
+        const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+        const scale = 0.25 + Math.random() * 0.55;
+        const spd = 9.8 * scale;
+        particles.push({
+          x: x,
+          y: y,
+          vx: hx * spd,
+          vy: hy * spd,
+          life: 1.45,
+          maxLife: 1.45,
+          color: ['#ffe082', '#ffffff', '#ff6ebe'][k % 3],
+          size: 2.5,
+          shape: 'sparkle',
+          drag: 0.85,
+          gravity: 20,
+          glow: 10
+        });
+      }
+
+      addScorePopup(x, y - 25, "💖", '#ff4da6');
+    }, 60);
+  }
+
+  function addStarFireworks(x, y) {
+    sfxFireworkLaunch();
+    setTimeout(() => {
+      sfxSparkleBurst();
+      haptic([25, 20, 25, 20]);
+
+      const colors = ['#ffd700', '#fff4a3', '#ffffff', '#ffee55', '#ffb700'];
+      const vertices = [];
+      for (let k = 0; k < 10; k++) {
+        const ang = -Math.PI / 2 + (k * Math.PI / 5);
+        const rad = (k % 2 === 0) ? 175 : 75;
+        vertices.push({ vx: Math.cos(ang) * rad, vy: Math.sin(ang) * rad });
+      }
+
+      // Edge particles forming the star outline
+      for (let k = 0; k < 10; k++) {
+        const v1 = vertices[k];
+        const v2 = vertices[(k + 1) % 10];
+        for (let s = 0; s < 4; s++) {
+          const frac = s / 4;
+          const vx = v1.vx * (1 - frac) + v2.vx * frac;
+          const vy = v1.vy * (1 - frac) + v2.vy * frac;
+          const col = colors[(k * 4 + s) % colors.length];
+          particles.push({
+            x: x,
+            y: y,
+            vx: vx * (0.95 + Math.random() * 0.1),
+            vy: vy * (0.95 + Math.random() * 0.1),
+            life: 1.3,
+            maxLife: 1.3,
+            color: col,
+            size: 3.5,
+            shape: 'star',
+            drag: 0.6,
+            gravity: 30,
+            glow: 14,
+            trail: true
+          });
+        }
+      }
+
+      // 5 Shooting Tips
+      for (let k = 0; k < 5; k++) {
+        const ang = -Math.PI / 2 + (k * 2 * Math.PI / 5);
+        [1.25, 1.45].forEach(mult => {
+          particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(ang) * 175 * mult,
+            vy: Math.sin(ang) * 175 * mult,
+            life: 1.4,
+            maxLife: 1.4,
+            color: '#ffffff',
+            size: 4,
+            shape: 'sparkle',
+            drag: 0.7,
+            gravity: 35,
+            glow: 18,
+            trail: true
+          });
+        });
+      }
+
+      addScorePopup(x, y - 25, "⭐", '#ffd700');
+    }, 60);
+  }
+
+  function addLetterFireworks(x, y, letter='A', color='#ffd700') {
+    sfxFireworkLaunch();
+    setTimeout(() => {
+      sfxLetterBurst(letter);
+      haptic(45);
+
+      const matrix = LETTER_MATRICES[letter] || LETTER_MATRICES['A'];
+      const spacing = 11;
+      const palette = [color, '#ffffff', '#ff6ebe', '#00dcff'];
+
+      // Generate letter constellation particles
+      matrix.forEach((rowStr, r) => {
+        for (let c = 0; c < rowStr.length; c++) {
+          if (rowStr[c] === 'X') {
+            const ox = (c - 3) * spacing;
+            const oy = (r - 3) * spacing;
+            const spd = 3.6 + Math.random() * 0.4;
+            const pCol = palette[Math.floor(Math.random() * palette.length)];
+            particles.push({
+              x: x,
+              y: y,
+              vx: ox * spd + (Math.random() - 0.5) * 8,
+              vy: oy * spd + (Math.random() - 0.5) * 8,
+              life: 1.45,
+              maxLife: 1.45,
+              color: pCol,
+              size: 3.5,
+              shape: 'sparkle',
+              drag: 2.1,
+              gravity: 12,
+              glow: 14,
+              trail: true
+            });
+          }
+        }
+      });
+
+      // Central glowing letter text
+      particles.push({
+        x: x,
+        y: y,
+        vx: 0,
+        vy: -15,
+        life: 1.5,
+        maxLife: 1.5,
+        text: letter,
+        color: color,
+        fontSize: 28,
+        isText: true,
+        glow: 20
+      });
+
+      // Embers bursting around letter
+      for (let k = 0; k < 14; k++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 60 + Math.random() * 120;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          life: 0.9,
+          maxLife: 0.9,
+          color: palette[k % palette.length],
+          size: 2.5,
+          shape: 'star',
+          drag: 1.0,
+          gravity: 25,
+          glow: 8
+        });
+      }
+    }, 60);
+  }
+
+  function addAISHAWordFireworks(targetY) {
+    const letters = ['A', 'I', 'S', 'H', 'A'];
+    const colors = ['#ff007f', '#00dcff', '#ffd700', '#76ff03', '#ff6ebe'];
+    const y = targetY || (HEIGHT * 0.28);
+    const xPositions = [
+      WIDTH * 0.16,
+      WIDTH * 0.33,
+      WIDTH * 0.50,
+      WIDTH * 0.67,
+      WIDTH * 0.84
+    ];
+
+    sfxSkyBarrage();
+    letters.forEach((lt, idx) => {
+      setTimeout(() => {
+        addLetterFireworks(xPositions[idx], y, lt, colors[idx]);
+      }, idx * 150);
+    });
+
+    setTimeout(() => {
+      addScorePopup(WIDTH / 2, y - 65, "✨ HAPPY BIRTHDAY AISHA! ✨", '#ffd700');
+      addHeartFireworks(WIDTH * 0.14, y + 40);
+      addHeartFireworks(WIDTH * 0.86, y + 40);
+      haptic([50, 40, 50, 40, 100]);
+    }, letters.length * 150 + 200);
+  }
+
+  let fireworkShapeCycle = 0;
+  const AISHA_SEQUENCE = ['A', 'I', 'S', 'H', 'A'];
+  let aishaSeqIdx = 0;
+
+  function launchInteractiveFirework(x, y) {
+    // If touched near top of the sky, trigger the majestic 5-burst AISHA barrage!
+    if (y < HEIGHT * 0.18) {
+      addAISHAWordFireworks(y + 60);
+      return;
+    }
+
+    const mode = fireworkShapeCycle % 3;
+    fireworkShapeCycle++;
+
+    if (mode === 0) {
+      addHeartFireworks(x, y);
+    } else if (mode === 1) {
+      addStarFireworks(x, y);
+    } else {
+      const letter = AISHA_SEQUENCE[aishaSeqIdx % AISHA_SEQUENCE.length];
+      aishaSeqIdx++;
+      addLetterFireworks(x, y, letter, ['#ffd700', '#00dcff', '#ff007f', '#76ff03', '#ff6ebe'][aishaSeqIdx % 5]);
+      if (aishaSeqIdx > 0 && (aishaSeqIdx % AISHA_SEQUENCE.length === 0)) {
+        setTimeout(() => {
+          addAISHAWordFireworks(Math.min(y, HEIGHT * 0.32));
+        }, 400);
+      }
+    }
+  }
+
+  let isSkyDragging = false;
+  let lastDragSparkleTime = 0;
+  let lastDragSfxTime = 0;
+
+  function handleSkyDrag(x, y) {
+    const now = performance.now();
+    if (now - lastDragSparkleTime > 40) {
+      lastDragSparkleTime = now;
+      const dragCols = ['#ffd700', '#ff6ebe', '#00dcff', '#ffffff', '#ff007f'];
+      for (let k = 0; k < 3; k++) {
+        particles.push({
+          x: x + (Math.random() - 0.5) * 22,
+          y: y + (Math.random() - 0.5) * 22,
+          vx: (Math.random() - 0.5) * 60,
+          vy: -30 - Math.random() * 45,
+          life: 0.7,
+          maxLife: 0.7,
+          color: dragCols[Math.floor(Math.random() * dragCols.length)],
+          size: 2.8,
+          shape: Math.random() < 0.5 ? 'star' : 'heart',
+          drag: 1.1,
+          gravity: 25,
+          glow: 10
+        });
+      }
+      if (now - lastDragSfxTime > 140) {
+        lastDragSfxTime = now;
+        playTone(1480 + Math.random() * 400, 'sine', 0.08, 0.06);
+        haptic(10);
+      }
     }
   }
 
@@ -2035,10 +4459,142 @@ html = """<!DOCTYPE html>
     }
   };
 
+  // Mystery Birthday Present Unboxing (Milestone Bonus Gacha)
+  let presentGachaActive = false;
+  let presentGachaOpened = false;
+  let presents = [];
+  let gachaWonBadge = null;
+  let gachaWonPerk = null;
+  let activeRoundPerk = null;
+
+  const GACHA_REWARDS = [
+    {
+      badge: "Queen of Frosting 👑",
+      perkName: "🧲 Starting Golden Magnet (8s)!",
+      perkType: "MAGNET",
+      perkVal: 8,
+      desc: "Attracts all falling treats directly to your basket!"
+    },
+    {
+      badge: "Galaxy Flame Master 🔥",
+      perkName: "💖 +500 Baker Karma Bonus!",
+      perkType: "KARMA",
+      perkVal: 500,
+      desc: "+500 bonus points added directly to your score!"
+    },
+    {
+      badge: "Candle Whisperer 🕯️",
+      perkName: "🛡️ Starting Sweet Shield!",
+      perkType: "SHIELD",
+      perkVal: 1,
+      desc: "Immunity against the next anvil or spoiled hazard!"
+    },
+    {
+      badge: "Berry Royal Alchemist 🍓",
+      perkName: "⏱️ Chronos Time Warp (+15s)!",
+      perkType: "TIME",
+      perkVal: 15,
+      desc: "+15 extra seconds on the bakery clock next stage!"
+    },
+    {
+      badge: "Star Confectioner ⭐",
+      perkName: "🍬 Sugar Rush Frenzy (6 Treats)!",
+      perkType: "SUGAR_RUSH",
+      perkVal: 6,
+      desc: "Triple combo multiplier for the first 6 treats!"
+    },
+    {
+      badge: "Cosmic Baker Supreme 🎂",
+      perkName: "🌟 Rainbow Star-Fever (5s)!",
+      perkType: "STAR_FEVER",
+      perkVal: 5,
+      desc: "Invincible rainbow runner and hazards turn to cupcakes!"
+    }
+  ];
+
+  function initMilestoneGacha() {
+    presentGachaActive = true;
+    presentGachaOpened = false;
+    gachaWonBadge = null;
+    gachaWonPerk = null;
+
+    const boxY = HEIGHT / 2 - Math.min(HEIGHT - 80, 560) / 2;
+    const offsets = [-140, 0, 140];
+    const boxColors = [
+      { box: '#ff007f', ribbon: '#ffd700', lid: '#ff4da6' },
+      { box: '#ffd700', ribbon: '#ff007f', lid: '#ffea00' },
+      { box: '#00dcff', ribbon: '#ffffff', lid: '#70e000' }
+    ];
+
+    presents = offsets.map((ox, idx) => ({
+      id: idx,
+      x: WIDTH / 2 + ox,
+      y: boxY + 280,
+      w: 76,
+      h: 76,
+      colors: boxColors[idx],
+      floatOffset: idx * 1.6,
+      opened: false
+    }));
+
+    btnAction.textContent = 'PICK GIFT 🎁';
+  }
+
+  function unboxPresent(idx) {
+    if (presentGachaOpened) return;
+    presentGachaOpened = true;
+    const p = presents[idx] || presents[1];
+    p.opened = true;
+
+    const reward = GACHA_REWARDS[Math.floor(Math.random() * GACHA_REWARDS.length)];
+    gachaWonBadge = reward.badge;
+    gachaWonPerk = reward;
+    currentMilestoneBadge = reward.badge;
+    activeRoundPerk = reward;
+
+    if (reward.perkType === 'KARMA') {
+      score += reward.perkVal;
+      if (score > hiScore) {
+        hiScore = score;
+        localStorage.setItem('anti_grav_hiscore', hiScore);
+      }
+    }
+
+    sfxPowerup();
+    setTimeout(() => sfxSparkleBurst(), 160);
+    haptic([40, 30, 60, 40, 120]);
+
+    for (let k = 0; k < 50; k++) {
+      const ang = Math.random() * Math.PI * 2;
+      const spd = 120 + Math.random() * 260;
+      particles.push({
+        x: p.x,
+        y: p.y,
+        vx: Math.cos(ang) * spd,
+        vy: Math.sin(ang) * spd - 60,
+        life: 1.4,
+        maxLife: 1.4,
+        color: ['#ffd700', '#ff007f', '#00dcff', '#76ff03', '#ffffff'][k % 5],
+        size: 3 + Math.random() * 3,
+        shape: Math.random() < 0.5 ? 'star' : 'heart',
+        drag: 0.8,
+        gravity: 45,
+        glow: 12
+      });
+    }
+
+    addScorePopup(p.x, p.y - 45, "🎁 " + reward.badge, COLORS.GOLD);
+
+    btnAction.textContent = (stage < TOTAL_STAGES) ? ('STAGE ' + (stage + 1) + ' ▶') : 'PLAY AGAIN ★';
+    syncUIState();
+  }
+
   function initCandleCeremony() {
     ceremonyAllBlown = false;
     ceremonySmokeParticles = [];
     ceremonyCandles = [];
+    presentGachaActive = false;
+    presentGachaOpened = false;
 
     const cakeCenterY = HEIGHT / 2 + 75;
     const offsets = [-80, -40, 0, 40, 80];
@@ -2059,6 +4615,10 @@ html = """<!DOCTYPE html>
 
   function blowCandles(tapX, tapY) {
     if (ceremonyAllBlown) {
+      if (presentGachaActive && !presentGachaOpened) {
+        unboxPresent(1);
+        return;
+      }
       if (stage >= TOTAL_STAGES) {
         startGame();
       } else {
@@ -2102,6 +4662,7 @@ html = """<!DOCTYPE html>
 
       if (ceremonyCandles.every(c => !c.lit)) {
         ceremonyAllBlown = true;
+        initMilestoneGacha();
         score += 1000;
         if (score > hiScore) {
           hiScore = score;
@@ -2124,7 +4685,7 @@ html = """<!DOCTYPE html>
                          bColors[Math.floor(Math.random() * bColors.length)]);
           }, k * 180);
         }
-        btnAction.textContent = (stage < TOTAL_STAGES) ? ('STAGE ' + (stage + 1) + ' ▶') : 'PLAY AGAIN ★';
+        btnAction.textContent = 'PICK GIFT 🎁';
         syncUIState();
       }
     }
@@ -2166,6 +4727,8 @@ html = """<!DOCTYPE html>
     score = initialScore;
     lives = MAX_LIVES;
     stage = startStage;
+    runScoreSubmitted = false;
+    updateHiStage(stage);
     itemsCaughtStage = 0;
     timeLeft = STAGE_DURATION;
     shakeTime = 0;
@@ -2206,6 +4769,8 @@ html = """<!DOCTYPE html>
   function resumeCheckpoint() {
     const cpStage = parseInt(localStorage.getItem('anti_grav_checkpoint') || '1');
     const cpScore = parseInt(localStorage.getItem('anti_grav_checkpoint_score') || '0');
+    runScoreSubmitted = false;
+    updateHiStage(cpStage);
     startGame(cpStage, cpScore);
   }
 
@@ -2214,6 +4779,7 @@ html = """<!DOCTYPE html>
     stopHappyBirthdaySong();
     collapseSettingsDock();
     stage++;
+    updateHiStage(stage);
     itemsCaughtStage = 0;
     timeLeft = STAGE_DURATION;
     items = [];
@@ -2222,6 +4788,31 @@ html = """<!DOCTYPE html>
     ceremonyCandles = [];
     ceremonyAllBlown = false;
     ceremonySmokeParticles = [];
+    presentGachaActive = false;
+    presentGachaOpened = false;
+
+    // Apply won perk from Gacha!
+    if (activeRoundPerk) {
+      if (activeRoundPerk.perkType === 'MAGNET') {
+        magnetTime = activeRoundPerk.perkVal;
+        addScorePopup(player.x, player.y - 70, "🧲 PERK: MAGNET ACTIVE!", COLORS.GOLD);
+      } else if (activeRoundPerk.perkType === 'SHIELD') {
+        shieldActive = true;
+        addScorePopup(player.x, player.y - 70, "🛡️ PERK: SHIELD ACTIVE!", COLORS.CYAN);
+      } else if (activeRoundPerk.perkType === 'TIME') {
+        timeLeft += activeRoundPerk.perkVal;
+        addScorePopup(player.x, player.y - 70, `⏱️ PERK: +${activeRoundPerk.perkVal}s TIME!`, COLORS.CYAN);
+      } else if (activeRoundPerk.perkType === 'SUGAR_RUSH') {
+        sugarRushCount = activeRoundPerk.perkVal;
+        addScorePopup(player.x, player.y - 70, "🍬 PERK: SUGAR RUSH!", COLORS.GOLD);
+      } else if (activeRoundPerk.perkType === 'STAR_FEVER') {
+        starFeverTime = activeRoundPerk.perkVal;
+        sfxStarFever();
+        addScorePopup(player.x, player.y - 70, "⭐ PERK: STAR FEVER!", COLORS.GOLD);
+      }
+      activeRoundPerk = null;
+    }
+
     state = 'PLAYING';
     btnAction.textContent = 'PAUSE';
     if (stage === 9 || stage === 19 || stage === 29) {
@@ -2241,6 +4832,7 @@ html = """<!DOCTYPE html>
     stopHappyBirthdaySong();
     collapseSettingsDock();
     stage++;
+    updateHiStage(stage);
     if (stage > TOTAL_STAGES) {
       score += 2000;
       if (score > hiScore) {
@@ -2252,6 +4844,9 @@ html = """<!DOCTYPE html>
       playHappyBirthdaySong();
       haptic([40, 50, 40, 50, 100]);
       syncUIState();
+      if (!runScoreSubmitted && isHighScoreEligible(score)) {
+        setTimeout(() => promptInitials(score, 30), 600);
+      }
     } else {
       itemsCaughtStage = 0;
       timeLeft = STAGE_DURATION;
@@ -2279,6 +4874,9 @@ html = """<!DOCTYPE html>
     btnAction.textContent = 'RETRY';
     haptic([100, 80, 120]);
     syncUIState();
+    if (!runScoreSubmitted && isHighScoreEligible(score)) {
+      setTimeout(() => promptInitials(score, stage), 450);
+    }
   }
 
   // ─── PARALLAX DEEP SPACE BAKERY WONDERS ─────────────────────────────
@@ -3230,6 +5828,14 @@ html = """<!DOCTYPE html>
     particles.forEach(p => {
       p.x += p.vx * dt;
       p.y += p.vy * dt;
+      if (p.drag) {
+        const factor = Math.max(0, 1 - p.drag * dt);
+        p.vx *= factor;
+        p.vy *= factor;
+      }
+      if (p.gravity) {
+        p.vy += p.gravity * dt;
+      }
       p.life -= dt;
     });
 
@@ -3872,9 +6478,17 @@ html = """<!DOCTYPE html>
       if (stageClearTime <= 0) nextStage();
     } else if (state === 'WIN' || state === 'MILESTONE' || state === 'CANDLE_CEREMONY') {
       if (ceremonyAllBlown || state === 'WIN' || state === 'MILESTONE') {
-        if (Math.random() < 0.08) {
-          addFireworks(100 + Math.random() * (WIDTH - 200), 100 + Math.random() * (HEIGHT * 0.5),
-                       bColors[Math.floor(Math.random() * bColors.length)]);
+        if (Math.random() < 0.07) {
+          const fx = 100 + Math.random() * (WIDTH - 200);
+          const fy = 80 + Math.random() * (HEIGHT * 0.45);
+          const randShape = Math.random();
+          if (randShape < 0.35) {
+            addHeartFireworks(fx, fy);
+          } else if (randShape < 0.70) {
+            addStarFireworks(fx, fy);
+          } else {
+            addLetterFireworks(fx, fy, AISHA_SEQUENCE[Math.floor(Math.random() * AISHA_SEQUENCE.length)]);
+          }
         }
       }
     }
@@ -4699,20 +7313,51 @@ html = """<!DOCTYPE html>
         ctx.translate(p.x, p.y);
         ctx.scale(popScale, popScale);
         ctx.fillStyle = p.color;
-        ctx.font = '13px "Press Start 2P", monospace';
+        const fSize = p.fontSize || 13;
+        ctx.font = fSize + 'px "Press Start 2P", monospace';
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 4;
+        ctx.lineWidth = Math.max(2, Math.round(fSize / 4));
         ctx.strokeText(p.text, 0, 0);
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.glowColor || p.color;
+        ctx.shadowBlur = p.glow || 10;
         ctx.fillText(p.text, 0, 0);
       } else {
+        if (p.trail && p.vx !== undefined && p.vy !== undefined) {
+          ctx.strokeStyle = p.color;
+          ctx.globalAlpha = alpha * 0.5;
+          ctx.lineWidth = Math.max(1.5, p.size * 0.8);
+          ctx.beginPath();
+          ctx.moveTo(p.x - p.vx * 0.035, p.y - p.vy * 0.035);
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+        }
         ctx.fillStyle = p.color;
         ctx.globalAlpha = alpha;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
+        if (p.glow) {
+          ctx.shadowColor = p.glowColor || p.color;
+          ctx.shadowBlur = p.glow;
+        }
+        if (p.shape === 'star') {
+          drawStarShape(ctx, p.x, p.y, 5, p.size * 1.5, p.size * 0.65);
+          ctx.fill();
+        } else if (p.shape === 'heart') {
+          drawHeartShape(ctx, p.x, p.y, p.size * 1.6);
+          ctx.fill();
+        } else if (p.shape === 'sparkle') {
+          const s = p.size * 1.4;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y - s);
+          ctx.lineTo(p.x + s * 0.35, p.y);
+          ctx.lineTo(p.x, p.y + s);
+          ctx.lineTo(p.x - s * 0.35, p.y);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       ctx.restore();
     });
@@ -5035,36 +7680,50 @@ html = """<!DOCTYPE html>
       if (checkpointStage > 1) {
         ctx.fillStyle = COLORS.CYAN;
         ctx.font = '10px "Press Start 2P", monospace';
-        ctx.fillText(`★ CHECKPOINT: STAGE ${checkpointStage} (${checkpointScore.toLocaleString()} PTS) ★`, WIDTH / 2, boxY + 396);
+        ctx.fillText(`★ CHECKPOINT: STAGE ${checkpointStage} (${checkpointScore.toLocaleString()} PTS) ★`, WIDTH / 2, boxY + 392);
 
         const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
         ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
         ctx.font = '12px "Press Start 2P", monospace';
-        ctx.fillText(`★ TAP TO RESUME STAGE ${checkpointStage} ★`, WIDTH / 2, boxY + 434);
-
-        ctx.fillStyle = '#859bb8';
-        ctx.font = '8px "Press Start 2P", monospace';
-        ctx.fillText(`START LVL 1 BELOW   |   BEST: ${hiScore.toLocaleString()}`, WIDTH / 2, boxY + 472);
-        ctx.fillStyle = '#ffd700';
-        ctx.font = '7.5px "Press Start 2P", monospace';
-        ctx.fillText("🛸 BONUS PIÑATA: LVL 9, 19, 29   |   📱 PWA READY", WIDTH / 2, boxY + 498);
+        ctx.fillText(`★ TAP TO RESUME STAGE ${checkpointStage} ★`, WIDTH / 2, boxY + 426);
       } else {
         ctx.fillStyle = '#c8d4f0';
         ctx.font = '10px "Press Start 2P", monospace';
-        ctx.fillText("CATCH FALLING CAKES - DODGE ANVILS!", WIDTH / 2, boxY + 396);
+        ctx.fillText("CATCH FALLING CAKES - DODGE ANVILS!", WIDTH / 2, boxY + 392);
 
         const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
         ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
         ctx.font = '14px "Press Start 2P", monospace';
-        ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + 440);
-
-        ctx.fillStyle = '#859bb8';
-        ctx.font = '8px "Press Start 2P", monospace';
-        ctx.fillText("BEST: " + hiScore.toLocaleString() + "   |   TAP ARROWS OR GLIDE THUMB", WIDTH / 2, boxY + 472);
-        ctx.fillStyle = '#ffd700';
-        ctx.font = '7.5px "Press Start 2P", monospace';
-        ctx.fillText("🛸 BONUS PIÑATA: LVL 9, 19, 29   |   📱 PWA READY", WIDTH / 2, boxY + 498);
+        ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + 428);
       }
+
+      // Hall of Fame & Cake Tower Action Buttons
+      const menuBtnW = 190;
+      const menuBtnH = 28;
+      const menuBtnY = boxY + 456;
+
+      // Hall of Fame (Left)
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.16)';
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(WIDTH / 2 - menuBtnW - 8, menuBtnY, menuBtnW, menuBtnH);
+      ctx.strokeRect(WIDTH / 2 - menuBtnW - 8, menuBtnY, menuBtnW, menuBtnH);
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("🏆 HALL OF FAME", WIDTH / 2 - menuBtnW / 2 - 8, menuBtnY + 18);
+
+      // Cake Tower (Right)
+      ctx.fillStyle = 'rgba(255, 77, 166, 0.16)';
+      ctx.strokeStyle = '#ff4da6';
+      ctx.fillRect(WIDTH / 2 + 8, menuBtnY, menuBtnW, menuBtnH);
+      ctx.strokeRect(WIDTH / 2 + 8, menuBtnY, menuBtnW, menuBtnH);
+      ctx.fillStyle = '#ff6ebe';
+      ctx.fillText("🍰 CAKE TOWER", WIDTH / 2 + menuBtnW / 2 + 8, menuBtnY + 18);
+
+      ctx.fillStyle = '#859bb8';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillText(`BEST: ${hiScore.toLocaleString()}   |   🛸 BONUS PIÑATA: LVL 9, 19, 29`, WIDTH / 2, boxY + 506);
     } else if (state === 'PAUSED') {
       btnAction.textContent = 'RESUME';
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -5254,27 +7913,156 @@ html = """<!DOCTYPE html>
           ctx.strokeRect(mBarX, mBarY, mBarW, mBarH);
         }
       } else {
-        ctx.fillStyle = COLORS.GOLD;
-        ctx.font = '10px "Press Start 2P", monospace';
-        ctx.fillText("★ BIRTHDAY WISH GRANTED! ★", WIDTH / 2, boxY + 425);
+        // Mystery Presents Gacha Section (Right after blowing out candles!)
+        if (presentGachaActive) {
+          presents.forEach(p => {
+            const floatY = Math.sin(globalTime * 3.5 + p.floatOffset) * 6;
+            const py = p.y + floatY;
 
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '9px "Press Start 2P", monospace';
-        ctx.fillText(info.note, WIDTH / 2, boxY + 450);
+            ctx.save();
+            ctx.translate(p.x, py);
 
-        const advPrompt = (stage < TOTAL_STAGES) ? `▶ TAP TO ADVANCE TO LEVEL ${stage + 1} ◀` : "★ TAP TO PLAY AGAIN ★";
-        const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
-        ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
-        ctx.font = '12px "Press Start 2P", monospace';
-        ctx.fillText(advPrompt, WIDTH / 2, boxY + 480);
+            if (!p.opened) {
+              // Box glow
+              ctx.shadowColor = p.colors.ribbon;
+              ctx.shadowBlur = 12 + Math.sin(globalTime * 5 + p.floatOffset) * 6;
 
-        ctx.fillStyle = '#ff6ebe';
-        ctx.font = '9px "Press Start 2P", monospace';
-        ctx.fillText("📸 [ TAP HERE TO SHARE POLAROID CERTIFICATE ]", WIDTH / 2, boxY + 508);
+              // Box base
+              ctx.fillStyle = p.colors.box;
+              ctx.fillRect(-35, -20, 70, 55);
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 2;
+              ctx.strokeRect(-35, -20, 70, 55);
 
-        ctx.fillStyle = '#859bb8';
-        ctx.font = '8px "Press Start 2P", monospace';
-        ctx.fillText(`${info.bonus}   |   SCORE: ${score.toLocaleString()}`, WIDTH / 2, boxY + 532);
+              // Vertical ribbon
+              ctx.fillStyle = p.colors.ribbon;
+              ctx.fillRect(-8, -20, 16, 55);
+
+              // Horizontal ribbon
+              ctx.fillRect(-35, 2, 70, 14);
+
+              // Lid
+              ctx.fillStyle = p.colors.lid;
+              ctx.fillRect(-40, -32, 80, 15);
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 1.5;
+              ctx.strokeRect(-40, -32, 80, 15);
+
+              // Top Satin Bow Loops
+              ctx.fillStyle = p.colors.ribbon;
+              ctx.beginPath();
+              ctx.ellipse(-12, -38, 12, 7, -0.3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.beginPath();
+              ctx.ellipse(12, -38, 12, 7, 0.3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.beginPath();
+              ctx.arc(0, -36, 5, 0, Math.PI * 2);
+              ctx.fill();
+
+              // Box Label
+              ctx.shadowBlur = 0;
+              ctx.fillStyle = '#ffffff';
+              ctx.font = '8px "Press Start 2P", monospace';
+              ctx.textAlign = 'center';
+              ctx.fillText("TAP ME 🎁", 0, 48);
+            } else {
+              // Opened Box!
+              const rayGrad = ctx.createLinearGradient(0, -20, 0, -120);
+              rayGrad.addColorStop(0, 'rgba(255, 215, 0, 0.85)');
+              rayGrad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+              ctx.fillStyle = rayGrad;
+              ctx.beginPath();
+              ctx.moveTo(-35, -10);
+              ctx.lineTo(-75, -110);
+              ctx.lineTo(75, -110);
+              ctx.lineTo(35, -10);
+              ctx.closePath();
+              ctx.fill();
+
+              // Box base
+              ctx.fillStyle = p.colors.box;
+              ctx.fillRect(-35, -15, 70, 50);
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 2;
+              ctx.strokeRect(-35, -15, 70, 50);
+
+              // Vertical ribbon
+              ctx.fillStyle = p.colors.ribbon;
+              ctx.fillRect(-8, -15, 16, 50);
+
+              // Lid popped off and tilted!
+              ctx.save();
+              ctx.translate(-25, -45);
+              ctx.rotate(-0.4);
+              ctx.fillStyle = p.colors.lid;
+              ctx.fillRect(-38, -8, 76, 14);
+              ctx.restore();
+
+              // Floating star badge above box
+              ctx.fillStyle = '#ffd700';
+              ctx.shadowColor = '#ffd700';
+              ctx.shadowBlur = 16;
+              ctx.font = '22px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText("👑", 0, -50);
+            }
+            ctx.restore();
+          });
+        }
+
+        if (!presentGachaOpened) {
+          ctx.fillStyle = COLORS.GOLD;
+          ctx.font = '10px "Press Start 2P", monospace';
+          ctx.fillText("★ BIRTHDAY WISH GRANTED! ★", WIDTH / 2, boxY + 418);
+
+          const pulse = Math.floor(globalTime * 3) % 2 === 0;
+          ctx.fillStyle = pulse ? '#ffd700' : '#ffffff';
+          ctx.font = '10px "Press Start 2P", monospace';
+          ctx.fillText("🎁 TAP A MYSTERY PRESENT TO UNBOX! 🎁", WIDTH / 2, boxY + 440);
+
+          ctx.fillStyle = '#ff6ebe';
+          ctx.font = '8px "Press Start 2P", monospace';
+          ctx.fillText("✨ TOUCH SKY FOR 💖 ⭐ 🔤 FIREWORKS! ✨", WIDTH / 2, boxY + 462);
+
+          ctx.fillStyle = '#ff6ebe';
+          ctx.font = '9px "Press Start 2P", monospace';
+          ctx.fillText("📸 [ TAP HERE TO DECORATE POLAROID ]", WIDTH / 2, boxY + 490);
+
+          ctx.fillStyle = '#859bb8';
+          ctx.font = '8px "Press Start 2P", monospace';
+          ctx.fillText(`${info.bonus}   |   SCORE: ${score.toLocaleString()}`, WIDTH / 2, boxY + 520);
+        } else {
+          ctx.fillStyle = COLORS.GOLD;
+          ctx.font = '10.5px "Press Start 2P", monospace';
+          ctx.fillText(`★ UNBOXED: ${gachaWonBadge} ★`, WIDTH / 2, boxY + 414);
+
+          ctx.fillStyle = '#00f0ff';
+          ctx.font = '9px "Press Start 2P", monospace';
+          ctx.fillText(`PERK: ${gachaWonPerk.perkName}`, WIDTH / 2, boxY + 434);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '8px "Press Start 2P", monospace';
+          ctx.fillText(gachaWonPerk.desc, WIDTH / 2, boxY + 452);
+
+          const advPrompt = (stage < TOTAL_STAGES) ? `▶ TAP TO ADVANCE TO LEVEL ${stage + 1} ◀` : "★ TAP TO PLAY AGAIN ★";
+          const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+          ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
+          ctx.font = '11px "Press Start 2P", monospace';
+          ctx.fillText(advPrompt, WIDTH / 2, boxY + 478);
+
+          ctx.fillStyle = '#ff6ebe';
+          ctx.font = '9px "Press Start 2P", monospace';
+          ctx.fillText("📸 [ TAP HERE TO DECORATE POLAROID ]", WIDTH / 2, boxY + 504);
+
+          ctx.fillStyle = '#ffd700';
+          ctx.font = '8.5px "Press Start 2P", monospace';
+          ctx.fillText("🍰 [ VIEW 30-TIER CAKE TOWER ]", WIDTH / 2, boxY + 526);
+
+          ctx.fillStyle = '#859bb8';
+          ctx.font = '7.5px "Press Start 2P", monospace';
+          ctx.fillText(`VERIFIED BIRTHDAY EDITION   |   SCORE: ${score.toLocaleString()}`, WIDTH / 2, boxY + 544);
+        }
       }
     } else if (state === 'GAME_OVER') {
       btnAction.textContent = 'RETRY';
@@ -5316,7 +8104,34 @@ html = """<!DOCTYPE html>
       const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
       ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
       ctx.font = '14px "Press Start 2P", monospace';
-      ctx.fillText("▶ TAP TO RETRY ◀", WIDTH / 2, boxY + 440);
+      ctx.fillText("▶ TAP TO RETRY ◀", WIDTH / 2, boxY + 424);
+
+      const goBtnW = 190;
+      const goBtnH = 28;
+      const goBtnY = boxY + 456;
+
+      // Leaderboard Button (Left)
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.16)';
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(WIDTH / 2 - goBtnW - 8, goBtnY, goBtnW, goBtnH);
+      ctx.strokeRect(WIDTH / 2 - goBtnW - 8, goBtnY, goBtnW, goBtnH);
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("🏆 LEADERBOARD", WIDTH / 2 - goBtnW / 2 - 8, goBtnY + 18);
+
+      // Cake Tower Button (Right)
+      ctx.fillStyle = 'rgba(255, 77, 166, 0.16)';
+      ctx.strokeStyle = '#ff4da6';
+      ctx.fillRect(WIDTH / 2 + 8, goBtnY, goBtnW, goBtnH);
+      ctx.strokeRect(WIDTH / 2 + 8, goBtnY, goBtnW, goBtnH);
+      ctx.fillStyle = '#ff6ebe';
+      ctx.fillText("🍰 CAKE TOWER", WIDTH / 2 + goBtnW / 2 + 8, goBtnY + 18);
+
+      ctx.fillStyle = '#ff6ebe';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 508);
     } else if (state === 'WIN') {
       btnAction.textContent = 'AGAIN';
       const boxW = 660;
@@ -5345,6 +8160,10 @@ html = """<!DOCTYPE html>
       ctx.font = '15px "Press Start 2P", monospace';
       ctx.fillText("HAPPY BIRTHDAY AISHA! 🎂", WIDTH / 2, boxY + 64);
 
+      ctx.fillStyle = '#ff6ebe';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillText("✨ TOUCH OR DRAG SKY FOR 💖 ⭐ 🔤 FIREWORKS! ✨", WIDTH / 2, boxY + 84);
+
       const floatY = Math.sin(globalTime * 2.2) * 5;
       const portW = 180;
       const portH = 240;
@@ -5362,15 +8181,38 @@ html = """<!DOCTYPE html>
       const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
       ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
       ctx.font = '13px "Press Start 2P", monospace';
-      ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + 434);
+      ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + 428);
+
+      const winBtnW = 190;
+      const winBtnH = 28;
+      const winBtnY = boxY + 454;
+
+      // Hall of Fame (Left)
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.16)';
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(WIDTH / 2 - winBtnW - 8, winBtnY, winBtnW, winBtnH);
+      ctx.strokeRect(WIDTH / 2 - winBtnW - 8, winBtnY, winBtnW, winBtnH);
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("🏆 HALL OF FAME", WIDTH / 2 - winBtnW / 2 - 8, winBtnY + 18);
+
+      // Cake Tower (Right)
+      ctx.fillStyle = 'rgba(255, 77, 166, 0.16)';
+      ctx.strokeStyle = '#ff4da6';
+      ctx.fillRect(WIDTH / 2 + 8, winBtnY, winBtnW, winBtnH);
+      ctx.strokeRect(WIDTH / 2 + 8, winBtnY, winBtnW, winBtnH);
+      ctx.fillStyle = '#ff6ebe';
+      ctx.fillText("🍰 CAKE TOWER", WIDTH / 2 + winBtnW / 2 + 8, winBtnY + 18);
 
       ctx.fillStyle = '#ff6ebe';
-      ctx.font = '10px "Press Start 2P", monospace';
-      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 468);
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 498);
 
       ctx.fillStyle = '#859bb8';
-      ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 500);
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 520);
     }
 
     ctx.restore();
@@ -5396,6 +8238,9 @@ html = """<!DOCTYPE html>
 with open("assets/aisha_portrait.jpg", "rb") as f:
     portrait_b64 = base64.b64encode(f.read()).decode("ascii")
 
+with open("assets/aisha_candid.jpg", "rb") as f:
+    candid_b64 = base64.b64encode(f.read()).decode("ascii")
+
 with open("assets/aisha_head.png", "rb") as f:
     head_b64 = base64.b64encode(f.read()).decode("ascii")
 
@@ -5403,6 +8248,7 @@ with open("assets/icon-192.png", "rb") as f:
     icon_b64 = base64.b64encode(f.read()).decode("ascii")
 
 html = html.replace("%%AISHA_PORTRAIT_B64%%", portrait_b64)
+html = html.replace("%%AISHA_CANDID_B64%%", candid_b64)
 html = html.replace("%%AISHA_HEAD_B64%%", head_b64)
 html = html.replace("%%AISHA_ICON_B64%%", icon_b64)
 
