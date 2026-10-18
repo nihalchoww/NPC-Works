@@ -11,8 +11,16 @@ html = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0520">
+<meta name="apple-mobile-web-app-title" content="Aisha Bake-Off">
+<meta name="application-name" content="Aisha Bake-Off">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ff3388">
 <title>Aisha's Birthday Bake-Off 🎂</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -107,6 +115,32 @@ html = """<!DOCTYPE html>
     top: max(14px, env(safe-area-inset-top));
     left: calc(max(14px, env(safe-area-inset-left)) + 92px);
     font-size: 16px;
+  }
+  #tilt-btn {
+    top: max(14px, env(safe-area-inset-top));
+    left: calc(max(14px, env(safe-area-inset-left)) + 138px);
+    font-size: 16px;
+    transition: all 0.15s ease;
+  }
+  #tilt-btn.active {
+    background: rgba(0, 220, 255, 0.45);
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 20px rgba(0, 220, 255, 0.85), inset 0 0 10px #ffd700;
+  }
+  #pwa-btn {
+    top: max(14px, env(safe-area-inset-top));
+    right: calc(max(14px, env(safe-area-inset-right)) + 46px);
+    font-size: 16px;
+    border-color: #ff3388;
+    color: #ff3388;
+    box-shadow: 0 0 15px rgba(255, 51, 136, 0.35);
+    transition: all 0.15s ease;
+  }
+  #pwa-btn.installed {
+    border-color: #00ff88;
+    color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.35);
   }
   /* CRT Arcade Cabinet Bezel */
   .arcade-bezel {
@@ -286,6 +320,71 @@ html = """<!DOCTYPE html>
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), 0 0 24px rgba(255, 215, 0, 0.35);
     display: block;
   }
+  /* Custom Wish Box in Polaroid Modal */
+  .polaroid-wish-box {
+    margin-top: 10px;
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .wish-input-row {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    margin-top: 6px;
+  }
+  #polaroid-wish-input {
+    flex: 1;
+    background: #0f0826;
+    border: 1.5px solid #00dcff;
+    color: #ffd700;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    outline: none;
+    box-shadow: inset 0 0 8px rgba(0, 220, 255, 0.2);
+  }
+  #polaroid-wish-input:focus {
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  .wish-apply-btn {
+    background: #ffd700;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+  .wish-chips {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .wish-chip {
+    background: rgba(255, 77, 166, 0.2);
+    border: 1px solid #ff4da6;
+    color: #ffb3c6;
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-size: 7px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+  }
+  .wish-chip:active {
+    background: #ff4da6;
+    color: #fff;
+    transform: scale(0.95);
+  }
   .modal-actions {
     display: flex;
     gap: 12px;
@@ -310,6 +409,90 @@ html = """<!DOCTYPE html>
     border-color: #00dcff;
     color: #00dcff;
   }
+  /* Progressive Web App (PWA) Install Modal */
+  #pwa-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(6, 3, 18, 0.94);
+    z-index: 120;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 16px;
+    box-sizing: border-box;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  #pwa-wrap {
+    max-width: 90vw;
+    width: 380px;
+    max-height: 88dvh;
+    background: #0d0722;
+    border: 2px solid #ff3388;
+    border-radius: 16px;
+    padding: 20px 16px;
+    box-shadow: 0 0 30px rgba(255, 51, 136, 0.4), inset 0 0 20px rgba(0, 220, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  .pwa-badge {
+    background: #ff3388;
+    color: #fff;
+    font-size: 8px;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  #pwa-icon-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 215, 0, 0.5);
+    border: 2px solid #ffd700;
+  }
+  .pwa-points {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+    font-size: 7.5px;
+    line-height: 1.5;
+    color: #d1c4e9;
+  }
+  .pwa-point {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 51, 136, 0.2);
+  }
+  .pwa-point-icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+  .pwa-ios-guide {
+    background: rgba(0, 220, 255, 0.1);
+    border: 1px dashed #00dcff;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 7.5px;
+    line-height: 1.6;
+    color: #00dcff;
+    text-align: left;
+    margin-top: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
 </style>
 </head>
 <body>
@@ -323,6 +506,8 @@ html = """<!DOCTYPE html>
   <button class="hud-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
   <button class="hud-btn" id="mute-btn" title="Toggle Sound">🔊</button>
   <button class="hud-btn" id="crt-btn" title="Toggle CRT Arcade Cabinet Mode">📺</button>
+  <button class="hud-btn" id="tilt-btn" title="Toggle Phone Tilt / Gyroscope Steering Mode">📳</button>
+  <button class="hud-btn" id="pwa-btn" title="Add to Home Screen / Install Native App">📱</button>
   <button class="hud-btn" id="pause-btn" title="Pause / Resume">⏸</button>
   <div id="touch-controls">
     <div class="thumb-zone zone-left">
@@ -341,10 +526,52 @@ html = """<!DOCTYPE html>
   <div id="polaroid-modal">
     <div id="polaroid-wrap">
       <img id="polaroid-img" alt="Aisha Polaroid Certificate" />
+      <div class="polaroid-wish-box">
+        <label for="polaroid-wish-input" style="font-size: 8px; color: #ff6ebe; letter-spacing: 1px;">💌 WRITE YOUR WISH FOR AISHA:</label>
+        <div class="wish-input-row">
+          <input type="text" id="polaroid-wish-input" maxlength="34" placeholder="Happy Birthday Aisha! 🎂" value="Happy Birthday Aisha! 🎂" />
+          <button id="polaroid-wish-btn" class="wish-apply-btn">UPDATE ✨</button>
+        </div>
+        <div class="wish-chips">
+          <span class="wish-chip" data-wish="Queen of the Galaxy Bakery! 👑">👑 Queen Baker</span>
+          <span class="wish-chip" data-wish="May your year be 100x sweeter! 🍰">🍰 100x Sweeter</span>
+          <span class="wish-chip" data-wish="Endless joy, love & laughter! 💖">💖 Endless Joy</span>
+        </div>
+      </div>
       <p style="font-size: 9px; color: #ffd700; margin-top: 10px; text-align: center; text-shadow: 0 0 8px #000;">★ TAP &amp; HOLD IMAGE TO SAVE TO PHOTOS ★</p>
       <div class="modal-actions">
         <button class="modal-btn" id="modal-download-btn">DOWNLOAD 📥</button>
         <button class="modal-btn modal-btn-close" id="modal-close-btn">CLOSE ✕</button>
+      </div>
+    </div>
+  </div>
+  <div id="pwa-modal">
+    <div id="pwa-wrap">
+      <div class="pwa-badge">📱 PROGRESSIVE WEB APP</div>
+      <img src="data:image/png;base64,%%AISHA_ICON_B64%%" alt="Aisha Bake-Off Icon" id="pwa-icon-preview" />
+      <h3 style="font-size: 11px; color: #ffd700; margin: 10px 0 6px 0; text-align: center;">AISHA'S BIRTHDAY BAKE-OFF</h3>
+      <p style="font-size: 8px; color: #ff6ebe; text-align: center; margin-bottom: 12px;">★ Full Native App Experience ★</p>
+
+      <div class="pwa-points">
+        <div class="pwa-point">
+          <span class="pwa-point-icon">⚡</span>
+          <div><b>True Fullscreen Native:</b> Opens edge-to-edge without browser address bar, URL arrows, or Safari toolbars.</div>
+        </div>
+        <div class="pwa-point">
+          <span class="pwa-point-icon">✈️</span>
+          <div><b>100% Offline Playable:</b> Service Worker caching allows full play on airplanes or subway with zero Wi-Fi!</div>
+        </div>
+        <div class="pwa-point">
+          <span class="pwa-point-icon">🧁</span>
+          <div><b>Custom Aisha App Icon:</b> Official home screen icon with Aisha's party hat &amp; butterfly clip!</div>
+        </div>
+      </div>
+
+      <div id="pwa-prompt-container" style="width: 100%; text-align: center; margin-top: 14px;"></div>
+
+      <div class="modal-actions" style="margin-top: 16px;">
+        <button class="modal-btn" id="pwa-action-btn" style="display:none;">INSTALL APP 📲</button>
+        <button class="modal-btn modal-btn-close" id="pwa-close-btn">BACK TO GAME ✕</button>
       </div>
     </div>
   </div>
@@ -489,6 +716,15 @@ html = """<!DOCTYPE html>
       setTimeout(() => playTone(f, 'square', 0.14, 0.16), i * 110);
     });
   }
+  function sfxStarFever() {
+    initAudio();
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+    const starNotes = [523, 659, 784, 1046, 1318, 1568];
+    starNotes.forEach((f, i) => {
+      setTimeout(() => playTone(f, 'square', 0.12, 0.22), i * 45);
+    });
+  }
+
   function sfxBlow() {
     initAudio();
     if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
@@ -836,11 +1072,13 @@ html = """<!DOCTYPE html>
     pCtx.fillText("BAKER 👑", sealX, sealY + 12);
     pCtx.restore();
 
-    // Handwritten Birthday Message & Stats
+    // Handwritten Birthday Message & Stats (Custom Wish)
+    const wish = (currentPolaroidWish || "HAPPY BIRTHDAY AISHA! 🎂").trim();
     pCtx.fillStyle = '#1a202c';
-    pCtx.font = 'bold 22px "Press Start 2P", cursive, sans-serif';
+    const wishFontSz = wish.length > 28 ? 14 : (wish.length > 20 ? 17 : 20);
+    pCtx.font = `bold ${wishFontSz}px "Press Start 2P", cursive, sans-serif`;
     pCtx.textAlign = 'left';
-    pCtx.fillText("HAPPY BIRTHDAY AISHA! 🎂", photoX, marginY + 12);
+    pCtx.fillText(wish, photoX, marginY + 12);
 
     pCtx.fillStyle = '#2b6cb0';
     pCtx.font = 'bold 12px "Press Start 2P", monospace';
@@ -1009,6 +1247,70 @@ html = """<!DOCTYPE html>
   let cometTimer = 5.0;
   let crtMode = localStorage.getItem('anti_grav_crt') === 'true';
 
+  // Phone Tilt / Gyroscope Steering Mode (DeviceOrientationEvent)
+  let tiltMode = localStorage.getItem('anti_grav_tilt') === 'true';
+  let currentTiltAngle = 0;
+
+  // Birthday Fortune Cookie Notes on Giftbox Unboxing
+  const BIRTHDAY_FORTUNES = [
+    "Aisha unlocked +500 Baker Karma! 💖",
+    "May your year be sweeter than a 30-tier cake! 🎂",
+    "Radiant Queen of the Galaxy Bakery! 👑",
+    "Certified 100% Sweet & Unstoppable! ✨",
+    "Wishing Aisha endless joy & laughter! 🌸",
+    "Another year older, 100x more fabulous! 🍰",
+    "Infinite birthday hugs & cosmic sparkles! 💫",
+    "Aisha's smile outshines all stars in space! 🌟"
+  ];
+  let activeFortuneText = "";
+  let fortuneTimer = 0;
+
+  // Rare Birthday Shooting Star & Rainbow Fever
+  let starFeverTime = 0;
+  let starSpawnTimer = 18.0;
+
+  // Custom Wish for Polaroid Certificate
+  let currentPolaroidWish = "HAPPY BIRTHDAY AISHA! 🎂";
+
+  // Cosmic Birthday Piñata "Bonus Frenzy" (Stages 9, 19, 29)
+  let pinata = {
+    active: false,
+    x: WIDTH / 2,
+    y: 115,
+    vx: 210,
+    hp: 6,
+    maxHp: 6,
+    bobPhase: 0,
+    cracked: false,
+    hitFlash: 0,
+    wobble: 0
+  };
+  let bouncingCakes = [];
+  let pinataFrenzyTime = 0;
+  let frenzySpawnTimer = 0;
+
+  function initPinataForStage(stg) {
+    pinata.active = true;
+    pinata.cracked = false;
+    pinata.hp = (stg === 29 ? 8 : (stg === 19 ? 7 : 6));
+    pinata.maxHp = pinata.hp;
+    pinata.x = -60;
+    pinata.y = 115;
+    pinata.vx = (stg === 29 ? 260 : (stg === 19 ? 230 : 200));
+    pinata.hitFlash = 0;
+    pinata.wobble = 0;
+    pinata.bobPhase = 0;
+    bouncingCakes = [];
+    pinataFrenzyTime = 0;
+    frenzySpawnTimer = 0;
+    toastFortune("🛸 COSMIC PIÑATA INCOMING! Bounce cakes to crack! 🍬", 4.0);
+  }
+
+  function toastFortune(msg, duration = 3.6) {
+    activeFortuneText = msg;
+    fortuneTimer = duration;
+  }
+
   // Touch Dragging Mechanics
   let isDragging = false;
   let targetX = player.x;
@@ -1150,6 +1452,59 @@ html = """<!DOCTYPE html>
     });
   }
 
+  // Phone Tilt / Gyroscope Steering Handler
+  function handleDeviceOrientation(e) {
+    if (!tiltMode) return;
+    const isLandscape = window.innerWidth > window.innerHeight;
+    if (isLandscape) {
+      const beta = e.beta || 0;
+      currentTiltAngle = Math.max(-35, Math.min(35, (window.orientation === 90 ? -beta : beta)));
+    } else {
+      const gamma = e.gamma || 0;
+      currentTiltAngle = Math.max(-35, Math.min(35, gamma));
+    }
+  }
+
+  async function toggleTiltMode() {
+    initAudio();
+    if (!tiltMode) {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          const perm = await DeviceOrientationEvent.requestPermission();
+          if (perm !== 'granted') {
+            alert("Tilt steering permission was not granted.");
+            return;
+          }
+        } catch(err) {
+          console.warn("DeviceOrientation error:", err);
+        }
+      }
+      tiltMode = true;
+      window.addEventListener('deviceorientation', handleDeviceOrientation, { passive: true });
+    } else {
+      tiltMode = false;
+      currentTiltAngle = 0;
+      window.removeEventListener('deviceorientation', handleDeviceOrientation);
+    }
+    localStorage.setItem('anti_grav_tilt', tiltMode);
+    const tiltBtn = document.getElementById('tilt-btn');
+    if (tiltBtn) tiltBtn.classList.toggle('active', tiltMode);
+    haptic([25, 35]);
+  }
+
+  const btnTilt = document.getElementById('tilt-btn');
+  if (btnTilt) {
+    if (tiltMode) {
+      btnTilt.classList.add('active');
+      window.addEventListener('deviceorientation', handleDeviceOrientation, { passive: true });
+    }
+    btnTilt.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleTiltMode();
+    });
+  }
+
   if (btnResume) {
     btnResume.addEventListener('pointerdown', (e) => {
       e.preventDefault();
@@ -1178,6 +1533,39 @@ html = """<!DOCTYPE html>
   if (modalCloseBtn) {
     modalCloseBtn.addEventListener('click', closePolaroidModal);
   }
+
+  const wishInput = document.getElementById('polaroid-wish-input');
+  const wishBtn = document.getElementById('polaroid-wish-btn');
+  const wishChips = document.querySelectorAll('.wish-chip');
+
+  function updatePolaroidWish(newWish) {
+    currentPolaroidWish = newWish.trim() || "HAPPY BIRTHDAY AISHA! 🎂";
+    if (wishInput) wishInput.value = currentPolaroidWish;
+    const pCanvas = generatePolaroidCanvas();
+    pCanvas.toBlob((blob) => {
+      if (!blob) return;
+      latestPolaroidBlob = blob;
+      const url = URL.createObjectURL(blob);
+      showPolaroidModal(url);
+    }, 'image/png');
+    haptic(15);
+  }
+
+  if (wishBtn && wishInput) {
+    wishBtn.addEventListener('click', () => {
+      updatePolaroidWish(wishInput.value);
+    });
+    wishInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') updatePolaroidWish(wishInput.value);
+    });
+  }
+
+  wishChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const wish = chip.getAttribute('data-wish');
+      if (wish) updatePolaroidWish(wish);
+    });
+  });
   if (modalDownloadBtn) {
     modalDownloadBtn.addEventListener('click', () => {
       if (!latestPolaroidBlob) return;
@@ -1195,6 +1583,128 @@ html = """<!DOCTYPE html>
   if (polaroidModal) {
     polaroidModal.addEventListener('click', (e) => {
       if (e.target === polaroidModal) closePolaroidModal();
+    });
+  }
+
+  // Progressive Web App (PWA) Install & Service Worker Logic
+  let deferredInstallPrompt = null;
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        console.log("PWA Service Worker registered:", reg.scope);
+      }).catch((err) => {
+        console.warn('PWA ServiceWorker registration error:', err);
+      });
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    updatePWAUI();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    toastFortune("📱 Aisha's App Installed to Home Screen! 🎉");
+    updatePWAUI();
+  });
+
+  const pwaBtn = document.getElementById('pwa-btn');
+  const pwaModal = document.getElementById('pwa-modal');
+  const pwaCloseBtn = document.getElementById('pwa-close-btn');
+  const pwaActionBtn = document.getElementById('pwa-action-btn');
+  const pwaPromptContainer = document.getElementById('pwa-prompt-container');
+
+  function isStandalone() {
+    return ('standalone' in window.navigator && window.navigator.standalone) ||
+           window.matchMedia('(display-mode: standalone)').matches;
+  }
+
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  function updatePWAUI() {
+    if (!pwaPromptContainer) return;
+    if (isStandalone()) {
+      pwaPromptContainer.innerHTML = '<div style="color:#00ff88; font-size:8px; line-height:1.6; background:rgba(0,255,136,0.15); border:1px solid #00ff88; border-radius:8px; padding:10px;">★ RUNNING IN NATIVE APP MODE! ★<br><span style="color:#fff; font-size:7px;">Edge-to-edge offline gaming active!</span></div>';
+      if (pwaActionBtn) pwaActionBtn.style.display = 'none';
+      if (pwaBtn) pwaBtn.classList.add('installed');
+    } else if (deferredInstallPrompt) {
+      pwaPromptContainer.innerHTML = '<div style="color:#ffd700; font-size:8px; margin-bottom:8px;">★ Ready to install with 1 tap! ★</div>';
+      if (pwaActionBtn) {
+        pwaActionBtn.style.display = 'inline-block';
+        pwaActionBtn.textContent = 'INSTALL NOW 📲';
+      }
+    } else if (isIOS()) {
+      pwaPromptContainer.innerHTML = `
+        <div class="pwa-ios-guide">
+          <div style="font-weight:bold; color:#ffd700; margin-bottom:4px;">📲 How to Install on iPhone / iPad:</div>
+          <div>1. Tap Safari\\'s <b>Share</b> button (⎋ or [↑]) at the bottom of the screen</div>
+          <div>2. Scroll down &amp; tap <b>"Add to Home Screen"</b> ➕</div>
+          <div>3. Tap <b>"Add"</b> in the top right corner!</div>
+        </div>
+      `;
+      if (pwaActionBtn) pwaActionBtn.style.display = 'none';
+    } else {
+      pwaPromptContainer.innerHTML = `
+        <div class="pwa-ios-guide" style="color:#ffd700; border-color:#ffd700;">
+          <div style="font-weight:bold; margin-bottom:4px;">📲 How to Install:</div>
+          <div>Tap your browser menu (<b>⋮</b>) and select <b>"Install app"</b> or <b>"Add to Home screen"</b>!</div>
+        </div>
+      `;
+      if (pwaActionBtn) pwaActionBtn.style.display = 'none';
+    }
+  }
+
+  if (pwaBtn) {
+    if (isStandalone()) pwaBtn.classList.add('installed');
+    pwaBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      initAudio();
+      haptic(20);
+      updatePWAUI();
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            toastFortune("📱 Aisha's App Installed to Home Screen! 🎉");
+          }
+          deferredInstallPrompt = null;
+          updatePWAUI();
+        });
+      } else {
+        if (pwaModal) pwaModal.style.display = 'flex';
+      }
+    });
+  }
+
+  if (pwaActionBtn) {
+    pwaActionBtn.addEventListener('click', () => {
+      initAudio();
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            toastFortune("📱 Aisha's App Installed to Home Screen! 🎉");
+          }
+          deferredInstallPrompt = null;
+          if (pwaModal) pwaModal.style.display = 'none';
+        });
+      }
+    });
+  }
+
+  if (pwaCloseBtn) {
+    pwaCloseBtn.addEventListener('click', () => {
+      if (pwaModal) pwaModal.style.display = 'none';
+    });
+  }
+  if (pwaModal) {
+    pwaModal.addEventListener('click', (e) => {
+      if (e.target === pwaModal) pwaModal.style.display = 'none';
     });
   }
 
@@ -1545,6 +2055,22 @@ html = """<!DOCTYPE html>
   }
 
   function activatePowerup(type) {
+    // Unbox Birthday Fortune Cookie Message
+    activeFortuneText = BIRTHDAY_FORTUNES[Math.floor(Math.random() * BIRTHDAY_FORTUNES.length)];
+    fortuneTimer = 3.6;
+    for (let k = 0; k < 12; k++) {
+      particles.push({
+        x: player.x + (Math.random() - 0.5) * 60,
+        y: player.y - 120,
+        vx: (Math.random() - 0.5) * 180,
+        vy: -60 - Math.random() * 80,
+        size: 3 + Math.random() * 3,
+        color: ['#ffd700', '#ff6ebe', '#00dcff', '#37be46'][k % 4],
+        life: 0.8,
+        maxLife: 0.8
+      });
+    }
+
     if (type === 'MAGNET') {
       magnetTime = 7.0;
       addScorePopup(player.x, player.y - 70, "🧲 MAGNET ACTIVE!", COLORS.GOLD);
@@ -1572,6 +2098,9 @@ html = """<!DOCTYPE html>
     shieldActive = false;
     slowmoTime = 0;
     sugarRushCount = 0;
+    starFeverTime = 0;
+    starSpawnTimer = 18.0;
+    fortuneTimer = 0;
     powerupSpawnTimer = 14;
     hazardWarnings = [];
     ceremonyCandles = [];
@@ -1587,6 +2116,13 @@ html = """<!DOCTYPE html>
     stopMic();
     stopHappyBirthdaySong();
     btnAction.textContent = 'PAUSE';
+    if (stage === 9 || stage === 19 || stage === 29) {
+      initPinataForStage(stage);
+    } else {
+      pinata.active = false;
+      bouncingCakes = [];
+      pinataFrenzyTime = 0;
+    }
     syncUIState();
   }
 
@@ -1610,6 +2146,13 @@ html = """<!DOCTYPE html>
     ceremonySmokeParticles = [];
     state = 'PLAYING';
     btnAction.textContent = 'PAUSE';
+    if (stage === 9 || stage === 19 || stage === 29) {
+      initPinataForStage(stage);
+    } else {
+      pinata.active = false;
+      bouncingCakes = [];
+      pinataFrenzyTime = 0;
+    }
     syncUIState();
     sfxCatch();
     haptic(30);
@@ -1637,6 +2180,13 @@ html = """<!DOCTYPE html>
       hazardWarnings = [];
       state = 'PLAYING';
       btnAction.textContent = 'PAUSE';
+      if (stage === 9 || stage === 19 || stage === 29) {
+        initPinataForStage(stage);
+      } else {
+        pinata.active = false;
+        bouncingCakes = [];
+        pinataFrenzyTime = 0;
+      }
       syncUIState();
     }
   }
@@ -1726,6 +2276,420 @@ html = """<!DOCTYPE html>
   }
 
   // ─── 16-BIT RETRO PIXEL SPRITE RENDERERS ──────────────────────────────
+
+  function drawShootingStar(ctx, x, y, rot, time) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+
+    // Pulsating rainbow chromatic aura
+    const rColors = ['#ff0077', '#00dcff', '#ffd700', '#70e000', '#bd00ff'];
+    const auraCol = rColors[Math.floor(time * 10) % rColors.length];
+    ctx.shadowColor = auraCol;
+    ctx.shadowBlur = 24;
+
+    // Outer glow rays
+    ctx.strokeStyle = auraCol;
+    ctx.lineWidth = 2.5;
+    for (let r = 0; r < 4; r++) {
+      const a = (r / 4) * Math.PI;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * -22, Math.sin(a) * -22);
+      ctx.lineTo(Math.cos(a) * 22, Math.sin(a) * 22);
+      ctx.stroke();
+    }
+
+    // 5-point golden shooting star
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const a1 = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+      const rx = Math.cos(a1) * 16;
+      const ry = Math.sin(a1) * 16;
+      if (i === 0) ctx.moveTo(rx, ry);
+      else ctx.lineTo(rx, ry);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Center sparkling diamond jewel
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawCupcake(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.scale(1.4, 1.4);
+
+    // Golden halo
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 14;
+
+    // Gold pleated cupcake cup
+    ctx.fillStyle = '#e5a500';
+    ctx.beginPath();
+    ctx.moveTo(-11, 2);
+    ctx.lineTo(11, 2);
+    ctx.lineTo(8, 14);
+    ctx.lineTo(-8, 14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#fff3a0';
+    ctx.lineWidth = 1;
+    [-4, 0, 4].forEach(px => {
+      ctx.beginPath(); ctx.moveTo(px, 3); ctx.lineTo(px * 0.8, 13); ctx.stroke();
+    });
+
+    // Swirled fluffy pink-white frosting mound
+    ctx.fillStyle = '#fff0f5';
+    ctx.beginPath();
+    ctx.arc(-5, 0, 7, 0, Math.PI * 2);
+    ctx.arc(5, 0, 7, 0, Math.PI * 2);
+    ctx.arc(0, -6, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ff6ebe';
+    ctx.beginPath();
+    ctx.arc(0, -7, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Glistening ruby cherry on top
+    ctx.fillStyle = '#ff1144';
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.arc(0, -13, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-1, -15, 1.5, 1.5);
+
+    ctx.restore();
+  }
+
+  function drawCosmicPinata(ctx, p) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+
+    const tilt = Math.sin(p.bobPhase * 1.8) * 0.12 + (p.wobble ? Math.sin(p.bobPhase * 16) * 0.18 : 0);
+    ctx.rotate(tilt);
+
+    const isFlashing = p.hitFlash > 0;
+
+    // 1. Rainbow Streamers trailing from bottom
+    const streamerCols = ['#ff007f', '#ffd700', '#00f0ff', '#76ff03'];
+    for (let s = 0; s < 4; s++) {
+      const sx = -24 + s * 16;
+      const wave = Math.sin(p.bobPhase * 2 + s * 1.2) * 12;
+      ctx.strokeStyle = streamerCols[s];
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(sx, 16);
+      ctx.quadraticCurveTo(sx + wave * 0.5, 34, sx + wave, 52);
+      ctx.stroke();
+    }
+
+    // 2. Twin Jet Thrusters
+    const jetGlow1 = ctx.createRadialGradient(-18, 18, 2, -18, 26, 12);
+    jetGlow1.addColorStop(0, '#00ffff');
+    jetGlow1.addColorStop(1, 'transparent');
+    ctx.fillStyle = jetGlow1;
+    ctx.beginPath(); ctx.arc(-18, 24, 12, 0, Math.PI * 2); ctx.fill();
+
+    const jetGlow2 = ctx.createRadialGradient(18, 18, 2, 18, 26, 12);
+    jetGlow2.addColorStop(0, '#00ffff');
+    jetGlow2.addColorStop(1, 'transparent');
+    ctx.fillStyle = jetGlow2;
+    ctx.beginPath(); ctx.arc(18, 24, 12, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = isFlashing ? '#ffffff' : '#3a2560';
+    ctx.fillRect(-22, 12, 8, 7);
+    ctx.fillRect(14, 12, 8, 7);
+
+    // 3. Main Saucer Disk (Piñata Fringe Layers)
+    const aura = ctx.createRadialGradient(0, 0, 15, 0, 0, 54);
+    aura.addColorStop(0, isFlashing ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 215, 0, 0.45)');
+    aura.addColorStop(0.7, 'rgba(255, 0, 128, 0.2)');
+    aura.addColorStop(1, 'transparent');
+    ctx.fillStyle = aura;
+    ctx.beginPath(); ctx.ellipse(0, 2, 54, 28, 0, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = isFlashing ? '#ffffff' : '#220f45';
+    ctx.beginPath(); ctx.ellipse(0, 4, 46, 20, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = isFlashing ? '#ffff00' : '#ffd700';
+    ctx.stroke();
+
+    const fringeLayers = [
+      { col: '#ff007f', y: 8, rx: 42, ry: 13 },
+      { col: '#ff9900', y: 3, rx: 39, ry: 11 },
+      { col: '#ffd700', y: -2, rx: 36, ry: 10 },
+      { col: '#00f0ff', y: -6, rx: 32, ry: 9 }
+    ];
+
+    fringeLayers.forEach(fl => {
+      ctx.fillStyle = isFlashing ? '#ffffff' : fl.col;
+      ctx.beginPath();
+      ctx.ellipse(0, fl.y, fl.rx, fl.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = isFlashing ? '#ffffaa' : '#ffffff';
+      ctx.globalAlpha = 0.35;
+      for (let f = -fl.rx + 6; f < fl.rx - 6; f += 8) {
+        ctx.fillRect(f, fl.y - 1, 4, 3);
+      }
+      ctx.globalAlpha = 1.0;
+    });
+
+    // Glowing dome canopy
+    const domeGrad = ctx.createRadialGradient(-6, -18, 3, 0, -12, 24);
+    domeGrad.addColorStop(0, isFlashing ? '#ffffff' : 'rgba(255, 255, 255, 0.95)');
+    domeGrad.addColorStop(0.3, 'rgba(120, 240, 255, 0.85)');
+    domeGrad.addColorStop(0.8, 'rgba(180, 0, 255, 0.65)');
+    domeGrad.addColorStop(1, 'rgba(40, 10, 80, 0.9)');
+    ctx.fillStyle = domeGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, -10, 24, 18, 0, Math.PI, 0);
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#00f0ff';
+    ctx.stroke();
+
+    // Inside dome: Mini Birthday Cake Pilot!
+    ctx.fillStyle = '#ff6ebe';
+    ctx.beginPath(); ctx.arc(0, -12, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-1.5, -21, 3, 6);
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.arc(0, -23, 2.5, 0, Math.PI * 2); ctx.fill();
+
+    // Party Hat on top of UFO
+    ctx.fillStyle = '#ff007f';
+    ctx.beginPath();
+    ctx.moveTo(0, -38);
+    ctx.lineTo(-8, -24);
+    ctx.lineTo(8, -24);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.arc(0, -39, 3.5, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+
+    // Floating HP Shield Bar above Piñata
+    const barW = 84;
+    const barH = 9;
+    const barX = p.x - barW / 2;
+    const barY = p.y - 48;
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(10, 5, 25, 0.85)';
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 1.5;
+    if (ctx.roundRect) ctx.roundRect(barX, barY, barW, barH, 4);
+    else ctx.fillRect(barX, barY, barW, barH);
+    ctx.fill();
+    ctx.stroke();
+
+    const segW = (barW - 4) / p.maxHp;
+    for (let s = 0; s < p.maxHp; s++) {
+      if (s < p.hp) {
+        ctx.fillStyle = s < 2 ? '#ff2a55' : (s < 4 ? '#ffd700' : '#00ff88');
+        ctx.fillRect(barX + 2 + s * segW + 0.5, barY + 2, segW - 1, barH - 4);
+      }
+    }
+
+    ctx.fillStyle = '#ffd700';
+    ctx.font = '7px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#000';
+    ctx.shadowBlur = 4;
+    ctx.fillText("🛸 GOLDEN PIÑATA", p.x, barY - 4);
+    ctx.restore();
+  }
+
+  function drawBouncingCake(ctx, bc) {
+    ctx.save();
+    ctx.translate(bc.x, bc.y);
+    ctx.rotate(bc.rot);
+
+    const trailGrad = ctx.createRadialGradient(0, 10, 1, 0, 18, 14);
+    trailGrad.addColorStop(0, 'rgba(255, 215, 0, 0.85)');
+    trailGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = trailGrad;
+    ctx.beginPath(); ctx.arc(0, 14, 14, 0, Math.PI * 2); ctx.fill();
+
+    // Tier 1 (bottom)
+    ctx.fillStyle = '#ff6ebe';
+    ctx.fillRect(-12, 0, 24, 10);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-12, -2, 24, 3);
+
+    // Tier 2 (top)
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(-8, -10, 16, 9);
+    ctx.fillStyle = '#ff007f';
+    ctx.fillRect(-8, -11, 16, 2.5);
+
+    // Lit candle
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-1.5, -18, 3, 7);
+    ctx.fillStyle = '#ff3300';
+    ctx.beginPath(); ctx.arc(0, -20, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffff00';
+    ctx.beginPath(); ctx.arc(0, -21, 1.8, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawStarCandy(ctx, x, y, rot, fl_t) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+
+    const aura = ctx.createRadialGradient(0, 0, 3, 0, 0, 22);
+    aura.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+    aura.addColorStop(0.4, 'rgba(255, 215, 0, 0.85)');
+    aura.addColorStop(1, 'transparent');
+    ctx.fillStyle = aura;
+    ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = '#ffd700';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const a1 = (i * 72 - 90) * Math.PI / 180;
+      const a2 = (i * 72 + 36 - 90) * Math.PI / 180;
+      const r1 = 15;
+      const r2 = 7;
+      if (i === 0) ctx.moveTo(Math.cos(a1) * r1, Math.sin(a1) * r1);
+      else ctx.lineTo(Math.cos(a1) * r1, Math.sin(a1) * r1);
+      ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#220033';
+    ctx.fillRect(-4, -2, 2, 3);
+    ctx.fillRect(2, -2, 2, 3);
+    ctx.beginPath(); ctx.arc(0, 2, 2.5, 0, Math.PI); ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawGoldenMacaron(ctx, x, y, rot) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.ellipse(0, -4, 15, 7, 0, Math.PI, 0); ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.stroke();
+
+    ctx.fillStyle = '#ff007f';
+    ctx.fillRect(-14, -4, 28, 5);
+
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.ellipse(0, 1, 15, 7, 0, 0, Math.PI); ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawSugarGem(ctx, x, y, rot, fl_t) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+
+    const aura = ctx.createRadialGradient(0, 0, 2, 0, 0, 18);
+    aura.addColorStop(0, 'rgba(0, 255, 255, 0.9)');
+    aura.addColorStop(1, 'transparent');
+    ctx.fillStyle = aura;
+    ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = '#00f0ff';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, -14);
+    ctx.lineTo(13, 0);
+    ctx.lineTo(0, 14);
+    ctx.lineTo(-13, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(0, -14);
+    ctx.lineTo(5, 0);
+    ctx.lineTo(0, -4);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawPinataFrenzyBanner(ctx) {
+    ctx.save();
+    const bannerW = Math.min(WIDTH - 32, 490);
+    const bannerH = 46;
+    const bannerX = WIDTH / 2 - bannerW / 2;
+    const bannerY = 82;
+
+    const pulse = Math.sin(globalTime * 8) * 0.2 + 0.8;
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 20 * pulse;
+
+    const bgGrad = ctx.createLinearGradient(bannerX, bannerY, bannerX + bannerW, bannerY + bannerH);
+    bgGrad.addColorStop(0, 'rgba(35, 10, 50, 0.95)');
+    bgGrad.addColorStop(0.5, 'rgba(70, 15, 60, 0.95)');
+    bgGrad.addColorStop(1, 'rgba(35, 10, 50, 0.95)');
+    ctx.fillStyle = bgGrad;
+    if (ctx.roundRect) ctx.roundRect(bannerX, bannerY, bannerW, bannerH, 12);
+    else ctx.fillRect(bannerX, bannerY, bannerW, bannerH);
+    ctx.fill();
+
+    ctx.strokeStyle = ['#ffd700', '#ff007f', '#00f0ff', '#76ff03'][Math.floor(globalTime * 6) % 4];
+    ctx.lineWidth = 2.5;
+    if (ctx.roundRect) ctx.roundRect(bannerX, bannerY, bannerW, bannerH, 12);
+    else ctx.strokeRect(bannerX, bannerY, bannerW, bannerH);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffd700';
+    ctx.font = 'bold 9px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText("🛸 COSMIC PIÑATA FRENZY! 🍬", WIDTH / 2, bannerY + 16);
+
+    const barW = bannerW - 60;
+    const barH = 8;
+    const barX = WIDTH / 2 - barW / 2;
+    const barY2 = bannerY + 25;
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillRect(barX, barY2, barW, barH);
+
+    const pct = Math.max(0, pinataFrenzyTime / 10.0);
+    const fillGrad = ctx.createLinearGradient(barX, barY2, barX + barW, barY2);
+    fillGrad.addColorStop(0, '#ff007f');
+    fillGrad.addColorStop(0.5, '#ffd700');
+    fillGrad.addColorStop(1, '#00f0ff');
+    ctx.fillStyle = fillGrad;
+    ctx.fillRect(barX, barY2, barW * pct, barH);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '7px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${pinataFrenzyTime.toFixed(1)}s`, WIDTH / 2, barY2 + 7);
+
+    ctx.restore();
+  }
 
   function drawAishaPortrait(ctx, x, y, width, height, floatY) {
     const py = y + (floatY || 0);
@@ -2237,8 +3201,23 @@ html = """<!DOCTYPE html>
     if (state === 'PLAYING') {
       btnAction.textContent = 'PAUSE';
 
-      // Power-up timers
+      // Power-up & Fortune timers
       if (slowmoTime > 0) slowmoTime -= dt;
+      if (fortuneTimer > 0) fortuneTimer -= dt;
+      if (starFeverTime > 0) {
+        starFeverTime -= dt;
+        player.invincible = Math.max(player.invincible, 0.2);
+        // Extra rainbow stardust while Star-Fever is active
+        if (Math.random() < 0.4) {
+          trails.push({
+            x: player.x + (Math.random() - 0.5) * 40,
+            y: player.y - 40 + (Math.random() - 0.5) * 20,
+            vy: -20,
+            life: 0.6,
+            color: ['#ffd700', '#ff0077', '#00dcff', '#70e000'][Math.floor(Math.random() * 4)]
+          });
+        }
+      }
 
       // Player Movement (responsive drag + keys + buttons)
       let moveDir = 0;
@@ -2247,10 +3226,23 @@ html = """<!DOCTYPE html>
 
       // Compute player velocity & bank tilt
       const curX = player.x;
+
+      // Phone Tilt Steering (deadzone of 3.0 degrees)
+      let tiltSteerFactor = 0;
+      if (tiltMode && Math.abs(currentTiltAngle) > 3.0) {
+        const sign = currentTiltAngle > 0 ? 1 : -1;
+        const mag = Math.min(1.0, (Math.abs(currentTiltAngle) - 3.0) / 22.0);
+        tiltSteerFactor = sign * mag;
+      }
+
       if (moveDir !== 0) {
         player.x += moveDir * player.speed * dt;
         targetX = player.x;
         player.walkTime += dt * 10;
+      } else if (tiltSteerFactor !== 0) {
+        player.x += tiltSteerFactor * player.speed * 1.25 * dt;
+        targetX = player.x;
+        player.walkTime += Math.abs(tiltSteerFactor) * dt * 10;
       } else if (isDragging) {
         const dx = targetX - player.x;
         player.x += dx * Math.min(1.0, 24 * dt);
@@ -2305,7 +3297,7 @@ html = """<!DOCTYPE html>
       spawnTimer -= dt;
       if (spawnTimer <= 0) {
         spawnTimer = interval;
-        const isBad = Math.random() < Math.min(0.45, 0.28 + (stage - 1) * 0.006);
+        const isBad = (pinataFrenzyTime > 0) ? false : (Math.random() < Math.min(0.45, 0.28 + (stage - 1) * 0.006));
         const minX = Math.min(90, WIDTH * 0.12);
         const maxX = WIDTH - minX;
         const itemX = minX + Math.random() * (maxX - minX);
@@ -2341,20 +3333,58 @@ html = """<!DOCTYPE html>
         hazardWarnings[w].timer -= dt;
         if (hazardWarnings[w].timer <= 0) {
           const hw = hazardWarnings[w];
-          items.push({
-            x: hw.x,
-            y: -35,
-            vy: hw.vy,
-            isBad: true,
-            isPowerup: false,
-            kind: hw.kind,
-            pts: 0,
-            rot: 0,
-            vrot: hw.vrot,
-            color: COLORS.RED
-          });
+          if (starFeverTime > 0) {
+            // Star-Fever transforms falling hazards into edible golden cupcakes!
+            items.push({
+              x: hw.x,
+              y: -35,
+              vy: hw.vy * 0.9,
+              isBad: false,
+              isPowerup: false,
+              isCupcake: true,
+              kind: 'CUPCAKE',
+              pts: 100,
+              rot: 0,
+              vrot: (Math.random() - 0.5) * 3,
+              color: COLORS.GOLD
+            });
+          } else {
+            items.push({
+              x: hw.x,
+              y: -35,
+              vy: hw.vy,
+              isBad: true,
+              isPowerup: false,
+              kind: hw.kind,
+              pts: 0,
+              rot: 0,
+              vrot: hw.vrot,
+              color: COLORS.RED
+            });
+          }
           hazardWarnings.splice(w, 1);
         }
+      }
+
+      // Rare Birthday Shooting Star Spawner (~every 28s)
+      starSpawnTimer -= dt;
+      if (starSpawnTimer <= 0) {
+        starSpawnTimer = 26.0 + Math.random() * 12.0;
+        const minX = Math.min(90, WIDTH * 0.12);
+        const maxX = WIDTH - minX;
+        items.push({
+          x: minX + Math.random() * (maxX - minX),
+          y: -40,
+          vy: speed * 0.72,
+          isBad: false,
+          isPowerup: false,
+          isShootingStar: true,
+          kind: 'SHOOTING_STAR',
+          pts: 250,
+          rot: 0,
+          vrot: 3.4,
+          color: '#ffd700'
+        });
       }
 
       // Occasional Power-Up Giftbox Spawner (~every 18s)
@@ -2374,6 +3404,129 @@ html = """<!DOCTYPE html>
           vrot: (Math.random() - 0.5) * 3,
           color: COLORS.GOLD
         });
+      }
+
+      // Cosmic Piñata UFO Update (Stages 9, 19, 29)
+      if (pinata.active) {
+        pinata.bobPhase += dt * 3.5;
+        pinata.hitFlash = Math.max(0, pinata.hitFlash - dt * 3.5);
+        pinata.wobble = Math.max(0, pinata.wobble - dt * 2.5);
+        pinata.x += pinata.vx * dt;
+        pinata.y = 115 + Math.sin(pinata.bobPhase) * 14;
+
+        if (pinata.x > WIDTH - 55 && pinata.vx > 0) {
+          pinata.vx = -Math.abs(pinata.vx);
+        } else if (pinata.x < 55 && pinata.vx < 0) {
+          pinata.vx = Math.abs(pinata.vx);
+        }
+
+        if (Math.random() < 0.5) {
+          trails.push({
+            x: pinata.x + (Math.random() - 0.5) * 36,
+            y: pinata.y + 12,
+            vy: 25 + Math.random() * 25,
+            life: 0.45,
+            color: ['#ff007f', '#ffd700', '#00e5ff', '#76ff03'][Math.floor(Math.random() * 4)]
+          });
+        }
+      }
+
+      // Update Bouncing Cakes & check Piñata collision
+      for (let b = bouncingCakes.length - 1; b >= 0; b--) {
+        const bc = bouncingCakes[b];
+        bc.x += bc.vx * dt;
+        bc.y += bc.vy * dt;
+        bc.vy += 160 * dt;
+        bc.rot += bc.vrot * dt;
+
+        if (Math.random() < 0.45) {
+          particles.push({
+            x: bc.x,
+            y: bc.y,
+            vx: (Math.random() - 0.5) * 20,
+            vy: (Math.random() - 0.5) * 20,
+            size: 2,
+            color: '#ffd700',
+            life: 0.25,
+            maxLife: 0.25
+          });
+        }
+
+        if (pinata.active && Math.abs(bc.x - pinata.x) < 55 && Math.abs(bc.y - pinata.y) < 38) {
+          bouncingCakes.splice(b, 1);
+          pinata.hp--;
+          pinata.hitFlash = 1.0;
+          pinata.wobble = 0.4;
+          sfxCatch();
+          playTone(880, 'square', 0.12, 0.25);
+          haptic([35, 45]);
+          addCollectBurst(pinata.x, pinata.y, '#ffd700');
+          addScorePopup(pinata.x, pinata.y - 25, `PIÑATA HIT! ${pinata.hp}/${pinata.maxHp}`, '#ffd700');
+
+          if (pinata.hp <= 0) {
+            pinata.cracked = true;
+            pinata.active = false;
+            score += 1000;
+            pinataFrenzyTime = 10.0;
+            frenzySpawnTimer = 0;
+            sfxStarFever();
+            haptic([50, 70, 50, 70, 120]);
+            for (let fw = 0; fw < 4; fw++) {
+              addFireworks(pinata.x + (fw - 1.5) * 45, pinata.y - 20, ['#ffd700', '#ff007f', '#00f0ff', '#76ff03'][fw]);
+            }
+            addCollectBurst(pinata.x, pinata.y, '#ffd700');
+            addCollectBurst(pinata.x, pinata.y, '#ff007f');
+            addScorePopup(WIDTH / 2, HEIGHT / 2 - 50, "🎉 COSMIC PIÑATA CRACKED! +1000", '#ffd700');
+            toastFortune("🛸 Golden Piñata Unleashed Sweet Cascade! 🍬", 4.0);
+
+            items.forEach(it => {
+              if (it.isBad) {
+                it.isBad = false;
+                it.isCupcake = true;
+                it.kind = 'CUPCAKE';
+                it.pts = 100;
+                it.color = COLORS.GOLD;
+                addCollectBurst(it.x, it.y, '#ffd700');
+              }
+            });
+            hazardWarnings = [];
+          }
+          continue;
+        }
+
+        if (bc.y < -60 || bc.y > HEIGHT + 60 || bc.x < -60 || bc.x > WIDTH + 60) {
+          bouncingCakes.splice(b, 1);
+        }
+      }
+
+      // 10-Second Sweet Cascade Bonus Frenzy
+      if (pinataFrenzyTime > 0) {
+        pinataFrenzyTime -= dt;
+        player.invincible = Math.max(player.invincible, 0.2);
+        hazardWarnings = [];
+
+        frenzySpawnTimer -= dt;
+        if (frenzySpawnTimer <= 0) {
+          frenzySpawnTimer = 0.22;
+          const minX = Math.min(80, WIDTH * 0.12);
+          const maxX = WIDTH - minX;
+          const fx = minX + Math.random() * (maxX - minX);
+          const fKinds = ['STAR_CANDY', 'GOLDEN_MACARON', 'SUGAR_GEM'];
+          const fk = fKinds[Math.floor(Math.random() * fKinds.length)];
+          items.push({
+            x: fx,
+            y: -30,
+            vy: speed * 1.15,
+            isBad: false,
+            isPowerup: false,
+            isFrenzyTreat: true,
+            kind: fk,
+            pts: 100,
+            rot: 0,
+            vrot: (Math.random() - 0.5) * 4.5,
+            color: fk === 'STAR_CANDY' ? '#ffd700' : (fk === 'GOLDEN_MACARON' ? '#ff6ebe' : '#00ffff')
+          });
+        }
       }
 
       // Cake height dynamically grows with items caught (out of 20 per stage)
@@ -2461,7 +3614,61 @@ html = """<!DOCTYPE html>
               });
             }
 
-            if (item.isPowerup) {
+            // If on Piñata stage, bounce a cake skyward toward the Cosmic Piñata!
+            if ((stage === 9 || stage === 19 || stage === 29) && pinata.active) {
+              bouncingCakes.push({
+                x: player.x,
+                y: trayRect.y - 10,
+                vx: (Math.random() - 0.5) * 60 + player.vx * 0.22,
+                vy: -520,
+                rot: 0,
+                vrot: (Math.random() - 0.5) * 6
+              });
+              playTone(587, 'sine', 0.08, 0.2);
+            }
+
+            if (item.isShootingStar) {
+              // Catch Rare Birthday Shooting Star -> Activate 5s Rainbow Star-Fever!
+              starFeverTime = 5.0;
+              score += 250;
+              sfxStarFever();
+              haptic([40, 50, 40, 50, 100]);
+              addScorePopup(player.x, player.y - 80, "⭐ STAR-FEVER! +250", '#ffd700');
+              addCollectBurst(item.x, item.y, '#ffd700');
+
+              // Instantly transform ALL existing hazards into golden cupcakes!
+              items.forEach(it => {
+                if (it.isBad) {
+                  it.isBad = false;
+                  it.isCupcake = true;
+                  it.kind = 'CUPCAKE';
+                  it.pts = 100;
+                  it.color = COLORS.GOLD;
+                  addCollectBurst(it.x, it.y, '#ffd700');
+                }
+              });
+              hazardWarnings = [];
+              items.splice(i, 1);
+            } else if (item.isFrenzyTreat) {
+              score += 100;
+              itemsCaughtStage++;
+              comboStreak++;
+              addCollectBurst(item.x, item.y, '#ffd700');
+              addScorePopup(item.x, item.y - 20, "+100 FRENZY!", '#ffd700');
+              sfxCatch();
+              haptic(20);
+              items.splice(i, 1);
+            } else if (item.isCupcake) {
+              // Catch Transformed Golden Cupcake!
+              score += 100;
+              itemsCaughtStage++;
+              comboStreak++;
+              addCollectBurst(item.x, item.y, '#ffd700');
+              addScorePopup(item.x, item.y - 20, "+100 CUPCAKE!", '#ffd700');
+              sfxCatch();
+              haptic(20);
+              items.splice(i, 1);
+            } else if (item.isPowerup) {
               score += 100;
               itemsCaughtStage = Math.min(ITEMS_PER_STAGE, itemsCaughtStage + 1);
               activatePowerup(item.powerType);
@@ -2577,7 +3784,7 @@ html = """<!DOCTYPE html>
 
         // Clean off-screen
         if (item.y > HEIGHT + 40) {
-          if (!item.isBad && !item.isPowerup) {
+          if (!item.isBad && !item.isPowerup && !item.isFrenzyTreat) {
             comboStreak = 0;
           }
           items.splice(i, 1);
@@ -2964,8 +4171,26 @@ html = """<!DOCTYPE html>
       else if (item.kind === 'ANVIL') drawAnvil(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'BROCCOLI') drawBroccoli(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'SPOILED_MILK') drawSpoiledMilk(ctx, item.x, item.y, item.rot, globalTime);
+      else if (item.kind === 'SHOOTING_STAR') drawShootingStar(ctx, item.x, item.y, item.rot, globalTime);
+      else if (item.kind === 'CUPCAKE') drawCupcake(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'STAR_CANDY') drawStarCandy(ctx, item.x, item.y, item.rot, globalTime);
+      else if (item.kind === 'GOLDEN_MACARON') drawGoldenMacaron(ctx, item.x, item.y, item.rot);
+      else if (item.kind === 'SUGAR_GEM') drawSugarGem(ctx, item.x, item.y, item.rot, globalTime);
       ctx.restore();
     });
+
+    // Bouncing Cakes flying towards Piñata
+    bouncingCakes.forEach(bc => drawBouncingCake(ctx, bc));
+
+    // Cosmic Birthday Piñata UFO (Stages 9, 19, 29)
+    if (pinata.active && state === 'PLAYING') {
+      drawCosmicPinata(ctx, pinata);
+    }
+
+    // Sweet Cascade Piñata Frenzy Banner
+    if (pinataFrenzyTime > 0 && state === 'PLAYING') {
+      drawPinataFrenzyBanner(ctx);
+    }
 
     // Character Ghost Dash Afterimage Trails
     if (state === 'PLAYING') {
@@ -3338,6 +4563,25 @@ html = """<!DOCTYPE html>
         });
         ctx.restore(); // End Cake Squash & Stretch
 
+        // Rainbow Star-Fever Aura around Aisha
+        if (starFeverTime > 0) {
+          ctx.save();
+          const rCols = ['#ff0077', '#00dcff', '#ffd700', '#70e000', '#bd00ff'];
+          const rCol = rCols[Math.floor(globalTime * 12) % rCols.length];
+          ctx.shadowColor = rCol;
+          ctx.shadowBlur = 25;
+          ctx.strokeStyle = rCol;
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(0, -32, 74 + Math.sin(globalTime * 14) * 4, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = rCol;
+          ctx.globalAlpha = 0.15;
+          ctx.fill();
+          ctx.restore();
+        }
+
         // Frosting Shield Bubble around Aisha
         if (shieldActive) {
           ctx.save();
@@ -3481,8 +4725,62 @@ html = """<!DOCTYPE html>
       }
     }
 
+    // Birthday Fortune Toast Banner
+    if (fortuneTimer > 0 && state === 'PLAYING') {
+      ctx.save();
+      const fAlpha = Math.min(1.0, fortuneTimer / 0.5);
+      ctx.globalAlpha = fAlpha;
+      const boxW = Math.min(WIDTH - 40, 520);
+      const boxH = 46;
+      const boxX = WIDTH / 2 - boxW / 2;
+      const boxY = 132;
+
+      ctx.fillStyle = 'rgba(15, 8, 38, 0.94)';
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 18;
+      if (ctx.roundRect) ctx.roundRect(boxX, boxY, boxW, boxH, 12);
+      else ctx.fillRect(boxX, boxY, boxW, boxH);
+      ctx.fill();
+
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 2.5;
+      if (ctx.roundRect) ctx.roundRect(boxX, boxY, boxW, boxH, 12);
+      else ctx.strokeRect(boxX, boxY, boxW, boxH);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 9px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("🎁 BIRTHDAY TOAST UNLOCKED! 🎁", WIDTH / 2, boxY + 16);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillText(activeFortuneText, WIDTH / 2, boxY + 34);
+      ctx.restore();
+    }
+
     // Active Power-up Badges in HUD
     let puY = 78;
+    if (pinataFrenzyTime > 0) {
+      ctx.fillStyle = '#ffd700';
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 10;
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`🛸 SWEET FRENZY (${Math.ceil(pinataFrenzyTime)}s)`, WIDTH / 2, puY);
+      ctx.shadowBlur = 0;
+      puY += 15;
+    }
+    if (starFeverTime > 0) {
+      ctx.fillStyle = '#ffd700';
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 8;
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`⭐ STAR-FEVER (${Math.ceil(starFeverTime)}s)`, WIDTH / 2, puY);
+      ctx.shadowBlur = 0;
+      puY += 15;
+    }
     if (shieldActive) {
       ctx.fillStyle = '#00f0ff';
       ctx.font = '9px "Press Start 2P", monospace';
@@ -3544,18 +4842,57 @@ html = """<!DOCTYPE html>
     ctx.fillText("ZERO-G MODE", pw + 18, HEIGHT - 20);
     ctx.restore();
 
-    // Animated Neon Sine Wave Oscillation
-    ctx.strokeStyle = '#00dcff';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    const waveStart = pw + 180;
-    const waveWidth = Math.max(100, WIDTH - pw * 2 - 370);
-    for (let wx = 0; wx < waveWidth; wx += 4) {
-      const wy = HEIGHT - 23 + Math.sin(wx * 0.08 + globalTime * 7) * 7;
-      if (wx === 0) ctx.moveTo(waveStart + wx, wy);
-      else ctx.lineTo(waveStart + wx, wy);
+    // Gyroscope / Tilt Steering Horizon Bubble Indicator
+    if (tiltMode && state === 'PLAYING') {
+      ctx.save();
+      const tIndW = 86;
+      const tIndH = 14;
+      const tIndX = WIDTH / 2 - tIndW / 2;
+      const tIndY = HEIGHT - 30;
+
+      ctx.fillStyle = 'rgba(8, 14, 38, 0.88)';
+      ctx.strokeStyle = '#00dcff';
+      ctx.lineWidth = 1.5;
+      if (ctx.roundRect) ctx.roundRect(tIndX, tIndY, tIndW, tIndH, 7);
+      else ctx.strokeRect(tIndX, tIndY, tIndW, tIndH);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.beginPath();
+      ctx.moveTo(WIDTH / 2, tIndY + 2);
+      ctx.lineTo(WIDTH / 2, tIndY + tIndH - 2);
+      ctx.stroke();
+
+      const tiltNorm = Math.max(-1, Math.min(1, currentTiltAngle / 26));
+      const bubbleX = WIDTH / 2 + tiltNorm * (tIndW / 2 - 8);
+      ctx.fillStyle = Math.abs(tiltNorm) > 0.12 ? '#ffd700' : '#00dcff';
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(bubbleX, tIndY + tIndH / 2, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#00dcff';
+      ctx.font = '6px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.shadowBlur = 0;
+      ctx.fillText("📳 TILT ON", WIDTH / 2, tIndY - 4);
+      ctx.restore();
+    } else {
+      // Animated Neon Sine Wave Oscillation
+      ctx.strokeStyle = '#00dcff';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      const waveStart = pw + 180;
+      const waveWidth = Math.max(100, WIDTH - pw * 2 - 370);
+      for (let wx = 0; wx < waveWidth; wx += 4) {
+        const wy = HEIGHT - 23 + Math.sin(wx * 0.08 + globalTime * 7) * 7;
+        if (wx === 0) ctx.moveTo(waveStart + wx, wy);
+        else ctx.lineTo(waveStart + wx, wy);
+      }
+      ctx.stroke();
     }
-    ctx.stroke();
 
     ctx.save();
     ctx.fillStyle = '#ff9900';
@@ -3628,8 +4965,11 @@ html = """<!DOCTYPE html>
         ctx.fillText(`★ TAP TO RESUME STAGE ${checkpointStage} ★`, WIDTH / 2, boxY + 434);
 
         ctx.fillStyle = '#859bb8';
-        ctx.font = '9px "Press Start 2P", monospace';
-        ctx.fillText(`START LVL 1 BELOW   |   BEST: ${hiScore.toLocaleString()}`, WIDTH / 2, boxY + 475);
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillText(`START LVL 1 BELOW   |   BEST: ${hiScore.toLocaleString()}`, WIDTH / 2, boxY + 472);
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '7.5px "Press Start 2P", monospace';
+        ctx.fillText("🛸 BONUS PIÑATA: LVL 9, 19, 29   |   📱 PWA READY", WIDTH / 2, boxY + 498);
       } else {
         ctx.fillStyle = '#c8d4f0';
         ctx.font = '10px "Press Start 2P", monospace';
@@ -3641,8 +4981,11 @@ html = """<!DOCTYPE html>
         ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + 440);
 
         ctx.fillStyle = '#859bb8';
-        ctx.font = '9px "Press Start 2P", monospace';
-        ctx.fillText("BEST: " + hiScore.toLocaleString() + "   |   TAP ARROWS OR GLIDE THUMB", WIDTH / 2, boxY + 485);
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillText("BEST: " + hiScore.toLocaleString() + "   |   TAP ARROWS OR GLIDE THUMB", WIDTH / 2, boxY + 472);
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '7.5px "Press Start 2P", monospace';
+        ctx.fillText("🛸 BONUS PIÑATA: LVL 9, 19, 29   |   📱 PWA READY", WIDTH / 2, boxY + 498);
       }
     } else if (state === 'PAUSED') {
       btnAction.textContent = 'RESUME';
@@ -3978,8 +5321,12 @@ with open("assets/aisha_portrait.jpg", "rb") as f:
 with open("assets/aisha_head.png", "rb") as f:
     head_b64 = base64.b64encode(f.read()).decode("ascii")
 
+with open("assets/icon-192.png", "rb") as f:
+    icon_b64 = base64.b64encode(f.read()).decode("ascii")
+
 html = html.replace("%%AISHA_PORTRAIT_B64%%", portrait_b64)
 html = html.replace("%%AISHA_HEAD_B64%%", head_b64)
+html = html.replace("%%AISHA_ICON_B64%%", icon_b64)
 
 with open("game.html", "w", encoding="utf-8") as f:
     f.write(html)
