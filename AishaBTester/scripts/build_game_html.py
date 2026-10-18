@@ -594,23 +594,27 @@ html = """<!DOCTYPE html>
   }
   .initials-slots {
     display: flex;
-    gap: 12px;
+    gap: 6px;
     justify-content: center;
-    margin: 12px 0 8px 0;
+    align-items: center;
+    margin: 10px 0 8px 0;
+    width: 100%;
+    max-width: 320px;
   }
   .initial-slot {
-    width: 44px;
-    height: 52px;
-    border: 2.5px solid #00dcff;
-    border-radius: 8px;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 44px;
+    border: 2px solid #00dcff;
+    border-radius: 6px;
     background: rgba(0, 220, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 15px;
     font-family: 'Press Start 2P', monospace;
     color: #ffffff;
-    box-shadow: inset 0 0 8px rgba(0, 220, 255, 0.3);
+    box-shadow: inset 0 0 6px rgba(0, 220, 255, 0.3);
     transition: all 0.15s ease;
     cursor: pointer;
     user-select: none;
@@ -620,8 +624,12 @@ html = """<!DOCTYPE html>
   .initial-slot.active {
     border-color: #ffd700;
     background: rgba(255, 215, 0, 0.22);
-    box-shadow: 0 0 16px rgba(255, 215, 0, 0.6), inset 0 0 8px #ffd700;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.6), inset 0 0 6px #ffd700;
     animation: slotBlink 1s infinite alternate;
+  }
+  .initial-slot.filled {
+    border-color: #ff6ebe;
+    color: #ffd700;
   }
   @keyframes slotBlink {
     0% { transform: scale(1); border-color: #ffd700; }
@@ -829,10 +837,14 @@ html = """<!DOCTYPE html>
   }
   .lb-name {
     font-family: 'Press Start 2P', monospace;
-    font-size: 8.5px;
+    font-size: 8px;
     color: #ffffff;
     font-weight: bold;
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
   }
   .lb-stage-tag {
     font-size: 6px;
@@ -977,15 +989,19 @@ html = """<!DOCTYPE html>
       <div class="initials-badge">★ NEW HIGH SCORE! ★</div>
       <h3 style="font-size: 11px; color: #ffd700; margin: 8px 0 3px 0; text-align: center;" id="initials-rank-title">TOP 5 BAKER: RANK #1!</h3>
       <div style="font-size: 14px; color: #00dcff; font-family: 'Press Start 2P', monospace; margin-bottom: 8px;" id="initials-score-text">28,500 PTS</div>
-      <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 10px 0; line-height: 1.4;">ENTER YOUR 3-LETTER INITIALS FOR THE ARCADE BOARD:</p>
+      <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 10px 0; line-height: 1.4;">ENTER YOUR NAME FOR THE ARCADE BOARD (UP TO 7 LETTERS):</p>
 
       <div class="initials-slots" id="initials-slots">
         <span class="initial-slot active" id="slot-0">_</span>
         <span class="initial-slot" id="slot-1">_</span>
         <span class="initial-slot" id="slot-2">_</span>
+        <span class="initial-slot" id="slot-3">_</span>
+        <span class="initial-slot" id="slot-4">_</span>
+        <span class="initial-slot" id="slot-5">_</span>
+        <span class="initial-slot" id="slot-6">_</span>
       </div>
 
-      <input type="text" id="initials-input" maxlength="3" autocomplete="off" autocapitalize="characters" style="position:absolute; opacity:0; pointer-events:none;" />
+      <input type="text" id="initials-input" maxlength="7" autocomplete="off" autocapitalize="characters" style="position:absolute; opacity:0; pointer-events:none;" />
 
       <div class="arcade-keypad" id="arcade-keypad">
         <div class="keypad-row">
@@ -2100,8 +2116,9 @@ html = """<!DOCTYPE html>
     localStorage.setItem(LB_STORAGE_KEY, JSON.stringify(list));
   }
 
-  function isHighScoreEligible(s) {
+  function isHighScoreEligible(s, st = 1) {
     if (s <= 0) return false;
+    if (st >= TOTAL_STAGES) return true; // Conquering all 30 levels is an automatic Hall of Fame achievement!
     const list = getLeaderboard();
     if (list.length < 5) return true;
     return s > list[list.length - 1].score;
@@ -2116,8 +2133,8 @@ html = """<!DOCTYPE html>
   }
 
   function addLeaderboardEntry(name, s, st) {
-    let clean = (name || "ASH").trim().toUpperCase().slice(0, 3);
-    if (!clean) clean = "ASH";
+    let clean = (name || "AISHA").trim().toUpperCase().slice(0, 7);
+    if (!clean) clean = "AISHA";
     const list = getLeaderboard();
     const now = new Date();
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -2283,9 +2300,9 @@ html = """<!DOCTYPE html>
           shareOrSavePolaroid();
           return;
         }
-        if (coords.y >= boxY + boxH - 90 && coords.y <= boxY + boxH - 62 && Math.abs(coords.x - WIDTH / 2) < 180) {
+        if (coords.y >= boxY + boxH - 95 && coords.y <= boxY + boxH - 58 && Math.abs(coords.x - WIDTH / 2) < 220) {
           if (stage >= TOTAL_STAGES) {
-            startGame();
+            triggerGrandVictory();
           } else {
             continueMilestone();
           }
@@ -2784,20 +2801,31 @@ html = """<!DOCTYPE html>
   const initialsSubmitBtn = document.getElementById('initials-submit-btn');
   const initialsSkipBtn = document.getElementById('initials-skip-btn');
   const initialsCloseX = document.getElementById('initials-close-x');
-  const slot0 = document.getElementById('slot-0');
-  const slot1 = document.getElementById('slot-1');
-  const slot2 = document.getElementById('slot-2');
-  let slotChars = ['', '', ''];
+  const MAX_NAME_LENGTH = 7;
+  const slotElements = [];
+  for (let i = 0; i < MAX_NAME_LENGTH; i++) {
+    slotElements.push(document.getElementById(`slot-${i}`));
+  }
+  let slotChars = Array(MAX_NAME_LENGTH).fill('');
   let activeSlotIdx = 0;
 
   function promptInitials(s, st) {
     pendingScore = s;
     pendingStage = st;
     const rank = getScoreRank(s);
-    if (initialsRankTitle) initialsRankTitle.textContent = `TOP 5 BAKER: RANK #${rank}!`;
-    if (initialsScoreText) initialsScoreText.textContent = `${s.toLocaleString()} PTS (STAGE ${st})`;
+    if (initialsRankTitle) {
+      if (st >= TOTAL_STAGES) {
+        initialsRankTitle.textContent = `★ GRAND CHAMPION: RANK #${rank}! ★`;
+      } else {
+        initialsRankTitle.textContent = `TOP 5 BAKER: RANK #${rank}!`;
+      }
+    }
+    if (initialsScoreText) {
+      const stageTag = (st >= TOTAL_STAGES) ? "ALL 30 LEVELS! 👑" : `STAGE ${st}`;
+      initialsScoreText.textContent = `${s.toLocaleString()} PTS (${stageTag})`;
+    }
     // Start with empty slots ready for typing
-    slotChars = ['', '', ''];
+    slotChars = Array(MAX_NAME_LENGTH).fill('');
     activeSlotIdx = 0;
     updateInitialsSlots();
     if (initialsModal) initialsModal.style.display = 'flex';
@@ -2810,12 +2838,13 @@ html = """<!DOCTYPE html>
   }
 
   function updateInitialsSlots() {
-    if (slot0) slot0.textContent = slotChars[0] || '_';
-    if (slot1) slot1.textContent = slotChars[1] || '_';
-    if (slot2) slot2.textContent = slotChars[2] || '_';
-
-    [slot0, slot1, slot2].forEach((el, idx) => {
-      if (el) el.classList.toggle('active', idx === activeSlotIdx);
+    slotElements.forEach((el, idx) => {
+      if (el) {
+        const ch = slotChars[idx] || '';
+        el.textContent = ch || '_';
+        el.classList.toggle('active', idx === activeSlotIdx);
+        el.classList.toggle('filled', ch !== '');
+      }
     });
 
     if (initialsInput) {
@@ -2829,7 +2858,7 @@ html = """<!DOCTYPE html>
     playTone(700, 'square', 0.04, 0.1);
     const letter = ch.toUpperCase().slice(0, 1);
     slotChars[activeSlotIdx] = letter;
-    if (activeSlotIdx < 2) {
+    if (activeSlotIdx < MAX_NAME_LENGTH - 1) {
       activeSlotIdx++;
     }
     updateInitialsSlots();
@@ -2851,7 +2880,7 @@ html = """<!DOCTYPE html>
   function submitPlayerInitials() {
     initAudio();
     haptic([30, 40, 60]);
-    let name = slotChars.join('').trim().toUpperCase() || 'ASH';
+    let name = slotChars.join('').trim().toUpperCase() || 'AISHA';
     addLeaderboardEntry(name, pendingScore, pendingStage);
     runScoreSubmitted = true;
     closeInitialsModal();
@@ -2897,8 +2926,8 @@ html = """<!DOCTYPE html>
     initialsWrap.addEventListener('click', (e) => e.stopPropagation());
   }
 
-  // Tapping directly on slot 0, 1, or 2 moves cursor to that slot
-  [slot0, slot1, slot2].forEach((slotEl, idx) => {
+  // Tapping directly on a slot moves cursor to that slot
+  slotElements.forEach((slotEl, idx) => {
     if (slotEl) {
       slotEl.addEventListener('click', (e) => {
         e.preventDefault();
@@ -2929,9 +2958,12 @@ html = """<!DOCTYPE html>
   // Native input sync
   if (initialsInput) {
     initialsInput.addEventListener('input', () => {
-      const val = initialsInput.value.replace(/[^a-zA-Z0-9★]/g, '').toUpperCase().slice(0, 3);
-      slotChars = [val[0] || '', val[1] || '', val[2] || ''];
-      activeSlotIdx = Math.min(val.length, 2);
+      const val = initialsInput.value.replace(/[^a-zA-Z0-9★]/g, '').toUpperCase().slice(0, MAX_NAME_LENGTH);
+      slotChars = Array(MAX_NAME_LENGTH).fill('');
+      for (let i = 0; i < val.length; i++) {
+        slotChars[i] = val[i];
+      }
+      activeSlotIdx = Math.min(val.length, MAX_NAME_LENGTH - 1);
       updateInitialsSlots();
     });
     initialsInput.addEventListener('keydown', (e) => {
@@ -3013,7 +3045,7 @@ html = """<!DOCTYPE html>
       const row = document.createElement('div');
       row.className = `lb-row rank-${entry.rank}` + (highlightNew && entry.isNew ? ' new-entry-glow' : '');
       const trophy = entry.rank === 1 ? '🥇' : (entry.rank === 2 ? '🥈' : (entry.rank === 3 ? '🥉' : `#${entry.rank}`));
-      const stageText = `LVL ${entry.stage || 1}`;
+      const stageText = (entry.stage >= TOTAL_STAGES) ? 'LVL 30 👑' : `LVL ${entry.stage || 1}`;
 
       row.innerHTML = `
         <div class="lb-left">
@@ -3044,7 +3076,8 @@ html = """<!DOCTYPE html>
     let text = `🏆 AISHA'S BIRTHDAY BAKE-OFF: HALL OF FAME 🏆\n`;
     list.forEach(item => {
       const medal = item.rank === 1 ? "🥇" : (item.rank === 2 ? "🥈" : (item.rank === 3 ? "🥉" : `[#${item.rank}]`));
-      text += `${medal} ${item.name} — ${item.score.toLocaleString()} pts (Lvl ${item.stage})\n`;
+      const stageStr = (item.stage >= TOTAL_STAGES) ? "Lvl 30 👑" : `Lvl ${item.stage}`;
+      text += `${medal} ${item.name} — ${item.score.toLocaleString()} pts (${stageStr})\n`;
     });
     text += `\nCan you beat the cosmic high scores? 🎂✨\nhttps://aishababu.vercel.app`;
 
@@ -4138,7 +4171,7 @@ html = """<!DOCTYPE html>
 
     addScorePopup(p.x, p.y - 45, "🎁 " + reward.badge, COLORS.GOLD);
 
-    btnAction.textContent = (stage < TOTAL_STAGES) ? ('STAGE ' + (stage + 1) + ' ▶') : 'PLAY AGAIN ★';
+    btnAction.textContent = (stage < TOTAL_STAGES) ? ('STAGE ' + (stage + 1) + ' ▶') : 'CLAIM VICTORY 🏆';
     syncUIState();
   }
 
@@ -4173,7 +4206,7 @@ html = """<!DOCTYPE html>
         return;
       }
       if (stage >= TOTAL_STAGES) {
-        startGame();
+        triggerGrandVictory();
       } else {
         continueMilestone();
       }
@@ -4335,6 +4368,10 @@ html = """<!DOCTYPE html>
     stopMic();
     stopHappyBirthdaySong();
     collapseSettingsDock();
+    if (stage >= TOTAL_STAGES) {
+      triggerGrandVictory();
+      return;
+    }
     stage++;
     updateHiStage(stage);
     itemsCaughtStage = 0;
@@ -4384,31 +4421,55 @@ html = """<!DOCTYPE html>
     haptic(30);
   }
 
+  function triggerGrandVictory() {
+    stopMic();
+    stopHappyBirthdaySong();
+    collapseSettingsDock();
+    ceremonyCandles = [];
+    ceremonyAllBlown = false;
+    ceremonySmokeParticles = [];
+    presentGachaActive = false;
+    presentGachaOpened = false;
+
+    score += 2000;
+    if (score > hiScore) {
+      hiScore = score;
+      localStorage.setItem('anti_grav_hiscore', hiScore);
+    }
+    state = 'WIN';
+    btnAction.textContent = 'AGAIN';
+    playHappyBirthdaySong();
+    haptic([40, 50, 40, 50, 100]);
+    syncUIState();
+
+    // Trigger celebratory fireworks display
+    for (let k = 0; k < 8; k++) {
+      setTimeout(() => {
+        addFireworks(80 + Math.random() * (WIDTH - 160), 100 + Math.random() * 200,
+                     bColors[Math.floor(Math.random() * bColors.length)]);
+      }, k * 160);
+    }
+
+    if (!runScoreSubmitted) {
+      runScoreSubmitted = true;
+      // All 30 levels conquered: Prompt player initials for the Hall of Fame!
+      setTimeout(() => promptInitials(score, 30), 650);
+    }
+  }
+
   function nextStage() {
     stopMic();
     stopHappyBirthdaySong();
     collapseSettingsDock();
+    if (stage >= TOTAL_STAGES) {
+      triggerGrandVictory();
+      return;
+    }
     stage++;
     updateHiStage(stage);
     if (stage > TOTAL_STAGES) {
-      score += 2000;
-      if (score > hiScore) {
-        hiScore = score;
-        localStorage.setItem('anti_grav_hiscore', hiScore);
-      }
-      state = 'WIN';
-      btnAction.textContent = 'AGAIN';
-      playHappyBirthdaySong();
-      haptic([40, 50, 40, 50, 100]);
-      syncUIState();
-      if (!runScoreSubmitted) {
-        runScoreSubmitted = true;
-        if (isHighScoreEligible(score)) {
-          setTimeout(() => promptInitials(score, 30), 600);
-        } else {
-          setTimeout(() => openLeaderboardModal(false), 700);
-        }
-      }
+      triggerGrandVictory();
+      return;
     } else {
       itemsCaughtStage = 0;
       timeLeft = STAGE_DURATION;
@@ -7834,7 +7895,7 @@ html = """<!DOCTYPE html>
           ctx.font = '8px "Press Start 2P", monospace';
           ctx.fillText(gachaWonPerk.desc, WIDTH / 2, boxY + 452);
 
-          const advPrompt = (stage < TOTAL_STAGES) ? `▶ TAP TO ADVANCE TO LEVEL ${stage + 1} ◀` : "★ TAP TO PLAY AGAIN ★";
+          const advPrompt = (stage < TOTAL_STAGES) ? `▶ TAP TO ADVANCE TO LEVEL ${stage + 1} ◀` : "★ CLAIM GRAND CHAMPION VICTORY! 🏆 ★";
           const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
           ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
           ctx.font = '11px "Press Start 2P", monospace';
