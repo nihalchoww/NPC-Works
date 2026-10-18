@@ -98,6 +98,11 @@ html = """<!DOCTYPE html>
     left: max(14px, env(safe-area-inset-left));
     font-size: 16px;
   }
+  #mute-btn {
+    top: max(14px, env(safe-area-inset-top));
+    left: calc(max(14px, env(safe-area-inset-left)) + 46px);
+    font-size: 16px;
+  }
   /* Mobile Thumb Controls */
   #touch-controls {
     display: none;
@@ -189,6 +194,7 @@ html = """<!DOCTYPE html>
   <div class="scanlines"></div>
   <canvas id="gameCanvas"></canvas>
   <button class="hud-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
+  <button class="hud-btn" id="mute-btn" title="Toggle Sound">🔊</button>
   <button class="hud-btn" id="pause-btn" title="Pause / Resume">⏸</button>
   <div id="touch-controls">
     <div class="thumb-zone zone-left">
@@ -217,6 +223,85 @@ html = """<!DOCTYPE html>
 
   // Web Audio Synthesizer (Retro 16-bit arcade sound chip)
   let audioCtx = null;
+  let bgmMuted = localStorage.getItem('anti_grav_muted') === 'true';
+  let bgmGain = null;
+  let bgmInterval = null;
+  let bgmStep = 0;
+
+  // Upbeat 8-bit chiptune bakery melody & bass (with Happy Birthday phrase woven in!)
+  const MELODY_NOTES = [
+    523, 0, 523, 587, 523, 659, 587, 0,
+    523, 0, 523, 587, 523, 784, 659, 0,
+    523, 0, 523, 1046, 880, 659, 587, 523,
+    988, 0, 988, 880, 659, 784, 659, 0
+  ];
+  const BASS_NOTES = [
+    130.8, 0, 196.0, 130.8, 174.6, 0, 130.8, 196.0,
+    146.8, 0, 220.0, 146.8, 130.8, 0, 196.0, 130.8,
+    174.6, 0, 220.0, 174.6, 130.8, 0, 196.0, 130.8,
+    196.0, 0, 246.9, 196.0, 130.8, 0, 196.0, 130.8
+  ];
+
+  function startBgm() {
+    if (bgmInterval || !audioCtx) return;
+    try {
+      bgmGain = audioCtx.createGain();
+      bgmGain.gain.setValueAtTime(bgmMuted ? 0.0001 : 0.045, audioCtx.currentTime);
+      bgmGain.connect(audioCtx.destination);
+
+      bgmInterval = setInterval(() => {
+        if (!audioCtx || audioCtx.state !== 'running') return;
+        if (state === 'PAUSED' || state === 'GAME_OVER') return;
+
+        const mFreq = MELODY_NOTES[bgmStep % MELODY_NOTES.length];
+        const bFreq = BASS_NOTES[bgmStep % BASS_NOTES.length];
+        bgmStep++;
+
+        // Lead chiptune square wave
+        if (mFreq > 0 && !bgmMuted) {
+          try {
+            const osc = audioCtx.createOscillator();
+            const noteGain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(mFreq, audioCtx.currentTime);
+            noteGain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.11);
+            osc.connect(noteGain);
+            noteGain.connect(bgmGain);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.11);
+          } catch(e) {}
+        }
+
+        // Bass triangle wave
+        if (bFreq > 0 && !bgmMuted) {
+          try {
+            const bOsc = audioCtx.createOscillator();
+            const bGain = audioCtx.createGain();
+            bOsc.type = 'triangle';
+            bOsc.frequency.setValueAtTime(bFreq, audioCtx.currentTime);
+            bGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            bGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.13);
+            bOsc.connect(bGain);
+            bGain.connect(bgmGain);
+            bOsc.start();
+            bOsc.stop(audioCtx.currentTime + 0.13);
+          } catch(e) {}
+        }
+      }, 140);
+    } catch(e) {}
+  }
+
+  function setMuted(muted) {
+    bgmMuted = muted;
+    localStorage.setItem('anti_grav_muted', bgmMuted);
+    const muteBtn = document.getElementById('mute-btn');
+    if (muteBtn) muteBtn.textContent = bgmMuted ? '🔇' : '🔊';
+    if (bgmGain && audioCtx) {
+      bgmGain.gain.setValueAtTime(bgmMuted ? 0.0001 : 0.045, audioCtx.currentTime);
+    }
+  }
+
   function initAudio() {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -224,13 +309,14 @@ html = """<!DOCTYPE html>
     if (audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
+    startBgm();
   }
   ['touchstart', 'pointerdown', 'click', 'keydown'].forEach(ev => {
     window.addEventListener(ev, initAudio, { passive: true, once: false });
   });
 
   function playTone(freq, type, duration, gainVal=0.15) {
-    if (!audioCtx || audioCtx.state !== 'running') return;
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
     try {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -261,6 +347,43 @@ html = """<!DOCTYPE html>
     melody.forEach((f, i) => {
       setTimeout(() => playTone(f, 'square', 0.14, 0.16), i * 110);
     });
+  }
+  function sfxBlow() {
+    initAudio();
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+    try {
+      const bufferSize = audioCtx.sampleRate * 0.25;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 750;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+    } catch(e) {}
+  }
+  function sfxPowerup() {
+    initAudio();
+    if (bgmMuted) return;
+    [440, 554, 659, 880].forEach((f, i) => {
+      setTimeout(() => playTone(f, 'sine', 0.12, 0.18), i * 50);
+    });
+  }
+  function sfxCombo() {
+    initAudio();
+    if (bgmMuted) return;
+    playTone(880, 'triangle', 0.12, 0.2);
+    setTimeout(() => playTone(1174, 'triangle', 0.16, 0.22), 60);
   }
 
   // Haptic feedback
@@ -363,6 +486,11 @@ html = """<!DOCTYPE html>
       haptic(25);
       return;
     }
+    if (state === 'CANDLE_CEREMONY') {
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      blowCandles(coords.x, coords.y);
+      return;
+    }
     if (state === 'MILESTONE') {
       continueMilestone();
       return;
@@ -390,6 +518,7 @@ html = """<!DOCTYPE html>
     keys[e.code] = true;
     if (e.code === 'Space') {
       if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
+      else if (state === 'CANDLE_CEREMONY') blowCandles();
       else if (state === 'MILESTONE') continueMilestone();
     }
     if (e.code === 'Escape') {
@@ -406,6 +535,18 @@ html = """<!DOCTYPE html>
   const actionZone = document.getElementById('action-zone');
   const btnPause = document.getElementById('pause-btn');
   const btnFS = document.getElementById('fs-btn');
+  const btnMute = document.getElementById('mute-btn');
+
+  if (btnMute) {
+    btnMute.textContent = bgmMuted ? '🔇' : '🔊';
+    btnMute.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      initAudio();
+      setMuted(!bgmMuted);
+      haptic(20);
+    });
+  }
 
   function syncUIState() {
     if (actionZone) {
@@ -440,6 +581,7 @@ html = """<!DOCTYPE html>
     initAudio();
     haptic(25);
     if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') startGame();
+    else if (state === 'CANDLE_CEREMONY') blowCandles();
     else if (state === 'MILESTONE') continueMilestone();
     else if (state === 'PLAYING') state = 'PAUSED';
     else if (state === 'PAUSED') state = 'PLAYING';
@@ -567,9 +709,162 @@ html = """<!DOCTYPE html>
     }
   }
 
-  // Items
+  // Items & Gameplay Enhancements
   let items = [];
   let spawnTimer = 0.5;
+  let comboStreak = 0;
+  let magnetTime = 0;
+  let shieldActive = false;
+  let slowmoTime = 0;
+  let sugarRushCount = 0;
+  let powerupSpawnTimer = 14;
+  let hazardWarnings = [];
+
+  // Interactive Candle Blowout Ceremony
+  let ceremonyCandles = [];
+  let ceremonyAllBlown = false;
+  let ceremonySmokeParticles = [];
+
+  const MILESTONE_MESSAGES = {
+    5: {
+      title: "★ SWEET START! ★",
+      sub: "HAPPY BIRTHDAY AISHA! 🧁",
+      note: "LEVEL 5 COMPLETE! THE GALAXY BAKERY IS HEATING UP!",
+      bonus: "+1,000 WISH BONUS AWARDED"
+    },
+    10: {
+      title: "★ CHAMPION BAKER! ★",
+      sub: "HAPPY BIRTHDAY AISHA! 🍰",
+      note: "10 LEVELS CONQUERED! AISHA IS 10X SWEETER TODAY!",
+      bonus: "+1,000 CHAMPION BONUS AWARDED"
+    },
+    15: {
+      title: "★ HALFWAY FEAST! ★",
+      sub: "HAPPY BIRTHDAY AISHA! 🌟",
+      note: "HALFWAY THROUGH SPACE! MAKE YOUR BIGGEST BIRTHDAY WISH!",
+      bonus: "+1,000 WISH BONUS AWARDED"
+    },
+    20: {
+      title: "★ GRAND PASTRY MASTER! ★",
+      sub: "HAPPY BIRTHDAY AISHA! 🎂",
+      note: "20 LEVELS DOWN! AISHA IS AN ABSOLUTE BAKING LEGEND!",
+      bonus: "+1,000 MASTER BONUS AWARDED"
+    },
+    25: {
+      title: "★ COSMIC CONFECTIONER! ★",
+      sub: "HAPPY BIRTHDAY AISHA! 👑",
+      note: "ONLY 5 LEVELS REMAIN! THE ULTIMATE BIRTHDAY CROWN AWAITS!",
+      bonus: "+1,000 CROWN BONUS AWARDED"
+    },
+    30: {
+      title: "★ GRAND CHAMPION BAKER! ★",
+      sub: "HAPPY BIRTHDAY AISHA! 🎂🎉",
+      note: "ALL 30 LEVELS CONQUERED! AISHA'S ULTIMATE BIRTHDAY WISH GRANTED!",
+      bonus: "★ GALAXY BAKE-OFF COMPLETED! ★"
+    }
+  };
+
+  function initCandleCeremony() {
+    ceremonyAllBlown = false;
+    ceremonySmokeParticles = [];
+    ceremonyCandles = [];
+
+    const cakeCenterY = HEIGHT / 2 + 75;
+    const offsets = [-80, -40, 0, 40, 80];
+    offsets.forEach((ox, idx) => {
+      ceremonyCandles.push({
+        id: idx,
+        x: WIDTH / 2 + ox,
+        y: cakeCenterY - 120,
+        lit: true,
+        flicker: Math.random() * 10,
+        color: ['#ff4da6', '#00dcff', '#ffd700', '#ff9100', '#37be46'][idx % 5]
+      });
+    });
+
+    btnAction.textContent = 'BLOW 🎂';
+    haptic(40);
+  }
+
+  function blowCandles(tapX, tapY) {
+    if (ceremonyAllBlown) {
+      if (stage >= TOTAL_STAGES) {
+        startGame();
+      } else {
+        continueMilestone();
+      }
+      return;
+    }
+
+    const litCandles = ceremonyCandles.filter(c => c.lit);
+    if (litCandles.length > 0) {
+      let targetCandles = [];
+      if (tapX !== undefined && tapY !== undefined) {
+        const sorted = [...litCandles].sort((a, b) => Math.hypot(a.x - tapX, a.y - tapY) - Math.hypot(b.x - tapX, b.y - tapY));
+        if (Math.hypot(WIDTH / 2 - tapX, (HEIGHT / 2 + 30) - tapY) < 160) {
+          targetCandles = litCandles;
+        } else {
+          targetCandles = sorted.slice(0, 2);
+        }
+      } else {
+        targetCandles = litCandles.slice(0, 2);
+      }
+
+      targetCandles.forEach(c => {
+        c.lit = false;
+        for (let i = 0; i < 16; i++) {
+          ceremonySmokeParticles.push({
+            x: c.x + (Math.random() - 0.5) * 6,
+            y: c.y - 25,
+            vx: (Math.random() - 0.5) * 30,
+            vy: -40 - Math.random() * 55,
+            radius: 4 + Math.random() * 5,
+            life: 1.1,
+            maxLife: 1.1,
+            alpha: 0.8
+          });
+        }
+      });
+
+      sfxBlow();
+      haptic([25, 30]);
+
+      if (ceremonyCandles.every(c => !c.lit)) {
+        ceremonyAllBlown = true;
+        score += 1000;
+        if (score > hiScore) {
+          hiScore = score;
+          localStorage.setItem('anti_grav_hiscore', hiScore);
+        }
+        sfxWin();
+        haptic([50, 40, 50, 40, 120]);
+        for (let k = 0; k < 6; k++) {
+          setTimeout(() => {
+            addFireworks(120 + Math.random() * (WIDTH - 240), 140 + Math.random() * 220,
+                         bColors[Math.floor(Math.random() * bColors.length)]);
+          }, k * 180);
+        }
+        btnAction.textContent = (stage < TOTAL_STAGES) ? ('STAGE ' + (stage + 1) + ' ▶') : 'PLAY AGAIN ★';
+        syncUIState();
+      }
+    }
+  }
+
+  function activatePowerup(type) {
+    if (type === 'MAGNET') {
+      magnetTime = 7.0;
+      addScorePopup(player.x, player.y - 70, "🧲 MAGNET ACTIVE!", COLORS.GOLD);
+    } else if (type === 'SHIELD') {
+      shieldActive = true;
+      addScorePopup(player.x, player.y - 70, "🛡️ SHIELD READY!", COLORS.CYAN);
+    } else if (type === 'SLOWMO') {
+      slowmoTime = 6.0;
+      addScorePopup(player.x, player.y - 70, "⏱️ ZERO-G SLOW-MO!", COLORS.PURPLE);
+    } else if (type === 'SUGAR_RUSH') {
+      sugarRushCount = 6;
+      addScorePopup(player.x, player.y - 70, "🍓 2X SUGAR RUSH!", COLORS.PINK);
+    }
+  }
 
   function startGame() {
     score = 0;
@@ -578,6 +873,16 @@ html = """<!DOCTYPE html>
     itemsCaughtStage = 0;
     timeLeft = STAGE_DURATION;
     shakeTime = 0;
+    comboStreak = 0;
+    magnetTime = 0;
+    shieldActive = false;
+    slowmoTime = 0;
+    sugarRushCount = 0;
+    powerupSpawnTimer = 14;
+    hazardWarnings = [];
+    ceremonyCandles = [];
+    ceremonyAllBlown = false;
+    ceremonySmokeParticles = [];
     items = [];
     particles = [];
     trails = [];
@@ -594,6 +899,11 @@ html = """<!DOCTYPE html>
     itemsCaughtStage = 0;
     timeLeft = STAGE_DURATION;
     items = [];
+    hazardWarnings = [];
+    comboStreak = 0;
+    ceremonyCandles = [];
+    ceremonyAllBlown = false;
+    ceremonySmokeParticles = [];
     state = 'PLAYING';
     btnAction.textContent = 'PAUSE';
     syncUIState();
@@ -602,20 +912,6 @@ html = """<!DOCTYPE html>
   }
 
   function nextStage() {
-    if (stage === 10 || stage === 20) {
-      score += 1000;
-      if (score > hiScore) {
-        hiScore = score;
-        localStorage.setItem('anti_grav_hiscore', hiScore);
-      }
-      state = 'MILESTONE';
-      btnAction.textContent = 'STAGE ' + (stage + 1);
-      sfxWin();
-      haptic([40, 50, 40, 50, 100]);
-      syncUIState();
-      return;
-    }
-
     stage++;
     if (stage > TOTAL_STAGES) {
       score += 2000;
@@ -632,6 +928,7 @@ html = """<!DOCTYPE html>
       itemsCaughtStage = 0;
       timeLeft = STAGE_DURATION;
       items = [];
+      hazardWarnings = [];
       state = 'PLAYING';
       btnAction.textContent = 'PAUSE';
       syncUIState();
@@ -994,6 +1291,50 @@ html = """<!DOCTYPE html>
     ctx.restore();
   }
 
+  function drawGiftbox(ctx, x, y, rot, powerType) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.scale(1.4, 1.4);
+
+    // Glowing aura
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 16;
+
+    // Box body
+    ctx.fillStyle = '#ff0055';
+    ctx.fillRect(-14, -10, 28, 24);
+
+    // Gold ribbon
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(-4, -10, 8, 24);
+    ctx.fillRect(-14, 0, 28, 6);
+
+    // Lid
+    ctx.fillStyle = '#d60045';
+    ctx.fillRect(-16, -14, 32, 6);
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(-4, -14, 8, 6);
+
+    // Bow on top
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(-5, -17, 5, 0, Math.PI * 2);
+    ctx.arc(5, -17, 5, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Power icon badge
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'center';
+    const icon = (powerType === 'MAGNET') ? '🧲' : (powerType === 'SHIELD' ? '🛡️' : (powerType === 'SLOWMO' ? '⏱️' : '🍓'));
+    ctx.fillText(icon, 0, 8);
+
+    ctx.restore();
+  }
+
   // Update
   let lastTime = performance.now();
   function update(dt) {
@@ -1035,8 +1376,21 @@ html = """<!DOCTYPE html>
       p.life -= dt;
     });
 
+    // Candle Ceremony Smoke Particles
+    ceremonySmokeParticles = ceremonySmokeParticles.filter(p => p.life > 0);
+    ceremonySmokeParticles.forEach(p => {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.radius += dt * 7;
+      p.life -= dt;
+      p.alpha = Math.max(0, p.life / p.maxLife);
+    });
+
     if (state === 'PLAYING') {
       btnAction.textContent = 'PAUSE';
+
+      // Power-up timers
+      if (slowmoTime > 0) slowmoTime -= dt;
 
       // Player Movement (responsive drag + keys + buttons)
       let moveDir = 0;
@@ -1068,27 +1422,80 @@ html = """<!DOCTYPE html>
         else timeLeft = STAGE_DURATION;
       }
 
-      // Spawner
+      // Spawner & Hazard Warnings
       const speed = 190 + Math.min(360, (stage - 1) * 12.5);
       const interval = Math.max(0.40, 1.15 - (stage - 1) * 0.025);
       spawnTimer -= dt;
       if (spawnTimer <= 0) {
         spawnTimer = interval;
         const isBad = Math.random() < Math.min(0.45, 0.28 + (stage - 1) * 0.006);
-        const kind = isBad ? BAD_KINDS[Math.floor(Math.random() * BAD_KINDS.length)]
-                           : GOOD_KINDS[Math.floor(Math.random() * GOOD_KINDS.length)];
+        const minX = Math.min(90, WIDTH * 0.12);
+        const maxX = WIDTH - minX;
+        const itemX = minX + Math.random() * (maxX - minX);
+
+        if (isBad) {
+          const kind = BAD_KINDS[Math.floor(Math.random() * BAD_KINDS.length)];
+          hazardWarnings.push({
+            x: itemX,
+            timer: 0.45,
+            kind: kind,
+            vy: speed,
+            vrot: (Math.random() - 0.5) * 4.5
+          });
+        } else {
+          const kind = GOOD_KINDS[Math.floor(Math.random() * GOOD_KINDS.length)];
+          items.push({
+            x: itemX,
+            y: -40,
+            vy: speed,
+            isBad: false,
+            isPowerup: false,
+            kind: kind,
+            pts: 50,
+            rot: 0,
+            vrot: (Math.random() - 0.5) * 4.5,
+            color: kind === 'CAKE' ? COLORS.PINK : COLORS.GOLD
+          });
+        }
+      }
+
+      // Process Hazard Warnings (release dropping obstacles)
+      for (let w = hazardWarnings.length - 1; w >= 0; w--) {
+        hazardWarnings[w].timer -= dt;
+        if (hazardWarnings[w].timer <= 0) {
+          const hw = hazardWarnings[w];
+          items.push({
+            x: hw.x,
+            y: -35,
+            vy: hw.vy,
+            isBad: true,
+            isPowerup: false,
+            kind: hw.kind,
+            pts: 0,
+            rot: 0,
+            vrot: hw.vrot,
+            color: COLORS.RED
+          });
+          hazardWarnings.splice(w, 1);
+        }
+      }
+
+      // Occasional Power-Up Giftbox Spawner (~every 18s)
+      powerupSpawnTimer -= dt;
+      if (powerupSpawnTimer <= 0) {
+        powerupSpawnTimer = 16 + Math.random() * 8;
         const minX = Math.min(90, WIDTH * 0.12);
         const maxX = WIDTH - minX;
         items.push({
           x: minX + Math.random() * (maxX - minX),
           y: -40,
-          vy: speed,
-          isBad: isBad,
-          kind: kind,
-          pts: 50,
+          vy: speed * 0.85,
+          isBad: false,
+          isPowerup: true,
+          powerType: ['MAGNET', 'SHIELD', 'SLOWMO', 'SUGAR_RUSH'][Math.floor(Math.random() * 4)],
           rot: 0,
-          vrot: (Math.random() - 0.5) * 4.5,
-          color: isBad ? COLORS.RED : (kind === 'CAKE' ? COLORS.PINK : COLORS.GOLD)
+          vrot: (Math.random() - 0.5) * 3,
+          color: COLORS.GOLD
         });
       }
 
@@ -1106,6 +1513,19 @@ html = """<!DOCTYPE html>
         w: 44,
         h: 90
       };
+
+      // Golden Whisk Magnet Effect: Pull nearby good items towards tray
+      if (magnetTime > 0) {
+        magnetTime -= dt;
+        items.forEach(it => {
+          if (!it.isBad) {
+            const d = Math.abs(player.x - it.x);
+            if (d < 300 && it.y < trayRect.y + 40) {
+              it.x += (player.x - it.x) * Math.min(1.0, 5.0 * dt);
+            }
+          }
+        });
+      }
 
       // Emit animated jet spark particles downwards from boots
       if (Math.random() < 0.65) {
@@ -1125,7 +1545,8 @@ html = """<!DOCTYPE html>
 
       for (let i = items.length - 1; i >= 0; i--) {
         const item = items[i];
-        item.y += item.vy * dt;
+        const curVy = (item.isBad && slowmoTime > 0) ? item.vy * 0.52 : item.vy;
+        item.y += curVy * dt;
         item.rot += item.vrot * dt;
 
         // Leave stardust trail
@@ -1135,7 +1556,7 @@ html = """<!DOCTYPE html>
             y: item.y - 10,
             vy: -15,
             life: 0.8,
-            color: item.isBad ? 'rgba(255, 50, 70, 0.6)' : 'rgba(0, 255, 136, 0.6)'
+            color: item.isBad ? 'rgba(255, 50, 70, 0.6)' : (item.isPowerup ? 'rgba(255, 215, 0, 0.8)' : 'rgba(0, 255, 136, 0.6)')
           });
         }
 
@@ -1143,21 +1564,60 @@ html = """<!DOCTYPE html>
         if (!item.isBad) {
           if (item.x >= trayRect.x && item.x <= trayRect.x + trayRect.w &&
               item.y >= trayRect.y && item.y <= trayRect.y + trayRect.h + 24) {
-            score += 50;
-            itemsCaughtStage++;
-            addCollectBurst(item.x, item.y, '#00ff88');
-            addScorePopup(item.x, item.y - 20, "+50", '#00ff88');
-            sfxCatch();
-            haptic(15);
-            items.splice(i, 1);
+
+            if (item.isPowerup) {
+              score += 100;
+              itemsCaughtStage = Math.min(ITEMS_PER_STAGE, itemsCaughtStage + 1);
+              activatePowerup(item.powerType);
+              addCollectBurst(item.x, item.y, COLORS.GOLD);
+              sfxPowerup();
+              haptic(25);
+              items.splice(i, 1);
+            } else {
+              let ptsAwarded = 50;
+              let popupText = "+50";
+              if (sugarRushCount > 0) {
+                sugarRushCount--;
+                ptsAwarded = 100;
+                popupText = "+100 (2X!)";
+              }
+              score += ptsAwarded;
+              itemsCaughtStage++;
+              comboStreak++;
+
+              if (comboStreak === 5) {
+                score += 75;
+                addScorePopup(player.x, player.y - 75, "5x COMBO! +75", COLORS.GOLD);
+                sfxCombo();
+              } else if (comboStreak >= 10 && comboStreak % 5 === 0) {
+                score += 150;
+                addScorePopup(player.x, player.y - 75, comboStreak + "x BAKING FEVER! +150", '#00f0ff');
+                addCollectBurst(player.x, player.y - 60, '#00f0ff');
+                sfxCombo();
+              }
+
+              addCollectBurst(item.x, item.y, '#00ff88');
+              addScorePopup(item.x, item.y - 20, popupText, sugarRushCount > 0 ? '#ff6ebe' : '#00ff88');
+              sfxCatch();
+              haptic(15);
+              items.splice(i, 1);
+            }
 
             if (itemsCaughtStage >= ITEMS_PER_STAGE) {
-              score += 500;
-              state = 'STAGE_CLEAR';
-              stageClearTime = 1.8;
-              addCollectBurst(WIDTH / 2, HEIGHT / 2, COLORS.GOLD);
-              sfxWin();
-              haptic([30, 30, 60]);
+              if (stage % 5 === 0) {
+                score += 500;
+                state = 'CANDLE_CEREMONY';
+                initCandleCeremony();
+                sfxWin();
+                syncUIState();
+              } else {
+                score += 500;
+                state = 'STAGE_CLEAR';
+                stageClearTime = 1.8;
+                addCollectBurst(WIDTH / 2, HEIGHT / 2, COLORS.GOLD);
+                sfxWin();
+                haptic([30, 30, 60]);
+              }
             }
             continue;
           }
@@ -1166,6 +1626,20 @@ html = """<!DOCTYPE html>
           if (player.invincible <= 0) {
             if (item.x >= bodyRect.x && item.x <= bodyRect.x + bodyRect.w &&
                 item.y >= bodyRect.y && item.y <= bodyRect.y + bodyRect.h) {
+
+              if (shieldActive) {
+                shieldActive = false;
+                player.invincible = 1.2;
+                shakeTime = 0.2;
+                addScorePopup(player.x, player.y - 50, "SHIELD BLOCKED!", COLORS.CYAN);
+                addCollectBurst(item.x, item.y, COLORS.CYAN);
+                sfxCatch();
+                haptic([30, 40]);
+                items.splice(i, 1);
+                continue;
+              }
+
+              comboStreak = 0;
               lives--;
               shakeTime = 0.35;
               player.invincible = 1.5;
@@ -1182,16 +1656,21 @@ html = """<!DOCTYPE html>
 
         // Clean off-screen
         if (item.y > HEIGHT + 40) {
+          if (!item.isBad && !item.isPowerup) {
+            comboStreak = 0;
+          }
           items.splice(i, 1);
         }
       }
     } else if (state === 'STAGE_CLEAR') {
       stageClearTime -= dt;
       if (stageClearTime <= 0) nextStage();
-    } else if (state === 'WIN' || state === 'MILESTONE') {
-      if (Math.random() < 0.08) {
-        addFireworks(100 + Math.random() * (WIDTH - 200), 100 + Math.random() * (HEIGHT * 0.5),
-                     bColors[Math.floor(Math.random() * bColors.length)]);
+    } else if (state === 'WIN' || state === 'MILESTONE' || state === 'CANDLE_CEREMONY') {
+      if (ceremonyAllBlown || state === 'WIN' || state === 'MILESTONE') {
+        if (Math.random() < 0.08) {
+          addFireworks(100 + Math.random() * (WIDTH - 200), 100 + Math.random() * (HEIGHT * 0.5),
+                       bColors[Math.floor(Math.random() * bColors.length)]);
+        }
       }
     }
   }
@@ -1205,23 +1684,41 @@ html = """<!DOCTYPE html>
       ctx.translate(sx, sy);
     }
 
-    // Space Deep Radial Gradient
-    const bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.8);
-    bgGrad.addColorStop(0, '#1a1040');
-    bgGrad.addColorStop(0.65, '#0b0621');
-    bgGrad.addColorStop(1, '#050210');
+    // Dynamic Cosmic Themes across the 30 stages
+    let bgGrad;
+    if (stage <= 10) {
+      // Theme 1: Deep Space Party (Stages 1-10)
+      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.8);
+      bgGrad.addColorStop(0, '#1a1040');
+      bgGrad.addColorStop(0.65, '#0b0621');
+      bgGrad.addColorStop(1, '#050210');
+    } else if (stage <= 20) {
+      // Theme 2: Sunset Galaxy (Stages 11-20)
+      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.8);
+      bgGrad.addColorStop(0, '#361138');
+      bgGrad.addColorStop(0.65, '#1b0626');
+      bgGrad.addColorStop(1, '#090112');
+    } else {
+      // Theme 3: Cosmic Cyber-Disco (Stages 21-30)
+      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.8);
+      bgGrad.addColorStop(0, '#1f0942');
+      bgGrad.addColorStop(0.65, '#0c0228');
+      bgGrad.addColorStop(1, '#030010');
+    }
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    // Glowing Nebula clouds
+    // Glowing Nebula clouds (matching cosmic theme)
     ctx.save();
-    ctx.globalAlpha = 0.18;
+    ctx.globalAlpha = 0.20;
+    const neb1Col = stage <= 10 ? '#ff00aa' : (stage <= 20 ? '#ff7700' : '#bd00ff');
+    const neb2Col = stage <= 10 ? '#00dcff' : (stage <= 20 ? '#ff0077' : '#00f0ff');
     const neb1 = ctx.createRadialGradient(WIDTH * 0.25, HEIGHT * 0.35, 10, WIDTH * 0.25, HEIGHT * 0.35, 260);
-    neb1.addColorStop(0, '#ff00aa'); neb1.addColorStop(1, 'transparent');
+    neb1.addColorStop(0, neb1Col); neb1.addColorStop(1, 'transparent');
     ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
     const neb2 = ctx.createRadialGradient(WIDTH * 0.75, HEIGHT * 0.65, 10, WIDTH * 0.75, HEIGHT * 0.65, 280);
-    neb2.addColorStop(0, '#00dcff'); neb2.addColorStop(1, 'transparent');
+    neb2.addColorStop(0, neb2Col); neb2.addColorStop(1, 'transparent');
     ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
     ctx.restore();
 
@@ -1419,6 +1916,28 @@ html = """<!DOCTYPE html>
       ctx.fillRect(c.x, c.y, c.sz, c.sz * 1.6);
     });
 
+    // Hazard Drop Warning Markers (exclamation marks at column top)
+    hazardWarnings.forEach(hw => {
+      ctx.save();
+      const flash = Math.sin(globalTime * 30) > 0;
+      ctx.translate(hw.x, 62);
+      ctx.fillStyle = flash ? '#ff2040' : '#880015';
+      ctx.shadowColor = '#ff2040';
+      ctx.shadowBlur = flash ? 16 : 4;
+      ctx.beginPath();
+      ctx.moveTo(0, -14); ctx.lineTo(14, 0); ctx.lineTo(0, 14); ctx.lineTo(-14, 0);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('!', 0, 4);
+      ctx.strokeStyle = flash ? 'rgba(255, 30, 60, 0.45)' : 'rgba(255, 30, 60, 0.12)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(0, 14); ctx.lineTo(0, 95); ctx.stroke();
+      ctx.restore();
+    });
+
     // Falling Items with Glowing Auras
     items.forEach(item => {
       ctx.save();
@@ -1433,6 +1952,15 @@ html = """<!DOCTYPE html>
         ctx.fillRect(item.x - 26, item.y - trailH, 52, trailH + 20);
         ctx.shadowColor = '#ff2040';
         ctx.shadowBlur = 18;
+      } else if (item.isPowerup) {
+        // Shimmering Golden Power-Up Aura
+        grad.addColorStop(0, 'rgba(255, 215, 0, 0)');
+        grad.addColorStop(0.65, 'rgba(255, 215, 0, 0.35)');
+        grad.addColorStop(1, 'rgba(255, 215, 0, 0.7)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(item.x - 26, item.y - trailH, 52, trailH + 20);
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 20;
       } else {
         // Faint glowing green trail / particle aura
         grad.addColorStop(0, 'rgba(0, 255, 136, 0)');
@@ -1445,7 +1973,8 @@ html = """<!DOCTYPE html>
       }
 
       // 1.5x scaled pixel items
-      if (item.kind === 'CAKE') drawCake(ctx, item.x, item.y, item.rot);
+      if (item.isPowerup) drawGiftbox(ctx, item.x, item.y, item.rot, item.powerType);
+      else if (item.kind === 'CAKE') drawCake(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'CANDY') drawCandy(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'STRAWBERRY') drawStrawberry(ctx, item.x, item.y, item.rot);
       else if (item.kind === 'CHERRY') drawCherry(ctx, item.x, item.y, item.rot);
@@ -1648,6 +2177,31 @@ html = """<!DOCTYPE html>
           ctx.fillRect(cx - 1, topY - 18 + cFlick * 0.5, 2, 2);
         });
 
+        // Frosting Shield Bubble around Aisha
+        if (shieldActive) {
+          ctx.save();
+          const shieldPulse = Math.sin(globalTime * 6) * 3;
+          ctx.shadowColor = '#00f0ff';
+          ctx.shadowBlur = 18;
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.85)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, -30, 70 + shieldPulse, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = 'rgba(0, 220, 255, 0.12)';
+          ctx.fill();
+
+          for (let si = 0; si < 3; si++) {
+            const sAngle = globalTime * 4 + si * (Math.PI * 2 / 3);
+            const sx = Math.cos(sAngle) * (70 + shieldPulse);
+            const sy = -30 + Math.sin(sAngle) * (70 + shieldPulse);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(sx - 3, sy - 3, 6, 6);
+          }
+          ctx.restore();
+        }
+
         ctx.restore();
       }
     }
@@ -1698,6 +2252,56 @@ html = """<!DOCTYPE html>
     ctx.textAlign = 'center';
     ctx.fillText(tStr, WIDTH / 2, 35);
     ctx.restore();
+
+    // Mini Cake Level Progress Bar (0 to 20 ingredients)
+    const progW = 120;
+    const progH = 6;
+    const progX = WIDTH / 2 - progW / 2;
+    const progY = 48;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+    ctx.fillRect(progX, progY, progW, progH);
+    const progRatio = Math.min(1.0, itemsCaughtStage / ITEMS_PER_STAGE);
+    ctx.fillStyle = '#00ff88';
+    ctx.shadowColor = '#00ff88';
+    ctx.shadowBlur = 6;
+    ctx.fillRect(progX, progY, progW * progRatio, progH);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#00dcff';
+    ctx.font = '8px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText("🍰 " + itemsCaughtStage + "/" + ITEMS_PER_STAGE, WIDTH / 2, progY + 16);
+
+    // Active Power-up Badges in HUD
+    let puY = 78;
+    if (shieldActive) {
+      ctx.fillStyle = '#00f0ff';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("🛡️ SHIELD READY", WIDTH / 2, puY);
+      puY += 15;
+    }
+    if (magnetTime > 0) {
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`🧲 MAGNET (${Math.ceil(magnetTime)}s)`, WIDTH / 2, puY);
+      puY += 15;
+    }
+    if (slowmoTime > 0) {
+      ctx.fillStyle = '#d060ff';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`⏱️ SLOW-MO (${Math.ceil(slowmoTime)}s)`, WIDTH / 2, puY);
+      puY += 15;
+    }
+    if (sugarRushCount > 0) {
+      ctx.fillStyle = '#ff4da6';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`🍓 2X RUSH (${sugarRushCount})`, WIDTH / 2, puY);
+      puY += 15;
+    }
 
     // Pixel Hearts (Lives) — Top Right
     const hx = WIDTH - pw - 60;
@@ -1834,14 +2438,14 @@ html = """<!DOCTYPE html>
       ctx.fillStyle = COLORS.CYAN;
       ctx.font = '13px "Press Start 2P", monospace';
       ctx.fillText("GET READY...", WIDTH / 2, HEIGHT / 2 + 35);
-    } else if (state === 'MILESTONE') {
-      btnAction.textContent = 'STAGE ' + (stage + 1);
-      const boxW = 660;
-      const boxH = 530;
+    } else if (state === 'CANDLE_CEREMONY') {
+      const boxW = Math.min(WIDTH - 24, 670);
+      const boxH = Math.min(HEIGHT - 80, 560);
       const boxX = WIDTH / 2 - boxW / 2;
       const boxY = HEIGHT / 2 - boxH / 2;
 
-      ctx.fillStyle = 'rgba(10, 6, 32, 0.95)';
+      // Dark Cosmic Card Backdrop
+      ctx.fillStyle = 'rgba(12, 6, 36, 0.96)';
       ctx.fillRect(boxX, boxY, boxW, boxH);
       ctx.strokeStyle = COLORS.GOLD;
       ctx.lineWidth = 4;
@@ -1853,39 +2457,130 @@ html = """<!DOCTYPE html>
         ctx.fillRect(cxo, cyo, 12, 12);
       });
 
+      const info = MILESTONE_MESSAGES[stage] || {
+        title: "★ AISHA'S BIRTHDAY WISH! ★",
+        sub: "HAPPY BIRTHDAY AISHA! 🎂",
+        note: `STAGE ${stage} MASTERED! MAKE A WISH!`,
+        bonus: "+1,000 WISH BONUS AWARDED"
+      };
+
+      // Header Banner
       ctx.fillStyle = COLORS.GOLD;
-      ctx.font = '17px "Press Start 2P", monospace';
+      ctx.font = '16px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("★ CHAMPION BAKER! ★", WIDTH / 2, boxY + 36);
+      ctx.fillText(info.title, WIDTH / 2, boxY + 34);
 
       ctx.fillStyle = COLORS.PINK;
-      ctx.font = '14px "Press Start 2P", monospace';
-      ctx.fillText("HAPPY BIRTHDAY AISHA! 🎂", WIDTH / 2, boxY + 64);
-
-      const floatY = Math.sin(globalTime * 2.2) * 5;
-      const portW = 180;
-      const portH = 240;
-      const portY = boxY + 200;
-      drawAishaPortrait(ctx, WIDTH / 2, portY, portW, portH, floatY);
-
-      ctx.fillStyle = COLORS.GOLD;
-      ctx.font = '11px "Press Start 2P", monospace';
-      const mText = stage === 10 ? "★ LEVEL 10 CLEAR! 20 LEVELS REMAIN ★" : "★ LEVEL 20 CLEAR! 10 LEVELS REMAIN ★";
-      ctx.fillText(mText, WIDTH / 2, portY + portH / 2 + 22 + floatY);
-
-      ctx.fillStyle = COLORS.WHITE;
-      ctx.font = '12px "Press Start 2P", monospace';
-      ctx.fillText("CURRENT SCORE: " + score.toLocaleString(), WIDTH / 2, boxY + 396);
-
-      const nextLevel = stage + 1;
-      const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
-      ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
       ctx.font = '13px "Press Start 2P", monospace';
-      ctx.fillText("▶ TAP TO ADVANCE TO LEVEL " + nextLevel + " ◀", WIDTH / 2, boxY + 440);
+      ctx.fillText(info.sub, WIDTH / 2, boxY + 58);
 
-      ctx.fillStyle = '#859bb8';
-      ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("CHAMPION BONUS +1,000 PTS   |   BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 485);
+      // Aisha Floating Portrait Centerpiece
+      const floatY = Math.sin(globalTime * 2.2) * 4;
+      drawAishaPortrait(ctx, WIDTH / 2, boxY + 145, 120, 150, floatY);
+
+      // Interactive Birthday Cake in Ceremony
+      const cakeBaseY = boxY + 395;
+      // Tier 1 Base Layer
+      ctx.fillStyle = '#ff4da6';
+      ctx.fillRect(WIDTH / 2 - 120, cakeBaseY - 45, 240, 45);
+      ctx.fillStyle = '#00dcff';
+      for (let cx = WIDTH / 2 - 120; cx < WIDTH / 2 + 120; cx += 16) {
+        ctx.beginPath(); ctx.arc(cx + 8, cakeBaseY, 8, Math.PI, 0); ctx.fill();
+      }
+      ctx.fillStyle = '#ffffff';
+      for (let cx = WIDTH / 2 - 100; cx < WIDTH / 2 + 100; cx += 25) {
+        ctx.fillRect(cx, cakeBaseY - 32, 6, 6);
+      }
+
+      // Tier 2 Middle Layer
+      ctx.fillStyle = '#f4a261';
+      ctx.fillRect(WIDTH / 2 - 95, cakeBaseY - 85, 190, 40);
+      ctx.fillStyle = '#fff3b0';
+      ctx.fillRect(WIDTH / 2 - 95, cakeBaseY - 78, 190, 8);
+      ctx.fillStyle = '#ff4da6';
+      for (let cx = WIDTH / 2 - 95; cx < WIDTH / 2 + 95; cx += 16) {
+        ctx.beginPath(); ctx.arc(cx + 8, cakeBaseY - 45, 7, Math.PI, 0); ctx.fill();
+      }
+
+      // Tier 3 Top Layer
+      ctx.fillStyle = '#c040ff';
+      ctx.fillRect(WIDTH / 2 - 70, cakeBaseY - 120, 140, 35);
+      ctx.fillStyle = '#00dcff';
+      ctx.fillRect(WIDTH / 2 - 70, cakeBaseY - 114, 140, 6);
+
+      // Render 5 Interactive Birthday Candles on the Cake
+      const candleY = cakeBaseY - 120;
+      ceremonyCandles.forEach(c => {
+        c.y = candleY;
+        ctx.fillStyle = c.color;
+        ctx.fillRect(c.x - 4, c.y - 24, 8, 24);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(c.x - 4, c.y - 18, 8, 3);
+        ctx.fillRect(c.x - 4, c.y - 8, 8, 3);
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(c.x, c.y - 24); ctx.lineTo(c.x, c.y - 30); ctx.stroke();
+
+        if (c.lit) {
+          const fl = Math.sin(globalTime * 18 + c.flicker) * 2;
+          ctx.fillStyle = 'rgba(255, 160, 0, 0.45)';
+          ctx.beginPath(); ctx.arc(c.x, c.y - 38 + fl * 0.5, 9, 0, Math.PI * 2); ctx.fill();
+
+          ctx.fillStyle = '#ff7700';
+          ctx.beginPath();
+          ctx.moveTo(c.x, c.y - 45 + fl);
+          ctx.quadraticCurveTo(c.x - 6, c.y - 36, c.x, c.y - 30);
+          ctx.quadraticCurveTo(c.x + 6, c.y - 36, c.x, c.y - 45 + fl);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffea00';
+          ctx.beginPath();
+          ctx.moveTo(c.x, c.y - 41 + fl * 0.7);
+          ctx.quadraticCurveTo(c.x - 3, c.y - 35, c.x, c.y - 31);
+          ctx.quadraticCurveTo(c.x + 3, c.y - 35, c.x, c.y - 41 + fl * 0.7);
+          ctx.fill();
+        }
+      });
+
+      // Smoke particles from blown candles
+      ceremonySmokeParticles.forEach(sp => {
+        ctx.save();
+        ctx.fillStyle = `rgba(215, 220, 235, ${sp.alpha * 0.75})`;
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, sp.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // Ceremony Status & Instructions
+      if (!ceremonyAllBlown) {
+        const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+        ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
+        ctx.font = '11px "Press Start 2P", monospace';
+        ctx.fillText("🎂 TAP CANDLES TO BLOW & MAKE A WISH! 🎂", WIDTH / 2, boxY + 445);
+
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillText("BLOW OUT ALL 5 CANDLES FOR AISHA'S WISH!", WIDTH / 2, boxY + 475);
+      } else {
+        ctx.fillStyle = COLORS.GOLD;
+        ctx.font = '10px "Press Start 2P", monospace';
+        ctx.fillText("★ BIRTHDAY WISH GRANTED! ★", WIDTH / 2, boxY + 425);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillText(info.note, WIDTH / 2, boxY + 450);
+
+        const advPrompt = (stage < TOTAL_STAGES) ? `▶ TAP TO ADVANCE TO LEVEL ${stage + 1} ◀` : "★ TAP TO PLAY AGAIN ★";
+        const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+        ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
+        ctx.font = '12px "Press Start 2P", monospace';
+        ctx.fillText(advPrompt, WIDTH / 2, boxY + 485);
+
+        ctx.fillStyle = '#859bb8';
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillText(`${info.bonus}   |   SCORE: ${score.toLocaleString()}`, WIDTH / 2, boxY + 520);
+      }
     } else if (state === 'GAME_OVER') {
       btnAction.textContent = 'RETRY';
       const boxW = 660;
