@@ -546,6 +546,8 @@ html = """<!DOCTYPE html>
     margin-top: 10px;
     width: 100%;
     box-sizing: border-box;
+  }
+
   /* ─── RETRO ARCADE HIGH SCORE INITIALS MODAL ───────────────────────── */
   #initials-modal {
     display: none;
@@ -959,7 +961,7 @@ html = """<!DOCTYPE html>
   </div>
 
   <!-- Retro Arcade High Score Name Entry Modal -->
-  <div id="initials-modal">
+  <div id="initials-modal" style="display: none;">
     <div id="initials-wrap">
       <button class="mini-close-x" id="initials-close-x" title="Skip">✕</button>
       <div class="initials-badge">★ NEW HIGH SCORE! ★</div>
@@ -1011,7 +1013,7 @@ html = """<!DOCTYPE html>
 </div>
 
 <!-- Retro Arcade Hall of Fame Leaderboard Modal (Separate Rectangular Pop-Up Window) -->
-<div id="leaderboard-modal">
+<div id="leaderboard-modal" style="display: none;">
   <div id="leaderboard-wrap">
     <button class="leaderboard-close-x" id="lb-close-x" title="Exit Leaderboard (Resume Game)" aria-label="Exit">✕</button>
     <div class="leaderboard-badge">🏆 RETRO ARCADE</div>
@@ -2229,7 +2231,17 @@ html = """<!DOCTYPE html>
     if (state === 'PAUSED') {
       const lb = document.getElementById('leaderboard-modal');
       if (lb && lb.style.display === 'flex') return;
+      const im = document.getElementById('initials-modal');
+      if (im && im.style.display === 'flex') return;
+      const pm = document.getElementById('polaroid-modal');
+      if (pm && pm.style.display === 'flex') return;
+
       state = 'PLAYING';
+      lastTime = performance.now();
+      targetX = player.x;
+      isDragging = false;
+      syncUIState();
+      haptic(20);
       return;
     }
     isDragging = true;
@@ -2304,26 +2316,22 @@ html = """<!DOCTYPE html>
   }
 
   if (gearBtn) {
-    const handleGear = (e) => {
+    gearBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       toggleSettingsDock();
-    };
-    gearBtn.addEventListener('pointerdown', handleGear);
-    gearBtn.addEventListener('click', handleGear);
+    });
   }
 
   if (btnMute) {
     btnMute.textContent = bgmMuted ? '🔇' : '🔊';
-    const handleMute = (e) => {
+    btnMute.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       initAudio();
       setMuted(!bgmMuted);
       haptic(20);
-    };
-    btnMute.addEventListener('pointerdown', handleMute);
-    btnMute.addEventListener('click', handleMute);
+    });
   }
 
   const btnCRT = document.getElementById('crt-btn');
@@ -2395,14 +2403,6 @@ html = """<!DOCTYPE html>
   }
 
 
-  if (btnMic) {
-    btnMic.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      initAudio();
-      toggleMic();
-    });
-  }
   if (modalCloseBtn) {
     modalCloseBtn.addEventListener('click', closePolaroidModal);
   }
@@ -2844,6 +2844,8 @@ html = """<!DOCTYPE html>
       wasPlayingBeforeLeaderboard = true;
       state = 'PAUSED';
       syncUIState();
+    } else {
+      wasPlayingBeforeLeaderboard = false;
     }
 
     renderLeaderboard(highlightNew);
@@ -2962,40 +2964,43 @@ https://aishababu.vercel.app`;
     lbResetBtn.addEventListener('click', resetLeaderboard);
   }
   if (lbCloseBtn) {
-    const handleCloseBtn = (e) => {
+    lbCloseBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       closeLeaderboardModal();
-    };
-    lbCloseBtn.addEventListener('pointerdown', handleCloseBtn);
-    lbCloseBtn.addEventListener('click', handleCloseBtn);
+    });
   }
   if (lbCloseX) {
-    const handleCloseX = (e) => {
+    lbCloseX.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       closeLeaderboardModal();
-    };
-    lbCloseX.addEventListener('pointerdown', handleCloseX);
-    lbCloseX.addEventListener('click', handleCloseX);
+    });
   }
   if (leaderboardBtn) {
-    const handleOpenLeaderboard = (e) => {
+    leaderboardBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       openLeaderboardModal();
-    };
-    leaderboardBtn.addEventListener('pointerdown', handleOpenLeaderboard);
-    leaderboardBtn.addEventListener('click', handleOpenLeaderboard);
+    });
   }
   if (leaderboardModal) {
     leaderboardModal.addEventListener('click', (e) => {
-      if (e.target === leaderboardModal) closeLeaderboardModal();
+      if (e.target === leaderboardModal) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeLeaderboardModal();
+      }
     });
   }
   function syncUIState() {
     checkpointStage = parseInt(localStorage.getItem('anti_grav_checkpoint') || '0');
     checkpointScore = parseInt(localStorage.getItem('anti_grav_checkpoint_score') || '0');
+
+    if (btnPause) {
+      btnPause.textContent = (state === 'PAUSED') ? '▶' : '⏸';
+      btnPause.title = (state === 'PAUSED') ? 'Resume Game' : 'Pause Game';
+    }
 
     if (btnMic) {
       if (state === 'CANDLE_CEREMONY' && !ceremonyAllBlown) {
@@ -3023,8 +3028,12 @@ https://aishababu.vercel.app`;
     collapseSettingsDock();
     initAudio();
     haptic(20);
-    if (state === 'PLAYING') state = 'PAUSED';
-    else if (state === 'PAUSED') state = 'PLAYING';
+    if (state === 'PLAYING') {
+      state = 'PAUSED';
+    } else if (state === 'PAUSED') {
+      state = 'PLAYING';
+      lastTime = performance.now();
+    }
     syncUIState();
   });
 
