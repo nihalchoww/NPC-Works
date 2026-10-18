@@ -97,6 +97,39 @@
     left: calc(max(14px, env(safe-area-inset-left)) + 46px);
     font-size: 16px;
   }
+  #crt-btn {
+    top: max(14px, env(safe-area-inset-top));
+    left: calc(max(14px, env(safe-area-inset-left)) + 92px);
+    font-size: 16px;
+  }
+  /* CRT Arcade Cabinet Bezel */
+  .arcade-bezel {
+    display: none;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 15;
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.92), inset 0 0 35px rgba(0, 220, 255, 0.4);
+    border: 10px solid #08031a;
+    border-radius: 20px;
+  }
+  .arcade-bezel.active {
+    display: block;
+  }
+  .arcade-marquee {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: #ffd700;
+    text-shadow: 0 0 8px #ff4da6, 0 0 16px #00dcff;
+    white-space: nowrap;
+    opacity: 0.95;
+    pointer-events: none;
+    z-index: 16;
+  }
   /* Mobile Thumb Controls */
   #touch-controls {
     display: none;
@@ -278,8 +311,12 @@
 <div id="game-wrap">
   <div class="scanlines"></div>
   <canvas id="gameCanvas"></canvas>
+  <div class="arcade-bezel" id="arcade-bezel">
+    <div class="arcade-marquee">★ AISHA'S SPACE BAKERY ★</div>
+  </div>
   <button class="hud-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
   <button class="hud-btn" id="mute-btn" title="Toggle Sound">🔊</button>
+  <button class="hud-btn" id="crt-btn" title="Toggle CRT Arcade Cabinet Mode">📺</button>
   <button class="hud-btn" id="pause-btn" title="Pause / Resume">⏸</button>
   <div id="touch-controls">
     <div class="thumb-zone zone-left">
@@ -950,8 +987,21 @@
     h: 110,
     speed: 520,
     invincible: 0,
-    walkTime: 0
+    walkTime: 0,
+    vx: 0,
+    prevX: 360,
+    tilt: 0,
+    happyTime: 0,
+    worryTime: 0,
+    traySquash: 1.0,
+    traySquashVel: 0
   };
+
+  // Graphics Overhaul FX Collections
+  let ghostTrails = [];
+  let candyComets = [];
+  let cometTimer = 5.0;
+  let crtMode = localStorage.getItem('anti_grav_crt') === 'true';
 
   // Touch Dragging Mechanics
   let isDragging = false;
@@ -1075,6 +1125,21 @@
       e.stopPropagation();
       initAudio();
       setMuted(!bgmMuted);
+      haptic(20);
+    });
+  }
+
+  const btnCRT = document.getElementById('crt-btn');
+  const arcadeBezel = document.getElementById('arcade-bezel');
+  if (btnCRT && arcadeBezel) {
+    if (crtMode) arcadeBezel.classList.add('active');
+    btnCRT.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      initAudio();
+      crtMode = !crtMode;
+      localStorage.setItem('anti_grav_crt', crtMode);
+      arcadeBezel.classList.toggle('active', crtMode);
       haptic(20);
     });
   }
@@ -1581,6 +1646,79 @@
     syncUIState();
   }
 
+  // ─── PARALLAX DEEP SPACE BAKERY WONDERS ─────────────────────────────
+
+  function drawDonutGalaxy(ctx, gx, gy, sz, angle) {
+    ctx.save();
+    ctx.translate(gx, gy);
+    ctx.rotate(angle);
+
+    // Nebula glow
+    const gGrad = ctx.createRadialGradient(0, 0, sz * 0.2, 0, 0, sz * 1.6);
+    gGrad.addColorStop(0, 'rgba(255, 77, 166, 0.28)');
+    gGrad.addColorStop(0.65, 'rgba(160, 32, 240, 0.12)');
+    gGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = gGrad;
+    ctx.beginPath(); ctx.arc(0, 0, sz * 1.6, 0, Math.PI * 2); ctx.fill();
+
+    // Golden dough ring
+    ctx.fillStyle = '#c68b59';
+    ctx.beginPath(); ctx.arc(0, 0, sz, 0, Math.PI * 2); ctx.fill();
+
+    // Strawberry pink glaze
+    ctx.fillStyle = '#ff6ebe';
+    ctx.beginPath(); ctx.arc(0, 0, sz * 0.90, 0, Math.PI * 2); ctx.fill();
+
+    // Glaze gloss highlight
+    ctx.fillStyle = '#ffb3c6';
+    ctx.beginPath();
+    ctx.arc(-sz * 0.25, -sz * 0.25, sz * 0.45, -Math.PI * 0.8, -Math.PI * 0.2);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.stroke();
+
+    // Center cosmic donut hole
+    ctx.fillStyle = '#080417';
+    ctx.beginPath(); ctx.arc(0, 0, sz * 0.42, 0, Math.PI * 2); ctx.fill();
+
+    // Orbiting rainbow sprinkles
+    const spCols = ['#00dcff', '#ffd700', '#ffffff', '#37be46', '#ff0055'];
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2 + 0.35;
+      const r = sz * 0.68;
+      ctx.fillStyle = spCols[i % spCols.length];
+      ctx.fillRect(Math.cos(a) * r - 2.5, Math.sin(a) * r - 1.5, 5, 3);
+    }
+    ctx.restore();
+  }
+
+  function drawMacaronPlanet(ctx, px, py, r) {
+    ctx.save();
+    ctx.translate(px, py);
+
+    // Planet sphere
+    const pGrad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
+    pGrad.addColorStop(0, '#ba68c8');
+    pGrad.addColorStop(0.7, '#7b1fa2');
+    pGrad.addColorStop(1, '#38006b');
+    ctx.fillStyle = pGrad;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+
+    // Golden Macaron Planetary Ring
+    ctx.save();
+    ctx.rotate(0.38);
+    ctx.scale(1.0, 0.32);
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.8)';
+    ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.arc(0, 0, r * 2.1, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 0, r * 2.3, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+
+    ctx.restore();
+  }
+
   // ─── 16-BIT RETRO PIXEL SPRITE RENDERERS ──────────────────────────────
 
   function drawAishaPortrait(ctx, x, y, width, height, floatY) {
@@ -2003,6 +2141,41 @@
       t.y += t.vy * dt * 0.3;
     });
 
+    // Character Ghost Dash Trails
+    ghostTrails = ghostTrails.filter(gt => gt.alpha > 0);
+    ghostTrails.forEach(gt => {
+      gt.alpha -= dt * 2.5;
+    });
+
+    // Cosmic Candy Comets
+    cometTimer -= dt;
+    if (cometTimer <= 0) {
+      cometTimer = 7.0 + Math.random() * 8.0;
+      candyComets.push({
+        x: -40,
+        y: 80 + Math.random() * (HEIGHT * 0.4),
+        vx: 320 + Math.random() * 120,
+        vy: 160 + Math.random() * 80,
+        color: ['#ff4da6', '#ffd700', '#00dcff', '#a03ce6'][Math.floor(Math.random() * 4)],
+        life: 3.5
+      });
+    }
+    candyComets = candyComets.filter(cc => cc.life > 0);
+    candyComets.forEach(cc => {
+      cc.x += cc.vx * dt;
+      cc.y += cc.vy * dt;
+      cc.life -= dt;
+      if (Math.random() < 0.6) {
+        trails.push({
+          x: cc.x + (Math.random() - 0.5) * 6,
+          y: cc.y + (Math.random() - 0.5) * 6,
+          vy: -10,
+          life: 0.7,
+          color: cc.color
+        });
+      }
+    });
+
     // Particles
     particles = particles.filter(p => p.life > 0);
     particles.forEach(p => {
@@ -2066,6 +2239,8 @@
       if (keys['ArrowLeft'] || keys['KeyA']) moveDir -= 1;
       if (keys['ArrowRight'] || keys['KeyD']) moveDir += 1;
 
+      // Compute player velocity & bank tilt
+      const curX = player.x;
       if (moveDir !== 0) {
         player.x += moveDir * player.speed * dt;
         targetX = player.x;
@@ -2076,6 +2251,33 @@
         player.walkTime += Math.abs(dx) * dt * 0.18;
       }
       player.x = Math.max(player.w / 2, Math.min(WIDTH - player.w / 2, player.x));
+      player.vx = (player.x - player.prevX) / Math.max(0.001, dt);
+      player.prevX = player.x;
+
+      // Bank tilt towards movement
+      const targetTilt = Math.max(-0.11, Math.min(0.11, player.vx * 0.00022));
+      player.tilt += (targetTilt - player.tilt) * Math.min(1.0, 14 * dt);
+
+      // Ghost dash speed silhouette trail
+      if (Math.abs(player.vx) > 180 && Math.random() < 0.42) {
+        ghostTrails.push({
+          x: player.x,
+          y: player.y,
+          tilt: player.tilt,
+          alpha: 0.5,
+          color: (comboStreak >= 10 ? '#ff00ff' : (comboStreak >= 5 ? '#ffd700' : '#00dcff'))
+        });
+      }
+
+      // Cake Squash & Stretch spring physics
+      player.traySquashVel += (1.0 - player.traySquash) * 48 * dt;
+      player.traySquashVel *= 0.80;
+      player.traySquash += player.traySquashVel * dt;
+
+      // Micro-expressions timers
+      player.happyTime = Math.max(0, player.happyTime - dt);
+      player.worryTime = Math.max(0, player.worryTime - dt);
+
       if (player.invincible > 0) player.invincible -= dt;
 
       // Stage Countdown
@@ -2234,6 +2436,25 @@
           if (item.x >= trayRect.x && item.x <= trayRect.x + trayRect.w &&
               item.y >= trayRect.y && item.y <= trayRect.y + trayRect.h + 24) {
 
+            // Cake Squash & Stretch Jiggle + Character Happy Expression
+            player.traySquash = 0.72;
+            player.happyTime = 0.65;
+
+            // Frosting Splatters & Rainbow Sprinkles on Catch
+            const splashCols = ['#ff4da6', '#ffffff', '#ffd700', '#00dcff', '#ff8500', '#70e000'];
+            for (let sp = 0; sp < 10; sp++) {
+              particles.push({
+                x: item.x + (Math.random() - 0.5) * 32,
+                y: player.y - 95,
+                vx: (Math.random() - 0.5) * 160,
+                vy: -75 - Math.random() * 95,
+                size: 2.5 + Math.random() * 3,
+                color: splashCols[sp % splashCols.length],
+                life: 0.55,
+                maxLife: 0.55
+              });
+            }
+
             if (item.isPowerup) {
               score += 100;
               itemsCaughtStage = Math.min(ITEMS_PER_STAGE, itemsCaughtStage + 1);
@@ -2323,6 +2544,31 @@
           }
         }
 
+        // Check hazard proximity to Aisha's head (triggers worried sweatdrop!)
+        if (item.isBad) {
+          if (Math.abs(item.x - player.x) < 70 && Math.abs(item.y - (player.y - 75)) < 70) {
+            player.worryTime = 0.45;
+          }
+          // Anvil Floor Slam with Sparks & Screen Shudder
+          if (item.kind === 'ANVIL' && !item.slammedFloor && item.y >= HEIGHT - 54) {
+            item.slammedFloor = true;
+            shakeTime = 0.16;
+            for (let sp = 0; sp < 8; sp++) {
+              particles.push({
+                x: item.x + (Math.random() - 0.5) * 18,
+                y: HEIGHT - 50,
+                vx: (Math.random() - 0.5) * 170,
+                vy: -40 - Math.random() * 85,
+                size: 2.5 + Math.random() * 2.5,
+                color: '#ffd700',
+                life: 0.35,
+                maxLife: 0.35
+              });
+            }
+            playTone(160, 'sawtooth', 0.1, 0.22);
+          }
+        }
+
         // Clean off-screen
         if (item.y > HEIGHT + 40) {
           if (!item.isBad && !item.isPowerup) {
@@ -2377,9 +2623,10 @@
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    // Glowing Nebula clouds (matching cosmic theme)
+    // Glowing Nebula clouds (pulsing in sync with chiptune beat during combos!)
     ctx.save();
-    ctx.globalAlpha = 0.20;
+    const comboPulse = (comboStreak >= 5) ? (Math.sin(globalTime * 9) * 0.10) : 0;
+    ctx.globalAlpha = 0.22 + comboPulse;
     const neb1Col = stage <= 10 ? '#ff00aa' : (stage <= 20 ? '#ff7700' : '#bd00ff');
     const neb2Col = stage <= 10 ? '#00dcff' : (stage <= 20 ? '#ff0077' : '#00f0ff');
     const neb1 = ctx.createRadialGradient(WIDTH * 0.25, HEIGHT * 0.35, 10, WIDTH * 0.25, HEIGHT * 0.35, 260);
@@ -2390,6 +2637,26 @@
     neb2.addColorStop(0, neb2Col); neb2.addColorStop(1, 'transparent');
     ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
     ctx.restore();
+
+    // Parallax Deep-Space Wonders: Donut Galaxy & Macaron Saturn Planet
+    drawDonutGalaxy(ctx, WIDTH * 0.22, HEIGHT * 0.24, 38, globalTime * 0.15);
+    drawMacaronPlanet(ctx, WIDTH * 0.78, HEIGHT * 0.28, 28);
+
+    // Cosmic Candy Comets
+    candyComets.forEach(cc => {
+      ctx.save();
+      ctx.fillStyle = cc.color;
+      ctx.shadowColor = cc.color;
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(cc.x, cc.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(cc.x - 2, cc.y - 2, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
 
     // Pixel Stars with sparkling 4-point shape
     stars.forEach(s => {
@@ -2607,6 +2874,45 @@
       ctx.restore();
     });
 
+    // Hazard Floor Drop-Shadows (Target Footprints for mobile dodging accuracy)
+    items.forEach(item => {
+      if (item.isBad) {
+        const floorY = HEIGHT - 50;
+        const dist = floorY - item.y;
+        if (dist > 0 && dist < 680) {
+          const t = 1.0 - (dist / 680);
+          const rad = 14 + t * 24;
+          const alpha = 0.20 + t * 0.65;
+          ctx.save();
+          ctx.translate(item.x, floorY);
+          ctx.scale(1.0, 0.35);
+
+          // Translucent warning landing disc
+          ctx.fillStyle = `rgba(255, 30, 60, ${alpha * 0.35})`;
+          ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.fill();
+
+          // Outer dashed danger ring
+          ctx.strokeStyle = `rgba(255, 40, 70, ${alpha})`;
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Imminent landing alert '!'
+          if (dist < 220) {
+            ctx.scale(1.0, 1 / 0.35);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = '#ff1144';
+            ctx.shadowBlur = 8;
+            ctx.fillText('!', 0, -6);
+          }
+          ctx.restore();
+        }
+      }
+    });
+
     // Falling Items with Glowing Auras
     items.forEach(item => {
       ctx.save();
@@ -2655,7 +2961,25 @@
       ctx.restore();
     });
 
-    // Playable Character (Aisha) — Scaled 1.25x with dynamic growing cake
+    // Character Ghost Dash Afterimage Trails
+    if (state === 'PLAYING') {
+      ghostTrails.forEach(gt => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, gt.alpha * 0.55);
+        ctx.translate(gt.x, gt.y);
+        ctx.scale(1.25, 1.25);
+        ctx.rotate(gt.tilt || 0);
+        ctx.fillStyle = gt.color;
+        ctx.shadowColor = gt.color;
+        ctx.shadowBlur = 14;
+        ctx.fillRect(-16, -14, 32, 24);
+        ctx.fillRect(-16, 14, 32, 25);
+        ctx.beginPath(); ctx.ellipse(0, -36, 18, 22, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    // Playable Character (Aisha) — Scaled 1.25x with dynamic bank tilt & cake jiggle
     if (state === 'PLAYING' || state === 'STAGE_CLEAR' || state === 'PAUSED') {
       const flicker = player.invincible > 0 && Math.floor(player.invincible * 14) % 2 === 0;
       if (!flicker) {
@@ -2666,6 +2990,7 @@
 
         ctx.translate(px, py);
         ctx.scale(1.25, 1.25);
+        ctx.rotate(player.tilt);
 
         // 1. Boot Thrusters with Animated Pixel-Jet Flame Cones
         [-15, 15].forEach(bx => {
@@ -2753,6 +3078,38 @@
           ctx.drawImage(aishaPortrait, -headRx - 2, headY - headRy - 2, (headRx + 2) * 2, (headRy + 3) * 2);
         }
         ctx.restore();
+
+        // Micro-Expressions: Cheerful Sparkle & Blush on Catch
+        if (player.happyTime > 0) {
+          ctx.fillStyle = '#ffd700';
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 8;
+          ctx.fillRect(10, headY - 4, 5, 5);
+          ctx.fillRect(8, headY - 2, 9, 2);
+          ctx.fillRect(11, headY - 5, 2, 8);
+
+          // Pink blush cheeks
+          ctx.fillStyle = 'rgba(255, 77, 166, 0.65)';
+          ctx.beginPath();
+          ctx.arc(-11, headY + 5, 4, 0, Math.PI * 2);
+          ctx.arc(11, headY + 5, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Micro-Expressions: Animated Blue Sweatdrop on Hazard Near-Miss
+        if (player.worryTime > 0) {
+          const swHop = Math.sin(globalTime * 28) * 3;
+          ctx.fillStyle = '#00dcff';
+          ctx.shadowColor = '#00dcff';
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.moveTo(headRx + 5, headY - 8 + swHop);
+          ctx.quadraticCurveTo(headRx + 12, headY - 2 + swHop, headRx + 6, headY + 5 + swHop);
+          ctx.quadraticCurveTo(headRx + 1, headY - 2 + swHop, headRx + 5, headY - 8 + swHop);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(headRx + 4, headY - 3 + swHop, 2, 2);
+        }
 
         // 6. Unlockable Costumes (Party Hat / Royal Crown / Chef Toque / Diamond Tiara)
         if (stage >= 30) {
@@ -2909,7 +3266,12 @@
         ctx.lineWidth = 1.5;
         ctx.strokeRect(-trayW / 2, trayY, trayW, trayH);
 
-        // 8. Multi-Layered Cake Dynamically Growing on Tray
+        // 8. Multi-Layered Cake with Squash & Stretch Jiggle Physics
+        ctx.save();
+        ctx.translate(0, trayY);
+        ctx.scale(1.0 / Math.sqrt(Math.max(0.6, player.traySquash)), player.traySquash);
+        ctx.translate(0, -trayY);
+
         // Tier 1 Base Layer (always present)
         const t1W = 76, t1H = 18;
         const t1Y = trayY - t1H;
@@ -2968,6 +3330,7 @@
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(cx - 1, topY - 18 + cFlick * 0.5, 2, 2);
         });
+        ctx.restore(); // End Cake Squash & Stretch
 
         // Frosting Shield Bubble around Aisha
         if (shieldActive) {
@@ -3003,12 +3366,19 @@
       ctx.save();
       const alpha = Math.max(0, p.life / p.maxLife);
       if (p.isText) {
+        const progress = 1.0 - (p.life / p.maxLife);
+        const popScale = 1.0 + Math.sin(progress * Math.PI) * 0.42;
+        ctx.translate(p.x, p.y);
+        ctx.scale(popScale, popScale);
         ctx.fillStyle = p.color;
-        ctx.font = '14px "Press Start 2P", monospace';
+        ctx.font = '13px "Press Start 2P", monospace';
         ctx.textAlign = 'center';
-        ctx.shadowColor = '#000';
-        ctx.shadowBlur = 6;
-        ctx.fillText(p.text, p.x, p.y);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 4;
+        ctx.strokeText(p.text, 0, 0);
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
+        ctx.fillText(p.text, 0, 0);
       } else {
         ctx.fillStyle = p.color;
         ctx.globalAlpha = alpha;
@@ -3063,6 +3433,47 @@
     ctx.font = '8px "Press Start 2P", monospace';
     ctx.textAlign = 'center';
     ctx.fillText("🍰 " + itemsCaughtStage + "/" + ITEMS_PER_STAGE, WIDTH / 2, progY + 16);
+
+    // Arcade Combo Fever Mode Badges & Screen Vignette
+    if (state === 'PLAYING') {
+      if (comboStreak >= 10) {
+        // Golden/Rainbow Screen Border Vignette Glow
+        ctx.save();
+        const feverVignette = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, HEIGHT * 0.42, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.78);
+        const fA = 0.22 + Math.sin(globalTime * 12) * 0.14;
+        feverVignette.addColorStop(0, 'rgba(255, 215, 0, 0)');
+        feverVignette.addColorStop(1, `rgba(255, 215, 0, ${fA})`);
+        ctx.fillStyle = feverVignette;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.restore();
+
+        // Pulsing Rainbow Fever Banner
+        ctx.save();
+        const fScale = 1.0 + Math.sin(globalTime * 10) * 0.08;
+        ctx.translate(WIDTH / 2, 108);
+        ctx.scale(fScale, fScale);
+        ctx.fillStyle = ['#ffd700', '#00f0ff', '#ff4da6', '#70e000'][Math.floor(globalTime * 8) % 4];
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 14;
+        ctx.font = 'bold 12px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`⚡ ${comboStreak}x BAKING FEVER! ⚡`, 0, 0);
+        ctx.restore();
+      } else if (comboStreak >= 5) {
+        // 5x Sugar Rush Banner
+        ctx.save();
+        const rScale = 1.0 + Math.sin(globalTime * 8) * 0.06;
+        ctx.translate(WIDTH / 2, 108);
+        ctx.scale(rScale, rScale);
+        ctx.fillStyle = '#ffd700';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 10;
+        ctx.font = '10px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`★ ${comboStreak}x SUGAR RUSH! ★`, 0, 0);
+        ctx.restore();
+      }
+    }
 
     // Active Power-up Badges in HUD
     let puY = 78;
@@ -3239,15 +3650,40 @@
       ctx.font = '12px "Press Start 2P", monospace';
       ctx.fillText("TAP SCREEN TO RESUME", WIDTH / 2, HEIGHT / 2 + 35);
     } else if (state === 'STAGE_CLEAR') {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      // Cosmic Hyperdrive Warp Transition Effect
+      ctx.save();
+      const warpProgress = 1.0 - (stageClearTime / 1.8);
+      ctx.fillStyle = 'rgba(8, 4, 26, 0.55)';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      ctx.translate(WIDTH / 2, HEIGHT / 2);
+      for (let i = 0; i < 44; i++) {
+        const angle = (i / 44) * Math.PI * 2 + globalTime * 0.6;
+        const r1 = 20 + warpProgress * 90;
+        const r2 = r1 + 80 + warpProgress * 520;
+        ctx.strokeStyle = i % 2 === 0 ? '#00dcff' : '#ff4da6';
+        ctx.lineWidth = 2.5 + Math.sin(i) * 1.0;
+        ctx.shadowColor = i % 2 === 0 ? '#00dcff' : '#ff4da6';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(angle) * r1, Math.sin(angle) * r1);
+        ctx.lineTo(Math.cos(angle) * r2, Math.sin(angle) * r2);
+        ctx.stroke();
+      }
+      ctx.restore();
+
       ctx.fillStyle = COLORS.GOLD;
+      ctx.shadowColor = COLORS.GOLD;
+      ctx.shadowBlur = 16;
       ctx.font = '22px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText("STAGE " + stage + " CLEAR!", WIDTH / 2, HEIGHT / 2 - 20);
+      ctx.fillText("STAGE " + stage + " CLEAR!", WIDTH / 2, HEIGHT / 2 - 25);
       ctx.fillStyle = COLORS.CYAN;
+      ctx.shadowColor = COLORS.CYAN;
+      ctx.shadowBlur = 12;
       ctx.font = '13px "Press Start 2P", monospace';
-      ctx.fillText("GET READY...", WIDTH / 2, HEIGHT / 2 + 35);
+      ctx.fillText("WARPING TO LEVEL " + (stage + 1) + "...", WIDTH / 2, HEIGHT / 2 + 35);
+      ctx.shadowBlur = 0;
     } else if (state === 'CANDLE_CEREMONY') {
       const boxW = Math.min(WIDTH - 24, 670);
       const boxH = Math.min(HEIGHT - 80, 560);
