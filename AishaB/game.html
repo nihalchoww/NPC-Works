@@ -1946,6 +1946,8 @@
     tilt: 0,
     happyTime: 0,
     worryTime: 0,
+    squash: 1.0,
+    squashVel: 0,
     traySquash: 1.0,
     traySquashVel: 0
   };
@@ -1955,6 +1957,7 @@
   let candyComets = [];
   let cometTimer = 5.0;
   let crtMode = localStorage.getItem('anti_grav_crt') === 'true';
+  let cosmicGlideSparkles = []; // ✨ Cosmic Stardust Glide Trail (Kirby / Star-Wand Effect)
 
   // Phone Tilt / Gyroscope Steering Mode (DeviceOrientationEvent)
   let tiltMode = localStorage.getItem('anti_grav_tilt') === 'true';
@@ -1990,7 +1993,61 @@
     }
   }
 
-  // Retro Arcade Hall of Fame Leaderboard
+  // ─── 🌌 DYNAMIC STAGE BIOME DEFINITIONS ──────────────────────────────
+  // Stages 1–5:   Pastel Strawberry Nebula (soft pink & deep violet)
+  // Stages 6–10:  Cotton Candy Aurora (glowing cyan & mint ribbons)
+  // Stages 11–15: Golden Honeycomb Deep Space (warm gold & amber starlight)
+  // Stages 16–25: Cosmic Velvet Twilight (royal purple & magenta)
+  // Stages 26–30: Diamond Tiara Supernova (shimmering rainbow starlight)
+  function getBiomeInfo(stg) {
+    if (stg <= 5) {
+      return {
+        id: 'STRAWBERRY',
+        name: '🍓 STRAWBERRY NEBULA',
+        shortName: 'STRAWBERRY',
+        tagColor: '#ff6ebe',
+        primaryCol: '#ff4da6',
+        secondaryCol: '#9900ff'
+      };
+    } else if (stg <= 10) {
+      return {
+        id: 'AURORA',
+        name: '🍬 COTTON CANDY AURORA',
+        shortName: 'AURORA',
+        tagColor: '#00f0ff',
+        primaryCol: '#00f0ff',
+        secondaryCol: '#00ffaa'
+      };
+    } else if (stg <= 15) {
+      return {
+        id: 'HONEYCOMB',
+        name: '🍯 GOLDEN HONEYCOMB',
+        shortName: 'HONEYCOMB',
+        tagColor: '#ffd700',
+        primaryCol: '#ffaa00',
+        secondaryCol: '#ff5500'
+      };
+    } else if (stg <= 25) {
+      return {
+        id: 'VELVET',
+        name: '🌌 COSMIC VELVET',
+        shortName: 'VELVET',
+        tagColor: '#d94dff',
+        primaryCol: '#cc00ff',
+        secondaryCol: '#ff0066'
+      };
+    } else {
+      return {
+        id: 'SUPERNOVA',
+        name: '💎 TIARA SUPERNOVA',
+        shortName: 'SUPERNOVA',
+        tagColor: '#00f0ff',
+        primaryCol: '#00f0ff',
+        secondaryCol: '#ffd700'
+      };
+    }
+  }
+
   // Retro Arcade Hall of Fame Leaderboard (100% Real Player Scores Only)
   const DEFAULT_LEADERBOARD = [];
 
@@ -3118,32 +3175,63 @@ https://aishababu.vercel.app`;
     }
   });
 
-  // Twinkling Pixel Stars with 4-point sparkle
-  const stars = [];
-  for (let i = 0; i < 140; i++) {
-    stars.push({
+  // ─── 🌌 PRESTIGE 3-TIER PARALLAX STARFIELD & CELESTIAL DUST ─────────────
+  // Layer 1: Deep Infinite Sub-Pixel Star Dust (120 microscopic suns)
+  const starsDeep = [];
+  for (let i = 0; i < 120; i++) {
+    starsDeep.push({
       x: Math.random() * 1400,
       y: Math.random() * 1600,
-      size: Math.random() < 0.6 ? 2 : (Math.random() < 0.85 ? 3 : 4),
-      speed: 0.15 + Math.random() * 0.45,
-      twinkle: Math.random() * Math.PI * 2,
-      color: Math.random() < 0.7 ? '#ffffff' : (Math.random() < 0.5 ? '#00dcff' : '#ffb3d9')
+      size: 0.8 + Math.random() * 0.7,
+      speed: 0.08 + Math.random() * 0.12,
+      baseAlpha: 0.18 + Math.random() * 0.22,
+      twinkle: Math.random() * Math.PI * 2
     });
   }
 
-  // Drifting Helium Balloons
-  const bColors = [COLORS.PINK, COLORS.CYAN, COLORS.GOLD, COLORS.PURPLE, COLORS.GREEN, COLORS.ORANGE];
-  const balloons = [];
-  for (let i = 0; i < 12; i++) {
-    balloons.push({
+  // Layer 2: Mid-Space Chromatic Twinkling Starseeds (70 stars)
+  const starsMid = [];
+  for (let i = 0; i < 70; i++) {
+    starsMid.push({
       x: Math.random() * 1400,
       y: Math.random() * 1600,
-      sz: 16 + Math.random() * 10,
-      dy: -0.4 - Math.random() * 0.45,
-      color: bColors[Math.floor(Math.random() * bColors.length)],
-      phase: Math.random() * Math.PI * 2
+      size: 2.0 + Math.random() * 1.5,
+      speed: 0.22 + Math.random() * 0.28,
+      twinkle: Math.random() * Math.PI * 2,
+      color: Math.random() < 0.65 ? '#ffffff' : (Math.random() < 0.5 ? '#b8f2e6' : '#ffd6e0')
     });
   }
+
+  // Layer 3: Rare Majestic 4-Point Diamond "Hero" Stars with Chromatic Halo (12 stars)
+  const starsHero = [];
+  for (let i = 0; i < 12; i++) {
+    starsHero.push({
+      x: Math.random() * 1400,
+      y: Math.random() * 1600,
+      outerRadius: 6.5 + Math.random() * 3.5,
+      speed: 0.40 + Math.random() * 0.35,
+      twinkle: Math.random() * Math.PI * 2,
+      rot: Math.random() * Math.PI,
+      rotSpeed: (Math.random() - 0.5) * 0.4,
+      color: ['#ffffff', '#ffeb99', '#a6f0ff', '#f3c4fb'][i % 4]
+    });
+  }
+
+  // Cosmic Stardust Filaments (Floating fairy dust motes)
+  const cosmicFilaments = [];
+  for (let i = 0; i < 20; i++) {
+    cosmicFilaments.push({
+      x: Math.random() * 1400,
+      y: Math.random() * 1600,
+      size: 2.5 + Math.random() * 3.5,
+      dy: -0.35 - Math.random() * 0.35,
+      phase: Math.random() * Math.PI * 2,
+      color: ['#ff85a1', '#70e000', '#00f5d4', '#ffd166', '#c77dff'][i % 5]
+    });
+  }
+
+  // Retro Celebration Colors & Confetti
+  const bColors = [COLORS.PINK, COLORS.CYAN, COLORS.GOLD, COLORS.PURPLE, COLORS.GREEN, COLORS.ORANGE];
 
   // Retro Confetti
   const confetti = [];
@@ -3192,15 +3280,19 @@ https://aishababu.vercel.app`;
     }
   }
 
-  function addScorePopup(x, y, text, color=COLORS.GOLD) {
+  function addScorePopup(x, y, text, color=COLORS.GOLD, fontSize=13) {
     particles.push({
       x, y,
       vx: 0,
-      vy: -55,
+      vy: -70,
       life: 0.85,
       maxLife: 0.85,
       text: text,
       color: color,
+      fontSize: fontSize,
+      glow: 14,
+      glowColor: color,
+      drag: 1.2,
       isText: true
     });
   }
@@ -3236,6 +3328,286 @@ https://aishababu.vercel.app`;
     ctx.bezierCurveTo(cx, topY + size, cx + size / 2, topY + (size + topCurveHeight) / 2, cx + size / 2, topY + topCurveHeight);
     ctx.bezierCurveTo(cx + size / 2, topY, cx, topY, cx, topY + topCurveHeight);
     ctx.closePath();
+  }
+
+  function drawDiamondSparkle(ctx, cx, cy, r) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - r);
+    ctx.quadraticCurveTo(cx, cy, cx + r, cy);
+    ctx.quadraticCurveTo(cx, cy, cx, cy + r);
+    ctx.quadraticCurveTo(cx, cy, cx - r, cy);
+    ctx.quadraticCurveTo(cx, cy, cx, cy - r);
+    ctx.closePath();
+  }
+
+  // ✨ Cosmic Stardust Glide Trail Spawners & Renderer (Kirby / Star-Wand Effect)
+  function spawnCosmicStardustGlide(startX, endX, py, vx, isFever) {
+    const dx = endX - startX;
+    const dist = Math.abs(dx);
+    // Interpolate so fast mobile finger drags create an unbroken sparkling ribbon
+    const count = Math.min(7, Math.max(1, Math.round(dist / 10)));
+    const biome = getBiomeInfo(stage);
+
+    const pastelPalette = [
+      '#ffe246', '#ffd000', '#fff48f', // Radiant Golden Stars
+      '#ff85c2', '#ff69b4', '#ffa8d8', // Pastel Strawberry Pink
+      '#6ee7ff', '#70f3ff', '#a0ffe6', // Mint Cyan Starlight
+      '#d8b4fe', '#f3e8ff', '#ffffff'  // Lavender Lilac & Diamond White
+    ];
+
+    let biomeAccent = biome.tagColor || '#ff6ebe';
+    if (biome.id === 'SUPERNOVA') {
+      biomeAccent = `hsl(${(globalTime * 90 + Math.random() * 60) % 360}, 95%, 72%)`;
+    }
+
+    for (let i = 0; i < count; i++) {
+      if (cosmicGlideSparkles.length > 95) cosmicGlideSparkles.shift();
+
+      const t = count === 1 ? 0.5 : (i + Math.random() * 0.45) / count;
+      const px = startX + dx * t + (Math.random() - 0.5) * 14;
+      const posY = py + 38 + Math.random() * 18;
+
+      // Gentle movement counter-drift & space buoyancy
+      const driftVx = -vx * 0.10 + (Math.random() - 0.5) * 38;
+      const driftVy = -16 - Math.random() * 32;
+
+      // Shapes: 'star4' (Kirby star), 'sparkle' (diamond glint ✦), 'star5' (golden mini star), 'orb' (stardust bead)
+      const rPick = Math.random();
+      let shape = 'orb';
+      if (rPick < 0.38) shape = 'star4';
+      else if (rPick < 0.68) shape = 'sparkle';
+      else if (rPick < 0.84) shape = 'star5';
+
+      let col = pastelPalette[Math.floor(Math.random() * pastelPalette.length)];
+      if (Math.random() < 0.35) col = biomeAccent;
+      if (isFever && Math.random() < 0.5) {
+        col = ['#ffd700', '#ff007f', '#00f0ff', '#39ff14', '#ffffff'][Math.floor(Math.random() * 5)];
+      }
+
+      const life = 0.50 + Math.random() * 0.40;
+      const baseSize = (shape === 'orb' ? 3.2 : 5.4) + Math.random() * (isFever ? 5.5 : 3.8);
+
+      cosmicGlideSparkles.push({
+        x: px,
+        y: posY,
+        vx: driftVx,
+        vy: driftVy,
+        size: baseSize,
+        life: life,
+        maxLife: life,
+        color: col,
+        shape: shape,
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 6.5,
+        twinkleRate: 15 + Math.random() * 12,
+        twinklePhase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function spawnCosmicStardustIdle(px, py, isFever) {
+    if (cosmicGlideSparkles.length > 95) cosmicGlideSparkles.shift();
+    const biome = getBiomeInfo(stage);
+    const pastelPalette = ['#ffe246', '#ff85c2', '#6ee7ff', '#d8b4fe', '#ffffff'];
+    const col = (Math.random() < 0.4 && biome.tagColor) ? biome.tagColor : pastelPalette[Math.floor(Math.random() * pastelPalette.length)];
+    const life = 0.45 + Math.random() * 0.35;
+    const shape = Math.random() < 0.5 ? 'sparkle' : (Math.random() < 0.5 ? 'star4' : 'orb');
+
+    cosmicGlideSparkles.push({
+      x: px + (Math.random() - 0.5) * 28,
+      y: py + 42 + Math.random() * 12,
+      vx: (Math.random() - 0.5) * 16,
+      vy: -14 - Math.random() * 20,
+      size: 3.5 + Math.random() * 3.0,
+      life: life,
+      maxLife: life,
+      color: col,
+      shape: shape,
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 4.0,
+      twinkleRate: 14 + Math.random() * 10,
+      twinklePhase: Math.random() * Math.PI * 2
+    });
+  }
+
+  function drawCosmicGlideTrail(ctx) {
+    if (cosmicGlideSparkles.length === 0) return;
+
+    ctx.save();
+    cosmicGlideSparkles.forEach(p => {
+      const progress = Math.max(0, p.life / p.maxLife);
+      const scale = (progress > 0.88 ? (1.0 - progress) / 0.12 : 1.0) * Math.sin(progress * Math.PI * 0.70);
+      const r = Math.max(0.6, p.size * scale);
+
+      const twinkle = 0.75 + 0.25 * Math.sin(globalTime * p.twinkleRate + p.twinklePhase);
+      const alpha = Math.min(1.0, Math.max(0, progress * 1.25)) * twinkle;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = Math.min(10, r * 2.0);
+
+      if (p.shape === 'star4') {
+        drawStarShape(ctx, 0, 0, 4, r, r * 0.38);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.shape === 'star5') {
+        drawStarShape(ctx, 0, 0, 5, r, r * 0.44);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.20, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.shape === 'sparkle') {
+        drawDiamondSparkle(ctx, 0, 0, r * 1.15);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        drawDiamondSparkle(ctx, 0, 0, r * 0.42);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(-r * 0.22, -r * 0.22, r * 0.32, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+  // 💥 Juicy Catch & Squish Frosting Pop Ring
+  function triggerJuicyCatchPop(x, y) {
+    const pastelFrostingCols = ['#ffffff', '#ff9ecb', '#70ffe2', '#fff3a8', '#d8b4fe', '#ffb3ba'];
+    // 14 pastel frosting beads bursting outward in an elliptical ring matching tray perspective
+    for (let f = 0; f < 14; f++) {
+      const angle = (f / 14) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
+      const spd = 85 + Math.random() * 95;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd * 0.55 - 20,
+        life: 0.42,
+        maxLife: 0.42,
+        size: 3.5 + Math.random() * 3.0,
+        color: pastelFrostingCols[Math.floor(Math.random() * pastelFrostingCols.length)],
+        shape: 'frosting',
+        drag: 2.2,
+        gravity: 50
+      });
+    }
+    // 5 sparkling star glints in the ring
+    for (let g = 0; g < 5; g++) {
+      const angle = (g / 5) * Math.PI * 2 + 0.3;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * 110,
+        vy: Math.sin(angle) * 65 - 25,
+        life: 0.36,
+        maxLife: 0.36,
+        size: 5.0,
+        color: '#ffffff',
+        glowColor: '#ffd700',
+        glow: 12,
+        shape: 'sparkle',
+        drag: 3.2
+      });
+    }
+  }
+
+  // 👑 Streak Sparkle Aura (High-Combo Glow)
+  function drawStreakSparkleAura(ctx, headY) {
+    if (comboStreak < 5) return;
+
+    ctx.save();
+    const isOverdrive = comboStreak >= 10;
+    const pulse = Math.sin(globalTime * (isOverdrive ? 10 : 7)) * 4;
+    const auraAlpha = isOverdrive ? (0.42 + Math.sin(globalTime * 9) * 0.18) : (0.35 + Math.sin(globalTime * 6) * 0.14);
+
+    // 1. Pulsing Celestial Aura Silhouette Glow
+    ctx.save();
+    if (isOverdrive) {
+      // 10x Supreme Tier: Electric Neon-Pink with Golden Core
+      ctx.shadowColor = '#ff007f';
+      ctx.shadowBlur = 28 + Math.sin(globalTime * 12) * 8;
+      ctx.fillStyle = `rgba(255, 0, 127, ${auraAlpha})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 38 + pulse, 64 + pulse, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = `rgba(255, 215, 0, ${auraAlpha * 0.7})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 30 + pulse * 0.7, 54 + pulse * 0.7, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // 5x Tier: Radiant Golden Celestial Aura
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 22 + pulse * 2;
+      ctx.fillStyle = `rgba(255, 215, 0, ${auraAlpha})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 34 + pulse, 58 + pulse, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 2. Orbiting Celestial Stars & Hearts around Aisha's head
+    const count = isOverdrive ? 4 : 3;
+    for (let s = 0; s < count; s++) {
+      const orbitSpeed = isOverdrive ? 3.8 : 2.8;
+      const orbitAngle = globalTime * orbitSpeed + s * ((Math.PI * 2) / count);
+      const orbitX = Math.cos(orbitAngle) * (isOverdrive ? 40 : 35);
+      const orbitY = headY - 4 + Math.sin(orbitAngle) * 12;
+      const depthScale = 0.8 + Math.sin(orbitAngle) * 0.35;
+
+      ctx.save();
+      ctx.translate(orbitX, orbitY);
+      ctx.scale(depthScale, depthScale);
+
+      if (isOverdrive && s % 2 === 1) {
+        // Neon-pink celestial heart
+        ctx.fillStyle = '#ff1493';
+        ctx.shadowColor = '#ff69b4';
+        ctx.shadowBlur = 10;
+        drawHeartShape(ctx, 0, 0, 8);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        drawHeartShape(ctx, -1, -1, 3.5);
+        ctx.fill();
+      } else {
+        // Golden celestial star
+        ctx.fillStyle = '#ffd700';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 10;
+        drawStarShape(ctx, 0, 0, 4, 6.5, 2.6);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(0, 0, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    ctx.restore();
   }
 
   const LETTER_MATRICES = {
@@ -3927,6 +4299,8 @@ https://aishababu.vercel.app`;
     items = [];
     particles = [];
     trails = [];
+    ghostTrails = [];
+    cosmicGlideSparkles = [];
     player.x = WIDTH / 2;
     player.invincible = 0;
     targetX = player.x;
@@ -4952,18 +5326,29 @@ https://aishababu.vercel.app`;
     globalTime += dt;
     shakeTime = Math.max(0, shakeTime - dt);
 
-    // Stars
-    stars.forEach(s => {
+    // 🌌 3-Tier Parallax Starfield & Cosmic Filaments Update
+    starsDeep.forEach(s => {
       s.y += s.speed;
-      s.twinkle += dt * 3;
+      s.twinkle += dt * 1.5;
       if (s.y > HEIGHT) { s.y = 0; s.x = Math.random() * WIDTH; }
     });
+    starsMid.forEach(s => {
+      s.y += s.speed;
+      s.twinkle += dt * 3.2;
+      if (s.y > HEIGHT) { s.y = 0; s.x = Math.random() * WIDTH; }
+    });
+    starsHero.forEach(s => {
+      s.y += s.speed;
+      s.twinkle += dt * 2.2;
+      s.rot += s.rotSpeed * dt;
+      if (s.y > HEIGHT + 20) { s.y = -20; s.x = Math.random() * WIDTH; }
+    });
 
-    // Balloons
-    balloons.forEach(b => {
-      b.y += b.dy;
-      b.x += Math.sin(globalTime * 2 + b.phase) * 0.4;
-      if (b.y < -50) { b.y = HEIGHT + 30; b.x = Math.random() * WIDTH; }
+    // Cosmic Stardust Filaments
+    cosmicFilaments.forEach(cf => {
+      cf.y += cf.dy;
+      cf.x += Math.sin(globalTime * 1.8 + cf.phase) * 0.45;
+      if (cf.y < -30) { cf.y = HEIGHT + 20; cf.x = Math.random() * WIDTH; }
     });
 
     // Confetti
@@ -4983,6 +5368,17 @@ https://aishababu.vercel.app`;
     ghostTrails = ghostTrails.filter(gt => gt.alpha > 0);
     ghostTrails.forEach(gt => {
       gt.alpha -= dt * 2.5;
+    });
+
+    // ✨ Cosmic Stardust Glide Trail Update
+    cosmicGlideSparkles = cosmicGlideSparkles.filter(p => p.life > 0);
+    cosmicGlideSparkles.forEach(p => {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= Math.pow(0.86, dt * 60);
+      p.vy -= 14 * dt;
+      p.rot += p.rotSpeed * dt;
+      p.life -= dt;
     });
 
     // Cosmic Candy Comets
@@ -5127,6 +5523,16 @@ https://aishababu.vercel.app`;
       player.vx = (player.x - player.prevX) / Math.max(0.001, dt);
       player.prevX = player.x;
 
+      // ✨ Cosmic Stardust Glide Trail (Kirby / Star-Wand Effect)
+      const moveDelta = player.x - curX;
+      const absDist = Math.abs(moveDelta);
+      const isFever = (starFeverTime > 0 || pinataFrenzyTime > 0);
+      if (absDist > 0.4 || (isDragging && Math.abs(player.vx) > 12) || Math.abs(player.vx) > 28) {
+        spawnCosmicStardustGlide(curX, player.x, player.y, player.vx, isFever);
+      } else if (Math.random() < 0.16) {
+        spawnCosmicStardustIdle(player.x, player.y, isFever);
+      }
+
       // Bank tilt towards movement
       const targetTilt = Math.max(-0.11, Math.min(0.11, player.vx * 0.00022));
       player.tilt += (targetTilt - player.tilt) * Math.min(1.0, 14 * dt);
@@ -5142,10 +5548,30 @@ https://aishababu.vercel.app`;
         });
       }
 
-      // Cake Squash & Stretch spring physics
+      // Character & Cake Squash & Stretch spring physics
+      player.squashVel += (1.0 - player.squash) * 58 * dt;
+      player.squashVel *= 0.76;
+      player.squash += player.squashVel * dt;
+
       player.traySquashVel += (1.0 - player.traySquash) * 48 * dt;
       player.traySquashVel *= 0.80;
       player.traySquash += player.traySquashVel * dt;
+
+      // 👑 Ambient Streak Sparkle Aura motes when combo is 5x or 10x
+      if (comboStreak >= 5 && Math.random() < (comboStreak >= 10 ? 0.35 : 0.18)) {
+        particles.push({
+          x: player.x + (Math.random() - 0.5) * 44,
+          y: player.y + 25 - Math.random() * 45,
+          vx: (Math.random() - 0.5) * 22,
+          vy: -40 - Math.random() * 30,
+          life: 0.40,
+          maxLife: 0.40,
+          size: 3.2,
+          color: comboStreak >= 10 ? (Math.random() < 0.5 ? '#ff007f' : '#ffd700') : '#ffd700',
+          shape: Math.random() < 0.5 ? 'heart' : 'sparkle',
+          glow: 10
+        });
+      }
 
       // Micro-expressions timers
       player.happyTime = Math.max(0, player.happyTime - dt);
@@ -5464,14 +5890,36 @@ https://aishababu.vercel.app`;
           });
         }
 
+        // 🔥 Atmospheric Re-Entry Comic Sparks shedding off plunging hazards
+        if (item.isBad && Math.random() < (item.kind === 'ANVIL' ? 0.70 : 0.35)) {
+          const sparkCols = ['#ff4500', '#ff8c00', '#ffd700', '#fffb91'];
+          particles.push({
+            x: item.x + (Math.random() - 0.5) * (item.kind === 'ANVIL' ? 32 : 24),
+            y: item.y - 8 + Math.random() * 20,
+            vx: (Math.random() - 0.5) * 65,
+            vy: -item.vy * 0.32 - 45 - Math.random() * 45,
+            life: 0.22,
+            maxLife: 0.22,
+            size: 2.2 + Math.random() * 2.2,
+            color: sparkCols[Math.floor(Math.random() * sparkCols.length)],
+            shape: 'sparkle',
+            glow: 8,
+            glowColor: '#ff6600'
+          });
+        }
+
         // Catch check
         if (!item.isBad) {
           if (item.x >= trayRect.x && item.x <= trayRect.x + trayRect.w &&
               item.y >= trayRect.y && item.y <= trayRect.y + trayRect.h + 24) {
 
-            // Cake Squash & Stretch Jiggle + Character Happy Expression
-            player.traySquash = 0.72;
+            // 💥 Juicy Catch & Squish Jiggle + Character Happy Expression
+            player.squash = 0.78; // Microscopic squash-and-stretch bounce!
+            player.traySquash = 0.70;
             player.happyTime = 0.65;
+
+            // 💥 Quick Ring of Pastel Frosting Pop on Tray Catch
+            triggerJuicyCatchPop(item.x, trayRect.y + 4);
 
             // Frosting Splatters & Rainbow Sprinkles on Catch
             const splashCols = ['#ff4da6', '#ffffff', '#ffd700', '#00dcff', '#ff8500', '#70e000'];
@@ -5564,17 +6012,19 @@ https://aishababu.vercel.app`;
 
               if (comboStreak === 5) {
                 score += 75;
-                addScorePopup(player.x, player.y - 75, "5x COMBO! +75", COLORS.GOLD);
+                addScorePopup(player.x, player.y - 75, "COMBO x5! +75 ✨", COLORS.GOLD, 14);
                 sfxCombo();
               } else if (comboStreak >= 10 && comboStreak % 5 === 0) {
                 score += 150;
-                addScorePopup(player.x, player.y - 75, comboStreak + "x BAKING FEVER! +150", '#00f0ff');
+                addScorePopup(player.x, player.y - 75, `${comboStreak}x FEVER! +150 👑`, '#00f0ff', 15);
                 addCollectBurst(player.x, player.y - 60, '#00f0ff');
                 sfxCombo();
+              } else if (comboStreak >= 3) {
+                popupText += ` (x${comboStreak}! ✨)`;
               }
 
               addCollectBurst(item.x, item.y, '#00ff88');
-              addScorePopup(item.x, item.y - 20, popupText, sugarRushCount > 0 ? '#ff6ebe' : '#00ff88');
+              addScorePopup(item.x, item.y - 20, popupText, sugarRushCount > 0 ? '#ff6ebe' : (comboStreak >= 5 ? '#ffd700' : '#00ff88'));
               sfxCatch();
               haptic(15);
               items.splice(i, 1);
@@ -5694,43 +6144,176 @@ https://aishababu.vercel.app`;
       ctx.translate(sx, sy);
     }
 
-    // Dynamic Cosmic Themes across the 30 stages
+    // ─── 🌌 DYNAMIC STAGE BIOME BACKGROUNDS ──────────────────────────────
+    // 1–5:   Pastel Strawberry Nebula (soft pink & deep violet)
+    // 6–10:  Cotton Candy Aurora (glowing cyan & mint ribbons)
+    // 11–15: Golden Honeycomb Deep Space (warm gold & amber starlight)
+    // 16–25: Cosmic Velvet Twilight (royal purple & magenta)
+    // 26–30: Diamond Tiara Supernova (shimmering rainbow starlight)
+
     let bgGrad;
-    if (stage <= 10) {
-      // Theme 1: Deep Space Party (Stages 1-10)
-      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.8);
-      bgGrad.addColorStop(0, '#1a1040');
-      bgGrad.addColorStop(0.65, '#0b0621');
-      bgGrad.addColorStop(1, '#050210');
-    } else if (stage <= 20) {
-      // Theme 2: Sunset Galaxy (Stages 11-20)
-      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.8);
-      bgGrad.addColorStop(0, '#361138');
-      bgGrad.addColorStop(0.65, '#1b0626');
-      bgGrad.addColorStop(1, '#090112');
+    if (stage <= 5) {
+      // Biome 1: Strawberry Quartz Nebula (Stages 1-5)
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, '#34082e');
+      bgGrad.addColorStop(0.35, '#22052c');
+      bgGrad.addColorStop(0.65, '#12021d');
+      bgGrad.addColorStop(0.88, '#080112');
+      bgGrad.addColorStop(1.0, '#030008');
+    } else if (stage <= 10) {
+      // Biome 2: Celestial Aurora Borealis (Stages 6-10)
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, '#032438');
+      bgGrad.addColorStop(0.35, '#021829');
+      bgGrad.addColorStop(0.65, '#010f1c');
+      bgGrad.addColorStop(0.88, '#010810');
+      bgGrad.addColorStop(1.0, '#000308');
+    } else if (stage <= 15) {
+      // Biome 3: Golden Honeycomb Deep Space (Stages 11-15)
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, '#341902');
+      bgGrad.addColorStop(0.35, '#231002');
+      bgGrad.addColorStop(0.65, '#140801');
+      bgGrad.addColorStop(0.88, '#0a0300');
+      bgGrad.addColorStop(1.0, '#030100');
+    } else if (stage <= 25) {
+      // Biome 4: Royal Velvet Twilight (Stages 16-25)
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, '#2b043b');
+      bgGrad.addColorStop(0.35, '#1c0229');
+      bgGrad.addColorStop(0.65, '#0f0119');
+      bgGrad.addColorStop(0.88, '#08000f');
+      bgGrad.addColorStop(1.0, '#030006');
     } else {
-      // Theme 3: Cosmic Cyber-Disco (Stages 21-30)
-      bgGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, HEIGHT * 0.8);
-      bgGrad.addColorStop(0, '#1f0942');
-      bgGrad.addColorStop(0.65, '#0c0228');
-      bgGrad.addColorStop(1, '#030010');
+      // Biome 5: Prismatic Tiara Supernova (Stages 26-30)
+      const rainbowHue = Math.floor((globalTime * 28) % 360);
+      bgGrad = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.45, 30, WIDTH * 0.5, HEIGHT * 0.5, HEIGHT * 0.85);
+      bgGrad.addColorStop(0, `hsl(${rainbowHue}, 65%, 16%)`);
+      bgGrad.addColorStop(0.35, '#160833');
+      bgGrad.addColorStop(0.65, '#0c031f');
+      bgGrad.addColorStop(0.88, '#060112');
+      bgGrad.addColorStop(1.0, '#020008');
     }
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    // Glowing Nebula clouds (pulsing in sync with chiptune beat during combos!)
+    // ─── 🌌 VOLUMETRIC SCREEN-BLENDED NEBULA PLUMES ────────────────────
     ctx.save();
+    ctx.globalCompositeOperation = 'screen';
     const comboPulse = (comboStreak >= 5) ? (Math.sin(globalTime * 9) * 0.10) : 0;
-    ctx.globalAlpha = 0.22 + comboPulse;
-    const neb1Col = stage <= 10 ? '#ff00aa' : (stage <= 20 ? '#ff7700' : '#bd00ff');
-    const neb2Col = stage <= 10 ? '#00dcff' : (stage <= 20 ? '#ff0077' : '#00f0ff');
-    const neb1 = ctx.createRadialGradient(WIDTH * 0.25, HEIGHT * 0.35, 10, WIDTH * 0.25, HEIGHT * 0.35, 260);
-    neb1.addColorStop(0, neb1Col); neb1.addColorStop(1, 'transparent');
-    ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    const neb2 = ctx.createRadialGradient(WIDTH * 0.75, HEIGHT * 0.65, 10, WIDTH * 0.75, HEIGHT * 0.65, 280);
-    neb2.addColorStop(0, neb2Col); neb2.addColorStop(1, 'transparent');
-    ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    // Plume gentle breathing drift positions
+    const driftX1 = Math.sin(globalTime * 0.45) * 22;
+    const driftY1 = Math.cos(globalTime * 0.38) * 18;
+    const driftX2 = Math.cos(globalTime * 0.40) * 20;
+    const driftY2 = Math.sin(globalTime * 0.48) * 18;
+
+    if (stage <= 5) {
+      // Biome 1: Strawberry Quartz Plumes
+      ctx.globalAlpha = 0.28 + comboPulse;
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.26 + driftX1, HEIGHT * 0.30 + driftY1, 20, WIDTH * 0.26 + driftX1, HEIGHT * 0.30 + driftY1, 310);
+      neb1.addColorStop(0, '#ff70a6');
+      neb1.addColorStop(0.5, '#701a75');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.76 + driftX2, HEIGHT * 0.64 + driftY2, 20, WIDTH * 0.76 + driftX2, HEIGHT * 0.64 + driftY2, 330);
+      neb2.addColorStop(0, '#c77dff');
+      neb2.addColorStop(0.55, '#3c096c');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    } else if (stage <= 10) {
+      // Biome 2: Celestial Aurora Borealis Ribbons
+      ctx.globalAlpha = 0.26 + comboPulse;
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.24 + driftX1, HEIGHT * 0.28 + driftY1, 20, WIDTH * 0.24 + driftX1, HEIGHT * 0.28 + driftY1, 300);
+      neb1.addColorStop(0, '#00f5d4');
+      neb1.addColorStop(0.55, '#0077b6');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.76 + driftX2, HEIGHT * 0.65 + driftY2, 20, WIDTH * 0.76 + driftX2, HEIGHT * 0.65 + driftY2, 320);
+      neb2.addColorStop(0, '#70e000');
+      neb2.addColorStop(0.55, '#005f73');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Shimmering anime-quality flowing dual Aurora curtains
+      ctx.globalAlpha = 0.22 + comboPulse;
+      const aurGrad = ctx.createLinearGradient(0, HEIGHT * 0.16, WIDTH, HEIGHT * 0.44);
+      aurGrad.addColorStop(0, 'rgba(0, 245, 212, 0)');
+      aurGrad.addColorStop(0.35, '#00f5d4');
+      aurGrad.addColorStop(0.68, '#70e000');
+      aurGrad.addColorStop(1, 'rgba(112, 224, 0, 0)');
+      ctx.fillStyle = aurGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, HEIGHT * 0.20);
+      for (let ax = 0; ax <= WIDTH; ax += 20) {
+        const ay = HEIGHT * 0.22 + Math.sin(ax * 0.007 + globalTime * 1.5) * 32 + Math.cos(ax * 0.013 - globalTime * 1.2) * 18;
+        ctx.lineTo(ax, ay);
+      }
+      for (let ax = WIDTH; ax >= 0; ax -= 20) {
+        const ay2 = HEIGHT * 0.36 + Math.sin(ax * 0.006 + globalTime * 1.3) * 26;
+        ctx.lineTo(ax, ay2);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+    } else if (stage <= 15) {
+      // Biome 3: Golden Honeycomb Deep Starlight Plumes
+      ctx.globalAlpha = 0.28 + comboPulse;
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.26 + driftX1, HEIGHT * 0.30 + driftY1, 20, WIDTH * 0.26 + driftX1, HEIGHT * 0.30 + driftY1, 310);
+      neb1.addColorStop(0, '#ffb703');
+      neb1.addColorStop(0.55, '#6a3805');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.76 + driftX2, HEIGHT * 0.64 + driftY2, 20, WIDTH * 0.76 + driftX2, HEIGHT * 0.64 + driftY2, 330);
+      neb2.addColorStop(0, '#fb8500');
+      neb2.addColorStop(0.55, '#4a1503');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    } else if (stage <= 25) {
+      // Biome 4: Royal Velvet Twilight
+      ctx.globalAlpha = 0.29 + comboPulse;
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.28 + driftX1, HEIGHT * 0.32 + driftY1, 20, WIDTH * 0.28 + driftX1, HEIGHT * 0.32 + driftY1, 320);
+      neb1.addColorStop(0, '#9d4edd');
+      neb1.addColorStop(0.55, '#3c096c');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.74 + driftX2, HEIGHT * 0.66 + driftY2, 20, WIDTH * 0.74 + driftX2, HEIGHT * 0.66 + driftY2, 340);
+      neb2.addColorStop(0, '#ff007f');
+      neb2.addColorStop(0.55, '#590d22');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    } else {
+      // Biome 5: Prismatic Tiara Supernova
+      const rHue = Math.floor((globalTime * 30) % 360);
+      ctx.globalAlpha = 0.32 + comboPulse;
+
+      const neb1 = ctx.createRadialGradient(WIDTH * 0.28 + driftX1, HEIGHT * 0.30 + driftY1, 20, WIDTH * 0.28 + driftX1, HEIGHT * 0.30 + driftY1, 330);
+      neb1.addColorStop(0, `hsl(${rHue}, 88%, 65%)`);
+      neb1.addColorStop(0.55, `hsl(${(rHue + 60) % 360}, 60%, 25%)`);
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const neb2 = ctx.createRadialGradient(WIDTH * 0.74 + driftX2, HEIGHT * 0.65 + driftY2, 20, WIDTH * 0.74 + driftX2, HEIGHT * 0.65 + driftY2, 350);
+      neb2.addColorStop(0, `hsl(${(rHue + 150) % 360}, 92%, 65%)`);
+      neb2.addColorStop(0.55, `hsl(${(rHue + 210) % 360}, 60%, 25%)`);
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Supernova Diamond Halo Flare in deep space
+      ctx.globalAlpha = 0.18 + Math.sin(globalTime * 3) * 0.08;
+      ctx.strokeStyle = `hsl(${(rHue + 60) % 360}, 100%, 78%)`;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.arc(WIDTH / 2, HEIGHT * 0.35, 100 + Math.sin(globalTime * 2.5) * 16, 0, Math.PI * 2);
+      ctx.stroke();
+    }
     ctx.restore();
 
     // Parallax Deep-Space Wonders: Donut Galaxy & Macaron Saturn Planet
@@ -5753,63 +6336,98 @@ https://aishababu.vercel.app`;
       ctx.restore();
     });
 
-    // Pixel Stars with sparkling 4-point shape
-    stars.forEach(s => {
-      ctx.save();
-      const alpha = 0.4 + 0.6 * Math.abs(Math.sin(s.twinkle));
-      ctx.fillStyle = s.color;
+    // ─── 🌌 PRESTIGE 3-TIER PARALLAX STARFIELD RENDERING ───────────────
+    // Layer 1: Deep Infinite Sub-Pixel Star Dust
+    ctx.save();
+    starsDeep.forEach(s => {
+      const alpha = s.baseAlpha * (0.7 + 0.3 * Math.sin(s.twinkle));
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = '#d8dbe2';
+      ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+    ctx.restore();
+
+    // Layer 2: Mid-Space Chromatic Twinkling Starseeds
+    ctx.save();
+    starsMid.forEach(s => {
+      const alpha = 0.38 + 0.62 * Math.abs(Math.sin(s.twinkle));
+      let sColor = s.color;
+      if (stage > 25) {
+        if (Math.sin(s.twinkle * 2) > 0.4) {
+          sColor = `hsl(${(globalTime * 90 + s.x) % 360}, 100%, 85%)`;
+        }
+      } else if (stage >= 11 && stage <= 15) {
+        if (s.color === '#ffffff') sColor = '#ffd700';
+      } else if (stage >= 6 && stage <= 10) {
+        if (s.color === '#ffffff' && s.x % 2 === 0) sColor = '#a6ffff';
+      } else if (stage <= 5) {
+        if (s.color === '#ffffff' && s.x % 3 === 0) sColor = '#ffb3d9';
+      }
+      ctx.fillStyle = sColor;
       ctx.globalAlpha = alpha;
       const sz = s.size;
       ctx.fillRect(s.x, s.y, sz, sz);
-      if (sz >= 3) {
+      if (sz >= 2.8) {
         ctx.fillRect(s.x - 1, s.y + 1, sz + 2, sz - 2);
         ctx.fillRect(s.x + 1, s.y - 1, sz - 2, sz + 2);
       }
-      ctx.restore();
     });
+    ctx.restore();
 
-    // Portholes looking into galaxies
-    const isPortrait = HEIGHT > WIDTH;
-    const portholes = isPortrait
-      ? [[80, 280, 52], [WIDTH - 80, 280, 52], [80, 680, 45], [WIDTH - 80, 680, 45]]
-      : [[180, 280, 95], [WIDTH - 180, 280, 95], [130, 520, 60], [WIDTH - 130, 520, 60]];
-
-    portholes.forEach(([cx, cy, r]) => {
-      ctx.save();
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
-      ctx.fillStyle = COLORS.SPACE_MID; ctx.fill();
-      // Galaxy swirl
-      ctx.fillStyle = '#b042ff';
-      ctx.beginPath(); ctx.arc(cx, cy, r / 3, 0, Math.PI * 2); ctx.fill();
-      ctx.restore();
-
-      ctx.strokeStyle = '#3d4d80';
-      ctx.lineWidth = 6;
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
-      ctx.strokeStyle = '#00dcff';
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, Math.PI * 2); ctx.stroke();
-    });
-
-    // Background Balloons — Dimmed & darkened by ~70% (opacity ~28%)
+    // Layer 3: Rare Majestic Diamond Lens-Flare "Hero" Stars
     ctx.save();
-    ctx.globalAlpha = 0.28;
-    balloons.forEach(b => {
-      ctx.fillStyle = b.color;
-      ctx.beginPath();
-      ctx.ellipse(b.x, b.y, b.sz, b.sz * 1.35, 0, 0, Math.PI * 2);
+    starsHero.forEach(s => {
+      const alpha = 0.45 + 0.55 * Math.abs(Math.sin(s.twinkle));
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rot);
+      ctx.fillStyle = s.color;
+      ctx.shadowColor = s.color;
+      ctx.shadowBlur = 12;
+
+      // 4-point slender diffraction spikes
+      drawStarShape(ctx, 0, 0, 4, s.outerRadius, s.outerRadius * 0.22);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+
+      // Pure white sparkling jewel core
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 0;
       ctx.beginPath();
-      ctx.ellipse(b.x - b.sz * 0.35, b.y - b.sz * 0.4, b.sz * 0.3, b.sz * 0.4, -0.3, 0, Math.PI * 2);
+      ctx.arc(0, 0, 1.8, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(160, 160, 180, 0.4)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(b.x, b.y + b.sz * 1.35);
-      ctx.lineTo(b.x + 3, b.y + b.sz * 1.35 + 16);
-      ctx.stroke();
+      ctx.restore();
     });
+    ctx.restore();
+
+    // ─── 🌌 COSMIC STARDUST FILAMENTS (Replaces Primitive Balloons) ────
+    cosmicFilaments.forEach(cf => {
+      ctx.save();
+      const flAlpha = 0.28 + 0.22 * Math.sin(globalTime * 2.2 + cf.phase);
+      ctx.globalAlpha = flAlpha;
+      ctx.fillStyle = cf.color;
+      ctx.shadowColor = cf.color;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(cf.x, cf.y, cf.size, 0, Math.PI * 2);
+      ctx.fill();
+      // White crystal core
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(cf.x - cf.size * 0.28, cf.y - cf.size * 0.28, cf.size * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // ─── 🌌 DEEP CINEMATIC VIGNETTE (The "Theatrical Stage" Effect) ────
+    ctx.save();
+    const vignette = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, WIDTH * 0.32, WIDTH / 2, HEIGHT / 2, WIDTH * 0.82);
+    vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vignette.addColorStop(0.68, 'rgba(4, 2, 12, 0.32)');
+    vignette.addColorStop(1.0, 'rgba(2, 1, 8, 0.78)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
     ctx.restore();
 
     // Cockpit Side panels
@@ -5821,51 +6439,6 @@ https://aishababu.vercel.app`;
     ctx.lineWidth = 2;
     ctx.strokeRect(0, 0, pw, HEIGHT);
     ctx.strokeRect(WIDTH - pw, 0, pw, HEIGHT);
-
-    // Doubled-size pulsating purple neon audio waves / speakers
-    const spPulse = Math.sin(globalTime * 9) * 5;
-    const spY = HEIGHT - 150;
-
-    // Left Speaker
-    ctx.save();
-    ctx.shadowColor = '#d020ff';
-    ctx.shadowBlur = 22;
-    ctx.fillStyle = '#240638';
-    ctx.beginPath();
-    ctx.arc(10, spY, 26, -Math.PI / 2, Math.PI / 2);
-    ctx.fill();
-    ctx.strokeStyle = '#e040ff';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    const lWaves = [46 + spPulse, 68 + spPulse * 1.3, 92 + spPulse * 1.7];
-    lWaves.forEach((rw, idx) => {
-      ctx.strokeStyle = idx === 0 ? '#ff4da6' : (idx === 1 ? '#e040ff' : '#a000e0');
-      ctx.lineWidth = 4.5 - idx * 0.8;
-      ctx.beginPath();
-      ctx.arc(10, spY, rw, -Math.PI * 0.44, Math.PI * 0.44);
-      ctx.stroke();
-    });
-    ctx.restore();
-
-    // Right Speaker
-    ctx.save();
-    ctx.shadowColor = '#d020ff';
-    ctx.shadowBlur = 22;
-    ctx.fillStyle = '#240638';
-    ctx.beginPath();
-    ctx.arc(WIDTH - 10, spY, 26, Math.PI / 2, Math.PI * 1.5);
-    ctx.fill();
-    ctx.strokeStyle = '#e040ff';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    lWaves.forEach((rw, idx) => {
-      ctx.strokeStyle = idx === 0 ? '#ff4da6' : (idx === 1 ? '#e040ff' : '#a000e0');
-      ctx.lineWidth = 4.5 - idx * 0.8;
-      ctx.beginPath();
-      ctx.arc(WIDTH - 10, spY, rw, Math.PI * 0.56, Math.PI * 1.44);
-      ctx.stroke();
-    });
-    ctx.restore();
 
     // Top & Floor Panels
     ctx.fillStyle = '#161e42';
@@ -6014,14 +6587,42 @@ https://aishababu.vercel.app`;
       const trailH = 80;
       const grad = ctx.createLinearGradient(item.x, item.y - trailH, item.x, item.y + 15);
       if (item.isBad) {
-        // Warning-red trail / glowing halo
-        grad.addColorStop(0, 'rgba(255, 30, 60, 0)');
-        grad.addColorStop(0.65, 'rgba(255, 40, 70, 0.25)');
-        grad.addColorStop(1, 'rgba(255, 20, 50, 0.55)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(item.x - 26, item.y - trailH, 52, trailH + 20);
-        ctx.shadowColor = '#ff2040';
-        ctx.shadowBlur = 18;
+        const isAnvil = (item.kind === 'ANVIL');
+        const heatH = isAnvil ? 140 : 90;
+        const flameFlick = Math.sin(globalTime * 36 + item.y * 0.12) * (isAnvil ? 5 : 3);
+
+        // 🔥 Atmospheric Re-Entry Friction Plasma Plume (Molten Orange & Incandescent Core)
+        const reEntryGrad = ctx.createLinearGradient(item.x, item.y - heatH, item.x, item.y + 15);
+        reEntryGrad.addColorStop(0, 'rgba(255, 40, 0, 0)');
+        reEntryGrad.addColorStop(0.35, 'rgba(255, 80, 0, 0.28)');
+        reEntryGrad.addColorStop(0.70, 'rgba(255, 140, 0, 0.65)');
+        reEntryGrad.addColorStop(0.92, 'rgba(255, 210, 30, 0.85)');
+        reEntryGrad.addColorStop(1.0, 'rgba(255, 255, 230, 0.95)');
+
+        ctx.fillStyle = reEntryGrad;
+        ctx.shadowColor = isAnvil ? '#ff5500' : '#ff2200';
+        ctx.shadowBlur = isAnvil ? 26 : 18;
+
+        // Tapered supersonic friction shock cone
+        const baseW = isAnvil ? 28 : 22;
+        ctx.beginPath();
+        ctx.moveTo(item.x, item.y - heatH);
+        ctx.quadraticCurveTo(item.x + flameFlick, item.y - heatH * 0.5, item.x + baseW, item.y + 10);
+        ctx.lineTo(item.x - baseW, item.y + 10);
+        ctx.quadraticCurveTo(item.x - flameFlick, item.y - heatH * 0.5, item.x, item.y - heatH);
+        ctx.closePath();
+        ctx.fill();
+
+        // Incandescent re-entry bow shockwave curve at leading edge
+        if (isAnvil) {
+          ctx.strokeStyle = '#ffe066';
+          ctx.lineWidth = 3.5;
+          ctx.shadowColor = '#ff6600';
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.arc(item.x, item.y + 14, 25, 0.15 * Math.PI, 0.85 * Math.PI);
+          ctx.stroke();
+        }
       } else if (item.isPowerup) {
         // Shimmering Golden Power-Up Aura
         grad.addColorStop(0, 'rgba(255, 215, 0, 0)');
@@ -6092,6 +6693,9 @@ https://aishababu.vercel.app`;
       });
     }
 
+    // ✨ Cosmic Stardust Glide Trail (Kirby / Star-Wand Effect)
+    drawCosmicGlideTrail(ctx);
+
     // Playable Character (Aisha) — Scaled 1.25x with dynamic bank tilt & cake jiggle
     if (state === 'PLAYING' || state === 'STAGE_CLEAR' || state === 'PAUSED') {
       // Keep Aisha 100% solid and fully visible during Star-Fever and Frenzy (never disappears like a ghost)
@@ -6102,9 +6706,17 @@ https://aishababu.vercel.app`;
         const px = player.x;
         const py = player.y + bob;
 
-        ctx.translate(px, py);
-        ctx.scale(1.25, 1.25);
+        // 💥 Juicy Catch & Squish Bounce Scale
+        const sqX = 1.0 + (1.0 - player.squash) * 0.45;
+        const sqY = player.squash;
+        const groundAnchor = (1.0 - sqY) * 38;
+
+        ctx.translate(px, py + groundAnchor);
+        ctx.scale(1.25 * sqX, 1.25 * sqY);
         ctx.rotate(player.tilt);
+
+        // 👑 Streak Sparkle Aura (High-Combo Glow)
+        drawStreakSparkleAura(ctx, -36);
 
         // 1. Boot Thrusters with Animated Pixel-Jet Flame Cones
         [-15, 15].forEach(bx => {
@@ -6508,10 +7120,10 @@ https://aishababu.vercel.app`;
         ctx.font = fSize + 'px "Press Start 2P", monospace';
         ctx.textAlign = 'center';
         ctx.strokeStyle = '#000000';
-        ctx.lineWidth = Math.max(2, Math.round(fSize / 4));
+        ctx.lineWidth = Math.max(3, Math.round(fSize / 3.5));
         ctx.strokeText(p.text, 0, 0);
         ctx.shadowColor = p.glowColor || p.color;
-        ctx.shadowBlur = p.glow || 10;
+        ctx.shadowBlur = p.glow || 14;
         ctx.fillText(p.text, 0, 0);
       } else {
         if (p.trail && p.vx !== undefined && p.vy !== undefined) {
@@ -6543,6 +7155,15 @@ https://aishababu.vercel.app`;
           ctx.lineTo(p.x, p.y + s);
           ctx.lineTo(p.x - s * 0.35, p.y);
           ctx.closePath();
+          ctx.fill();
+        } else if (p.shape === 'frosting') {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowBlur = 0;
+          ctx.beginPath();
+          ctx.arc(p.x - p.size * 0.28, p.y - p.size * 0.28, p.size * 0.35, 0, Math.PI * 2);
           ctx.fill();
         } else {
           ctx.beginPath();
@@ -6793,19 +7414,6 @@ https://aishababu.vercel.app`;
       ctx.shadowBlur = 0;
       ctx.fillText("📳 TILT ON", WIDTH / 2, tIndY - 4);
       ctx.restore();
-    } else {
-      // Animated Neon Sine Wave Oscillation
-      ctx.strokeStyle = '#00dcff';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      const waveStart = pw + 180;
-      const waveWidth = Math.max(100, WIDTH - pw * 2 - 370);
-      for (let wx = 0; wx < waveWidth; wx += 4) {
-        const wy = HEIGHT - safeBottom - 11 + Math.sin(wx * 0.08 + globalTime * 7) * 7;
-        if (wx === 0) ctx.moveTo(waveStart + wx, wy);
-        else ctx.lineTo(waveStart + wx, wy);
-      }
-      ctx.stroke();
     }
 
     ctx.save();
@@ -6816,10 +7424,12 @@ https://aishababu.vercel.app`;
     ctx.textAlign = 'right';
     ctx.fillText("STAGE " + stage + "/" + TOTAL_STAGES, WIDTH - pw - 18, HEIGHT - safeBottom - 8);
 
-    const costumeTitle = stage >= 30 ? "💎 TIARA" : (stage >= 20 ? "🧑‍🍳 CHEF" : (stage >= 10 ? "👑 CROWN" : "🎀 PARTY"));
-    ctx.fillStyle = stage >= 30 ? '#00f0ff' : (stage >= 20 ? '#ffffff' : (stage >= 10 ? '#ffd700' : '#ff6ebe'));
+    const biomeHUD = getBiomeInfo(stage);
+    ctx.fillStyle = biomeHUD.tagColor;
+    ctx.shadowColor = biomeHUD.tagColor;
+    ctx.shadowBlur = 8;
     ctx.font = '8px "Press Start 2P", monospace';
-    ctx.fillText(costumeTitle, WIDTH - pw - 18, HEIGHT - safeBottom - 22);
+    ctx.fillText(biomeHUD.name, WIDTH - pw - 18, HEIGHT - safeBottom - 23);
     ctx.restore();
 
     // ─── OVERLAY SCREENS ──────────────────────────────────────────────
@@ -6938,11 +7548,14 @@ https://aishababu.vercel.app`;
       ctx.font = '22px "Press Start 2P", monospace';
       ctx.textAlign = 'center';
       ctx.fillText("STAGE " + stage + " CLEAR!", WIDTH / 2, HEIGHT / 2 - 25);
-      ctx.fillStyle = COLORS.CYAN;
-      ctx.shadowColor = COLORS.CYAN;
+      const nextBiome = getBiomeInfo(stage + 1);
+      const isNewBiome = (stage === 5 || stage === 10 || stage === 15 || stage === 25);
+      const subMsg = isNewBiome ? `ENTERING ${nextBiome.name}!` : `WARPING TO LEVEL ${stage + 1}...`;
+      ctx.fillStyle = isNewBiome ? nextBiome.tagColor : COLORS.CYAN;
+      ctx.shadowColor = ctx.fillStyle;
       ctx.shadowBlur = 12;
-      ctx.font = '13px "Press Start 2P", monospace';
-      ctx.fillText("WARPING TO LEVEL " + (stage + 1) + "...", WIDTH / 2, HEIGHT / 2 + 35);
+      ctx.font = isNewBiome ? '11px "Press Start 2P", monospace' : '13px "Press Start 2P", monospace';
+      ctx.fillText(subMsg, WIDTH / 2, HEIGHT / 2 + 35);
       ctx.shadowBlur = 0;
     } else if (state === 'CANDLE_CEREMONY') {
       const boxW = Math.min(WIDTH - 24, 660);
