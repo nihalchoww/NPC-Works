@@ -937,14 +937,14 @@ html = """<!DOCTYPE html>
     background: #0d0722;
     border: 2px solid #ff4da6;
     border-radius: 18px;
-    padding: 16px 12px;
+    padding: 14px 12px;
     box-shadow: 0 0 35px rgba(255, 77, 166, 0.4), inset 0 0 20px rgba(0, 220, 255, 0.15);
     display: flex;
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
     text-align: center;
-    margin: auto 0;
+    margin: 10px auto;
   }
   .cake-tower-badge {
     background: linear-gradient(135deg, #ff007f, #ffd700);
@@ -956,27 +956,89 @@ html = """<!DOCTYPE html>
     border-radius: 12px;
     box-shadow: 0 0 14px rgba(255, 0, 127, 0.5);
   }
-  .bakery-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+  /* Roll-off Bakery Stats Drawer & Reel */
+  .bakery-stats-rolloff-wrap {
     width: 100%;
-    margin: 8px 0;
+    margin: 6px 0 8px 0;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 77, 166, 0.35);
+    border-radius: 12px;
+    padding: 6px 8px;
+    box-sizing: border-box;
   }
-  .b-stat-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 77, 166, 0.4);
-    border-radius: 8px;
-    padding: 7px 4px;
-    text-align: center;
-  }
-  .b-stat-val {
+  .stats-rolloff-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 2px 4px 4px 4px;
+    cursor: pointer;
+    color: #ff94c2;
     font-family: 'Press Start 2P', monospace;
-    font-size: 9.5px;
-    color: #ffd700;
-    margin-bottom: 3px;
+    font-size: 7px;
+    letter-spacing: 0.5px;
+    touch-action: manipulation;
   }
-  .b-stat-lbl {
+  .stats-rolloff-header span.toggle-arrow {
+    font-size: 8px;
+    color: #ffd700;
+    transition: transform 0.25s ease;
+  }
+  .bakery-stats-rolloff-wrap.collapsed .stats-rolloff-header span.toggle-arrow {
+    transform: rotate(-90deg);
+  }
+  .bakery-stats-rolloff {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 2px;
+    margin: 0;
+    max-height: 50px;
+    transition: max-height 0.3s ease, opacity 0.25s ease, margin 0.25s ease;
+    opacity: 1;
+    scrollbar-width: thin;
+    scrollbar-color: #ff4da6 rgba(0,0,0,0.3);
+  }
+  .bakery-stats-rolloff::-webkit-scrollbar {
+    height: 4px;
+  }
+  .bakery-stats-rolloff::-webkit-scrollbar-thumb {
+    background: #ff4da6;
+    border-radius: 2px;
+  }
+  .bakery-stats-rolloff-wrap.collapsed .bakery-stats-rolloff {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  .b-stat-pill {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 77, 166, 0.45);
+    border-radius: 20px;
+    padding: 5px 10px;
+    white-space: nowrap;
+  }
+  .b-stat-pill .b-stat-ico {
+    font-size: 11px;
+  }
+  .b-stat-pill .b-stat-val {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8.5px;
+    color: #ffd700;
+  }
+  .b-stat-pill .b-stat-lbl {
     font-size: 6.5px;
     color: #ff94c2;
     letter-spacing: 0.5px;
@@ -1023,7 +1085,9 @@ html = """<!DOCTYPE html>
   }
   #cake-tower-canvas {
     width: 100%;
+    max-height: 38vh;
     height: auto;
+    object-fit: contain;
     display: block;
     border-radius: 8px;
     cursor: pointer;
@@ -1318,23 +1382,33 @@ html = """<!DOCTYPE html>
       <h3 style="font-size: 12px; color: #ffd700; margin: 8px 0 3px 0; text-align: center;">GIANT CAKE TOWER</h3>
       <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 8px 0; text-align: center;">★ AISHA'S BIRTHDAY RECIPE CARD ★</p>
 
-      <!-- Funny Bakery Stats Grid -->
-      <div class="bakery-stats-grid">
-        <div class="b-stat-card">
-          <div class="b-stat-val">48 M</div>
-          <div class="b-stat-lbl">TOTAL HEIGHT 📏</div>
-        </div>
-        <div class="b-stat-card">
-          <div class="b-stat-val">99,999%</div>
-          <div class="b-stat-lbl">SWEETNESS 🍯</div>
-        </div>
-        <div class="b-stat-card">
-          <div class="b-stat-val">100%</div>
-          <div class="b-stat-lbl">AISHA LOVE 💖</div>
-        </div>
-        <div class="b-stat-card">
-          <div class="b-stat-val">0 KCAL</div>
-          <div class="b-stat-lbl">ZERO-G CALORIES 🚀</div>
+      <!-- Funny Bakery Stats Roll-off Reel & Drawer -->
+      <div class="bakery-stats-rolloff-wrap" id="bakery-stats-wrap">
+        <button type="button" class="stats-rolloff-header" id="stats-rolloff-toggle" aria-expanded="true">
+          <span>📊 BAKERY STATS (SWIPE ◂▸)</span>
+          <span class="toggle-arrow" id="stats-toggle-arrow">▼</span>
+        </button>
+        <div class="bakery-stats-rolloff" id="bakery-stats-rolloff">
+          <div class="b-stat-pill">
+            <span class="b-stat-ico">📏</span>
+            <span class="b-stat-val">48 M</span>
+            <span class="b-stat-lbl">HEIGHT</span>
+          </div>
+          <div class="b-stat-pill">
+            <span class="b-stat-ico">🍯</span>
+            <span class="b-stat-val">99,999%</span>
+            <span class="b-stat-lbl">SWEET</span>
+          </div>
+          <div class="b-stat-pill">
+            <span class="b-stat-ico">💖</span>
+            <span class="b-stat-val">100%</span>
+            <span class="b-stat-lbl">LOVE</span>
+          </div>
+          <div class="b-stat-pill">
+            <span class="b-stat-ico">🚀</span>
+            <span class="b-stat-val">0 KCAL</span>
+            <span class="b-stat-lbl">ZERO-G</span>
+          </div>
         </div>
       </div>
 
@@ -2741,18 +2815,6 @@ html = """<!DOCTYPE html>
     if (state === 'MENU') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxY = HEIGHT / 2 - 265;
-      const btnY = boxY + 456;
-      const btnW = 190;
-      const btnH = 28;
-      if (coords.y >= btnY && coords.y <= btnY + btnH) {
-        if (coords.x >= WIDTH / 2 - btnW - 8 && coords.x <= WIDTH / 2 - 8) {
-          openLeaderboardModal();
-          return;
-        } else if (coords.x >= WIDTH / 2 + 8 && coords.x <= WIDTH / 2 + btnW + 8) {
-          openCakeTowerModal();
-          return;
-        }
-      }
       if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 450) {
         resumeCheckpoint();
       } else {
@@ -2764,19 +2826,7 @@ html = """<!DOCTYPE html>
     if (state === 'GAME_OVER') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxY = HEIGHT / 2 - 265;
-      const btnY = boxY + 456;
-      const btnW = 190;
-      const btnH = 28;
-      if (coords.y >= btnY && coords.y <= btnY + btnH) {
-        if (coords.x >= WIDTH / 2 - btnW - 8 && coords.x <= WIDTH / 2 - 8) {
-          openLeaderboardModal();
-          return;
-        } else if (coords.x >= WIDTH / 2 + 8 && coords.x <= WIDTH / 2 + btnW + 8) {
-          openCakeTowerModal();
-          return;
-        }
-      }
-      if (coords.y >= boxY + 490 && coords.y <= boxY + 524) {
+      if (coords.y >= boxY + 456 && coords.y <= boxY + 494) {
         shareOrSavePolaroid();
         haptic(25);
         return;
@@ -2792,19 +2842,7 @@ html = """<!DOCTYPE html>
     if (state === 'WIN') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
       const boxY = HEIGHT / 2 - 265;
-      const btnY = boxY + 454;
-      const btnW = 190;
-      const btnH = 28;
-      if (coords.y >= btnY && coords.y <= btnY + btnH) {
-        if (coords.x >= WIDTH / 2 - btnW - 8 && coords.x <= WIDTH / 2 - 8) {
-          openLeaderboardModal();
-          return;
-        } else if (coords.x >= WIDTH / 2 + 8 && coords.x <= WIDTH / 2 + btnW + 8) {
-          openCakeTowerModal();
-          return;
-        }
-      }
-      if (coords.y >= boxY + 482 && coords.y <= boxY + 514 && Math.abs(coords.x - WIDTH / 2) < 220) {
+      if (coords.y >= boxY + 452 && coords.y <= boxY + 490 && Math.abs(coords.x - WIDTH / 2) < 220) {
         shareOrSavePolaroid();
         haptic(25);
         return;
@@ -3842,6 +3880,18 @@ html = """<!DOCTYPE html>
   if (cakeTowerModal) {
     cakeTowerModal.addEventListener('click', (e) => {
       if (e.target === cakeTowerModal) closeCakeTowerModal();
+    });
+  }
+
+  const statsRolloffWrap = document.getElementById('bakery-stats-wrap');
+  const statsRolloffToggle = document.getElementById('stats-rolloff-toggle');
+  if (statsRolloffToggle && statsRolloffWrap) {
+    statsRolloffToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      initAudio();
+      haptic(15);
+      const isCollapsed = statsRolloffWrap.classList.toggle('collapsed');
+      statsRolloffToggle.setAttribute('aria-expanded', !isCollapsed);
     });
   }
 
@@ -7697,33 +7747,12 @@ html = """<!DOCTYPE html>
         ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + 428);
       }
 
-      // Hall of Fame & Cake Tower Action Buttons
-      const menuBtnW = 190;
-      const menuBtnH = 28;
-      const menuBtnY = boxY + 456;
-
-      // Hall of Fame (Left)
-      ctx.fillStyle = 'rgba(255, 215, 0, 0.16)';
-      ctx.strokeStyle = '#ffd700';
-      ctx.lineWidth = 1.5;
-      ctx.fillRect(WIDTH / 2 - menuBtnW - 8, menuBtnY, menuBtnW, menuBtnH);
-      ctx.strokeRect(WIDTH / 2 - menuBtnW - 8, menuBtnY, menuBtnW, menuBtnH);
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '8px "Press Start 2P", monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText("🏆 HALL OF FAME", WIDTH / 2 - menuBtnW / 2 - 8, menuBtnY + 18);
-
-      // Cake Tower (Right)
-      ctx.fillStyle = 'rgba(255, 77, 166, 0.16)';
-      ctx.strokeStyle = '#ff4da6';
-      ctx.fillRect(WIDTH / 2 + 8, menuBtnY, menuBtnW, menuBtnH);
-      ctx.strokeRect(WIDTH / 2 + 8, menuBtnY, menuBtnW, menuBtnH);
-      ctx.fillStyle = '#ff6ebe';
-      ctx.fillText("🍰 CAKE TOWER", WIDTH / 2 + menuBtnW / 2 + 8, menuBtnY + 18);
-
       ctx.fillStyle = '#859bb8';
       ctx.font = '8px "Press Start 2P", monospace';
-      ctx.fillText(`BEST: ${hiScore.toLocaleString()}   |   🛸 BONUS PIÑATA: LVL 9, 19, 29`, WIDTH / 2, boxY + 506);
+      ctx.fillText(`BEST: ${hiScore.toLocaleString()}   |   🛸 BONUS PIÑATA: LVL 9, 19, 29`, WIDTH / 2, boxY + 472);
+      ctx.fillStyle = '#ff94c2';
+      ctx.font = '7px "Press Start 2P", monospace';
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + 498);
     } else if (state === 'PAUSED') {
       btnAction.textContent = 'RESUME';
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -8106,32 +8135,13 @@ html = """<!DOCTYPE html>
       ctx.font = '14px "Press Start 2P", monospace';
       ctx.fillText("▶ TAP TO RETRY ◀", WIDTH / 2, boxY + 424);
 
-      const goBtnW = 190;
-      const goBtnH = 28;
-      const goBtnY = boxY + 456;
-
-      // Leaderboard Button (Left)
-      ctx.fillStyle = 'rgba(255, 215, 0, 0.16)';
-      ctx.strokeStyle = '#ffd700';
-      ctx.lineWidth = 1.5;
-      ctx.fillRect(WIDTH / 2 - goBtnW - 8, goBtnY, goBtnW, goBtnH);
-      ctx.strokeRect(WIDTH / 2 - goBtnW - 8, goBtnY, goBtnW, goBtnH);
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '8px "Press Start 2P", monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText("🏆 LEADERBOARD", WIDTH / 2 - goBtnW / 2 - 8, goBtnY + 18);
-
-      // Cake Tower Button (Right)
-      ctx.fillStyle = 'rgba(255, 77, 166, 0.16)';
-      ctx.strokeStyle = '#ff4da6';
-      ctx.fillRect(WIDTH / 2 + 8, goBtnY, goBtnW, goBtnH);
-      ctx.strokeRect(WIDTH / 2 + 8, goBtnY, goBtnW, goBtnH);
-      ctx.fillStyle = '#ff6ebe';
-      ctx.fillText("🍰 CAKE TOWER", WIDTH / 2 + goBtnW / 2 + 8, goBtnY + 18);
-
       ctx.fillStyle = '#ff6ebe';
       ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 508);
+      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 472);
+
+      ctx.fillStyle = '#859bb8';
+      ctx.font = '7px "Press Start 2P", monospace';
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + 504);
     } else if (state === 'WIN') {
       btnAction.textContent = 'AGAIN';
       const boxW = 660;
@@ -8183,36 +8193,17 @@ html = """<!DOCTYPE html>
       ctx.font = '13px "Press Start 2P", monospace';
       ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + 428);
 
-      const winBtnW = 190;
-      const winBtnH = 28;
-      const winBtnY = boxY + 454;
-
-      // Hall of Fame (Left)
-      ctx.fillStyle = 'rgba(255, 215, 0, 0.16)';
-      ctx.strokeStyle = '#ffd700';
-      ctx.lineWidth = 1.5;
-      ctx.fillRect(WIDTH / 2 - winBtnW - 8, winBtnY, winBtnW, winBtnH);
-      ctx.strokeRect(WIDTH / 2 - winBtnW - 8, winBtnY, winBtnW, winBtnH);
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '8px "Press Start 2P", monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText("🏆 HALL OF FAME", WIDTH / 2 - winBtnW / 2 - 8, winBtnY + 18);
-
-      // Cake Tower (Right)
-      ctx.fillStyle = 'rgba(255, 77, 166, 0.16)';
-      ctx.strokeStyle = '#ff4da6';
-      ctx.fillRect(WIDTH / 2 + 8, winBtnY, winBtnW, winBtnH);
-      ctx.strokeRect(WIDTH / 2 + 8, winBtnY, winBtnW, winBtnH);
-      ctx.fillStyle = '#ff6ebe';
-      ctx.fillText("🍰 CAKE TOWER", WIDTH / 2 + winBtnW / 2 + 8, winBtnY + 18);
-
       ctx.fillStyle = '#ff6ebe';
       ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 498);
+      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 468);
 
       ctx.fillStyle = '#859bb8';
       ctx.font = '8px "Press Start 2P", monospace';
-      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 520);
+      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 494);
+
+      ctx.fillStyle = '#ff94c2';
+      ctx.font = '7px "Press Start 2P", monospace';
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + 516);
     }
 
     ctx.restore();
