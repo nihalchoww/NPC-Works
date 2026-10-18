@@ -679,33 +679,31 @@
     transform: scale(0.92);
   }
 
-  /* ─── RETRO ARCADE HALL OF FAME MODAL ──────────────────────────────── */
+  /* ─── RETRO ARCADE HALL OF FAME MINI WINDOW ───────────────────────── */
   #leaderboard-modal {
     display: none;
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100dvh;
-    background: rgba(6, 3, 18, 0.95);
-    z-index: 125;
+    background: rgba(6, 3, 18, 0.78);
+    z-index: 130;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    padding: 14px;
+    padding: 12px;
     box-sizing: border-box;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   #leaderboard-wrap {
-    max-width: 440px;
-    width: 95%;
+    position: relative;
+    max-width: 320px;
+    width: 92%;
     background: #0d0722;
     border: 2px solid #00dcff;
-    border-radius: 16px;
-    padding: 18px 14px;
-    box-shadow: 0 0 35px rgba(0, 220, 255, 0.35), inset 0 0 20px rgba(255, 77, 166, 0.15);
+    border-radius: 14px;
+    padding: 14px 12px 12px 12px;
+    box-shadow: 0 0 30px rgba(0, 220, 255, 0.4), inset 0 0 15px rgba(255, 77, 166, 0.15);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -713,22 +711,46 @@
     text-align: center;
     margin: auto;
   }
+  .mini-close-x {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid #ff4da6;
+    background: rgba(255, 77, 166, 0.2);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 77, 166, 0.4);
+    touch-action: manipulation;
+  }
+  .mini-close-x:active {
+    background: #ff007f;
+    transform: scale(0.92);
+  }
   .leaderboard-badge {
     background: linear-gradient(135deg, #00dcff, #9b5de5);
     color: #000;
-    font-size: 8px;
+    font-size: 7.5px;
     font-weight: bold;
     letter-spacing: 1px;
-    padding: 4px 12px;
-    border-radius: 12px;
-    box-shadow: 0 0 14px rgba(0, 220, 255, 0.5);
+    padding: 3px 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 220, 255, 0.4);
   }
   .leaderboard-table {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 7px;
-    margin: 10px 0;
+    gap: 5px;
+    margin: 8px 0;
   }
   .lb-row {
     display: flex;
@@ -736,340 +758,69 @@
     justify-content: space-between;
     background: rgba(255, 255, 255, 0.04);
     border: 1.5px solid rgba(0, 220, 255, 0.25);
-    border-radius: 10px;
-    padding: 9px 10px;
+    border-radius: 8px;
+    padding: 6px 8px;
     box-sizing: border-box;
     transition: all 0.2s ease;
   }
   .lb-row.rank-1 {
     border-color: #ffd700;
-    background: linear-gradient(90deg, rgba(255, 215, 0, 0.22), rgba(255, 77, 166, 0.1));
-    box-shadow: 0 0 18px rgba(255, 215, 0, 0.35);
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(255, 77, 166, 0.1));
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
   }
   .lb-row.rank-2 {
     border-color: #d1d5db;
-    background: linear-gradient(90deg, rgba(209, 213, 219, 0.18), rgba(60, 80, 140, 0.1));
-    box-shadow: 0 0 14px rgba(209, 213, 219, 0.25);
+    background: linear-gradient(90deg, rgba(209, 213, 219, 0.15), rgba(60, 80, 140, 0.1));
   }
   .lb-row.rank-3 {
     border-color: #cd7f32;
-    background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), rgba(80, 40, 20, 0.1));
-    box-shadow: 0 0 14px rgba(205, 127, 50, 0.25);
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.18), rgba(80, 40, 20, 0.1));
   }
   .lb-row.new-entry-glow {
     border-color: #00ff88;
     background: linear-gradient(90deg, rgba(0, 255, 136, 0.25), rgba(0, 220, 255, 0.15));
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
-    animation: newRowGlow 1.2s infinite alternate;
-  }
-  @keyframes newRowGlow {
-    0% { transform: scale(1); box-shadow: 0 0 12px rgba(0, 255, 136, 0.4); }
-    100% { transform: scale(1.02); box-shadow: 0 0 22px rgba(0, 255, 136, 0.85); }
+    box-shadow: 0 0 16px rgba(0, 255, 136, 0.6);
   }
   .lb-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
   .lb-trophy {
-    font-size: 16px;
+    font-size: 13px;
     line-height: 1;
-    width: 22px;
+    width: 18px;
     text-align: center;
   }
   .lb-name {
     font-family: 'Press Start 2P', monospace;
-    font-size: 10px;
+    font-size: 8.5px;
     color: #ffffff;
     font-weight: bold;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
   }
   .lb-stage-tag {
-    font-size: 6.5px;
+    font-size: 6px;
     color: #ff94c2;
     background: rgba(255, 77, 166, 0.2);
-    padding: 2px 6px;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 77, 166, 0.4);
+    padding: 1px 4px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 77, 166, 0.35);
   }
   .lb-right {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 2px;
+    gap: 1px;
   }
   .lb-score {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 10px;
-    color: #ffd700;
-  }
-  .lb-date {
-    font-size: 6.5px;
-    color: #859bb8;
-  }
-
-  /* ─── 30-TIER GIANT CAKE TOWER & RECIPE CARD MODAL ─────────────────── */
-  #cake-tower-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100dvh;
-    background: rgba(6, 3, 18, 0.95);
-    z-index: 125;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    padding: 14px 10px;
-    box-sizing: border-box;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  #cake-tower-wrap {
-    max-width: 440px;
-    width: 96%;
-    background: #0d0722;
-    border: 2px solid #ff4da6;
-    border-radius: 18px;
-    padding: 14px 12px;
-    box-shadow: 0 0 35px rgba(255, 77, 166, 0.4), inset 0 0 20px rgba(0, 220, 255, 0.15);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
-    text-align: center;
-    margin: 10px auto;
-  }
-  .cake-tower-badge {
-    background: linear-gradient(135deg, #ff007f, #ffd700);
-    color: #000;
-    font-size: 8px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    padding: 4px 12px;
-    border-radius: 12px;
-    box-shadow: 0 0 14px rgba(255, 0, 127, 0.5);
-  }
-  /* Roll-off Bakery Stats Drawer & Reel */
-  .bakery-stats-rolloff-wrap {
-    width: 100%;
-    margin: 6px 0 8px 0;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 77, 166, 0.35);
-    border-radius: 12px;
-    padding: 6px 8px;
-    box-sizing: border-box;
-  }
-  .stats-rolloff-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    background: none;
-    border: none;
-    padding: 2px 4px 4px 4px;
-    cursor: pointer;
-    color: #ff94c2;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 7px;
-    letter-spacing: 0.5px;
-    touch-action: manipulation;
-  }
-  .stats-rolloff-header span.toggle-arrow {
-    font-size: 8px;
-    color: #ffd700;
-    transition: transform 0.25s ease;
-  }
-  .bakery-stats-rolloff-wrap.collapsed .stats-rolloff-header span.toggle-arrow {
-    transform: rotate(-90deg);
-  }
-  .bakery-stats-rolloff {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 4px 2px;
-    margin: 0;
-    max-height: 50px;
-    transition: max-height 0.3s ease, opacity 0.25s ease, margin 0.25s ease;
-    opacity: 1;
-    scrollbar-width: thin;
-    scrollbar-color: #ff4da6 rgba(0,0,0,0.3);
-  }
-  .bakery-stats-rolloff::-webkit-scrollbar {
-    height: 4px;
-  }
-  .bakery-stats-rolloff::-webkit-scrollbar-thumb {
-    background: #ff4da6;
-    border-radius: 2px;
-  }
-  .bakery-stats-rolloff-wrap.collapsed .bakery-stats-rolloff {
-    max-height: 0;
-    opacity: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-  .b-stat-pill {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 77, 166, 0.45);
-    border-radius: 20px;
-    padding: 5px 10px;
-    white-space: nowrap;
-  }
-  .b-stat-pill .b-stat-ico {
-    font-size: 11px;
-  }
-  .b-stat-pill .b-stat-val {
     font-family: 'Press Start 2P', monospace;
     font-size: 8.5px;
     color: #ffd700;
   }
-  .b-stat-pill .b-stat-lbl {
-    font-size: 6.5px;
-    color: #ff94c2;
-    letter-spacing: 0.5px;
-  }
-  .tower-progress-bar-wrap {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(0, 220, 255, 0.3);
-    border-radius: 10px;
-    padding: 6px 8px;
-    box-sizing: border-box;
-    margin: 4px 0 8px 0;
-  }
-  .tower-progress-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 7px;
-    color: #00dcff;
-    margin-bottom: 4px;
-  }
-  .tower-progress-track {
-    width: 100%;
-    height: 7px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .tower-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #ff007f, #ffd700);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px #ffd700;
-  }
-  .tower-canvas-container {
-    width: 100%;
-    max-width: 320px;
-    background: rgba(5, 2, 16, 0.85);
-    border: 1.5px solid #ff4da6;
-    border-radius: 12px;
-    padding: 8px;
-    box-sizing: border-box;
-    margin: 4px 0 8px 0;
-  }
-  #cake-tower-canvas {
-    width: 100%;
-    max-height: 38vh;
-    height: auto;
-    object-fit: contain;
-    display: block;
-    border-radius: 8px;
-    cursor: pointer;
-    touch-action: pan-y;
-  }
-  .recipe-cards-container {
-    width: 100%;
-    max-height: 220px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    margin: 6px 0;
-    padding-right: 2px;
-  }
-  .recipe-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
-    padding: 8px;
-    text-align: left;
-    box-sizing: border-box;
-    transition: all 0.2s ease;
-  }
-  .recipe-card.unlocked {
-    border-color: #ff4da6;
-    background: rgba(255, 77, 166, 0.08);
-  }
-  .recipe-card.milestone {
-    border-color: #ffd700;
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 77, 166, 0.08));
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
-  }
-  .recipe-card.locked {
-    opacity: 0.55;
-    border-style: dashed;
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-  .recipe-card.highlight {
-    border-color: #00ff88;
-    background: rgba(0, 255, 136, 0.18);
-    box-shadow: 0 0 16px rgba(0, 255, 136, 0.5);
-    transform: scale(1.02);
-  }
-  .rc-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-  }
-  .rc-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 7.5px;
-    color: #ffd700;
-  }
-  .rc-tag {
-    font-size: 6px;
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-weight: bold;
-  }
-  .rc-tag.unlocked {
-    background: #00ff88;
-    color: #000;
-  }
-  .rc-tag.locked {
-    background: #334155;
-    color: #94a3b8;
-  }
-  .rc-flavor {
-    font-size: 7px;
-    color: #ffffff;
-    line-height: 1.4;
-    margin-bottom: 3px;
-  }
-  .rc-secret {
-    font-size: 6.5px;
-    color: #ff94c2;
-    line-height: 1.4;
-  }
-  .rc-note {
-    font-size: 6.5px;
-    color: #00dcff;
-    font-style: italic;
-    margin-top: 3px;
+  .lb-date {
+    font-size: 5.5px;
+    color: #859bb8;
   }
 </style>
 </head>
@@ -1085,7 +836,6 @@
     <button class="hud-btn" id="gear-btn" title="Quick Settings ⚙️" aria-label="Quick Settings">⚙️</button>
     <div id="settings-dock" class="collapsed">
       <button class="dock-btn" id="leaderboard-btn" title="🏆 Hall of Fame Leaderboard">🏆</button>
-      <button class="dock-btn" id="cake-tower-btn" title="🍰 Cake Tower & Recipe Card">🍰</button>
       <button class="dock-btn" id="mute-btn" title="Toggle Sound">🔊</button>
       <button class="dock-btn" id="tilt-btn" title="Toggle Phone Tilt / Gyroscope Steering">📳</button>
       <button class="dock-btn" id="crt-btn" title="Toggle CRT Arcade Cabinet Mode">📺</button>
@@ -1188,6 +938,7 @@
   <!-- Retro Arcade High Score Name Entry Modal -->
   <div id="initials-modal">
     <div id="initials-wrap">
+      <button class="mini-close-x" id="initials-close-x" title="Skip">✕</button>
       <div class="initials-badge">★ NEW HIGH SCORE! ★</div>
       <h3 style="font-size: 11px; color: #ffd700; margin: 8px 0 3px 0; text-align: center;" id="initials-rank-title">TOP 5 BAKER: RANK #1!</h3>
       <div style="font-size: 14px; color: #00dcff; font-family: 'Press Start 2P', monospace; margin-bottom: 8px;" id="initials-score-text">28,500 PTS</div>
@@ -1235,91 +986,26 @@
     </div>
   </div>
 
-  <!-- Retro Arcade Hall of Fame Leaderboard Modal -->
+  <!-- Retro Arcade Hall of Fame Leaderboard Modal (Mini Window) -->
   <div id="leaderboard-modal">
     <div id="leaderboard-wrap">
+      <button class="mini-close-x" id="lb-close-x" title="Close" aria-label="Close">✕</button>
       <div class="leaderboard-badge">🏆 RETRO ARCADE</div>
-      <h3 style="font-size: 13px; color: #ffd700; margin: 8px 0 3px 0; text-align: center;">HALL OF FAME</h3>
-      <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 10px 0; text-align: center;">★ TOP 5 GALAXY BAKERS ★</p>
+      <h3 style="font-size: 11px; color: #ffd700; margin: 6px 0 2px 0; text-align: center;">HALL OF FAME</h3>
+      <p style="font-size: 7px; color: #ff6ebe; margin: 0 0 8px 0; text-align: center;">★ TOP 5 GALAXY BAKERS ★</p>
 
       <div class="leaderboard-table" id="leaderboard-table">
         <!-- Rendered dynamically -->
       </div>
 
-      <div id="leaderboard-current-stat" style="font-size: 7.5px; color: #859bb8; margin-top: 8px; font-family: 'Press Start 2P', monospace;">
+      <div id="leaderboard-current-stat" style="font-size: 6.5px; color: #859bb8; margin-top: 5px; font-family: 'Press Start 2P', monospace;">
         CURRENT RUN: 0 PTS
       </div>
 
-      <div class="modal-actions" style="margin-top: 12px;">
-        <button class="modal-btn" id="lb-share-btn" style="background:#ff007f; color:#fff;">SHARE 📲</button>
-        <button class="modal-btn" id="lb-reset-btn" style="background:#223366; font-size: 8px;">RESET ↺</button>
-        <button class="modal-btn modal-btn-close" id="lb-close-btn">CLOSE ✕</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Giant Cake Tower Showcase & Bakery Recipe Card Modal -->
-  <div id="cake-tower-modal">
-    <div id="cake-tower-wrap">
-      <div class="cake-tower-badge">🍰 30-TIER CONFECTION</div>
-      <h3 style="font-size: 12px; color: #ffd700; margin: 8px 0 3px 0; text-align: center;">GIANT CAKE TOWER</h3>
-      <p style="font-size: 7.5px; color: #ff6ebe; margin: 0 0 8px 0; text-align: center;">★ AISHA'S BIRTHDAY RECIPE CARD ★</p>
-
-      <!-- Funny Bakery Stats Roll-off Reel & Drawer -->
-      <div class="bakery-stats-rolloff-wrap" id="bakery-stats-wrap">
-        <button type="button" class="stats-rolloff-header" id="stats-rolloff-toggle" aria-expanded="true">
-          <span>📊 BAKERY STATS (SWIPE ◂▸)</span>
-          <span class="toggle-arrow" id="stats-toggle-arrow">▼</span>
-        </button>
-        <div class="bakery-stats-rolloff" id="bakery-stats-rolloff">
-          <div class="b-stat-pill">
-            <span class="b-stat-ico">📏</span>
-            <span class="b-stat-val">48 M</span>
-            <span class="b-stat-lbl">HEIGHT</span>
-          </div>
-          <div class="b-stat-pill">
-            <span class="b-stat-ico">🍯</span>
-            <span class="b-stat-val">99,999%</span>
-            <span class="b-stat-lbl">SWEET</span>
-          </div>
-          <div class="b-stat-pill">
-            <span class="b-stat-ico">💖</span>
-            <span class="b-stat-val">100%</span>
-            <span class="b-stat-lbl">LOVE</span>
-          </div>
-          <div class="b-stat-pill">
-            <span class="b-stat-ico">🚀</span>
-            <span class="b-stat-val">0 KCAL</span>
-            <span class="b-stat-lbl">ZERO-G</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Progress bar -->
-      <div class="tower-progress-bar-wrap">
-        <div class="tower-progress-info">
-          <span id="tower-unlocked-text">UNLOCKED: 1 / 30 TIERS</span>
-          <span id="tower-percent-text">3%</span>
-        </div>
-        <div class="tower-progress-track">
-          <div class="tower-progress-fill" id="tower-progress-fill" style="width: 3%;"></div>
-        </div>
-      </div>
-
-      <!-- Visual 30-Tier Tower Graphic -->
-      <div class="tower-canvas-container">
-        <canvas id="cake-tower-canvas" width="400" height="660"></canvas>
-        <div style="font-size: 6.5px; color: #ffd700; margin-top: 4px;">★ TAP ANY TIER TO JUMP TO RECIPE ★</div>
-      </div>
-
-      <!-- Scrollable Recipe Card List -->
-      <div class="recipe-cards-container" id="recipe-cards-container">
-        <!-- Rendered dynamically -->
-      </div>
-
-      <div class="modal-actions" style="margin-top: 12px;">
-        <button class="modal-btn" id="cake-share-btn" style="background:#ff007f; color:#fff;">SHARE RECIPE 💌</button>
-        <button class="modal-btn modal-btn-close" id="cake-close-btn">CLOSE ✕</button>
+      <div class="modal-actions" style="margin-top: 10px; gap: 6px;">
+        <button class="modal-btn" id="lb-share-btn" style="background:#ff007f; color:#fff; font-size: 7.5px; padding: 5px 8px;">SHARE 📲</button>
+        <button class="modal-btn" id="lb-reset-btn" style="background:#223366; font-size: 7px; padding: 5px 6px;">RESET ↺</button>
+        <button class="modal-btn modal-btn-close" id="lb-close-btn" style="font-size: 7.5px; padding: 5px 8px;">CLOSE ✕</button>
       </div>
     </div>
   </div>
@@ -2356,309 +2042,6 @@
     return top5;
   }
 
-  // Giant Cake Tower 30-Tier Confection Recipes
-  const CAKE_TIER_RECIPES = [
-    {
-      tier: 1,
-      name: "Strawberry Stardust Sponge",
-      icon: "🍓",
-      color: "#ff3366",
-      accent: "#ff99bb",
-      flavor: "Fluffy vanilla sponge soaked in celestial strawberry nectar & golden sugar.",
-      secret: "Fresh hand-picked galaxy strawberries",
-      note: "The foundation of Aisha's cosmic tower! Delicate and dreamy."
-    },
-    {
-      tier: 2,
-      name: "Cosmic Vanilla Cloud",
-      icon: "☁️",
-      color: "#f5f3e9",
-      accent: "#ffe494",
-      flavor: "Whipped zero-gravity cream infused with crushed starlight blossoms.",
-      secret: "A pinch of powdered meteorite sugar",
-      note: "Light enough to drift away if you don't hold the plate tight!"
-    },
-    {
-      tier: 3,
-      name: "Golden Honeycomb Glaze",
-      icon: "🍯",
-      color: "#ffaa00",
-      accent: "#ffe680",
-      flavor: "Crunchy caramelized space honeycomb dripped over warm chiffon.",
-      secret: "Nectar gathered by cosmic worker bees",
-      note: "Sticky, golden perfection that crackles pleasantly with every bite."
-    },
-    {
-      tier: 4,
-      name: "Blueberry Comet Crunch",
-      icon: "🫐",
-      color: "#4d62cd",
-      accent: "#8da0ff",
-      flavor: "Wild frozen comet blueberries folded with sparkling sapphire sugar crystals.",
-      secret: "Deep space wild berry compote",
-      note: "Leaves your tongue glowing with friendly blue sparkles!"
-    },
-    {
-      tier: 5,
-      name: "Raspberry Nebula Ganache",
-      icon: "🌌",
-      color: "#c01368",
-      accent: "#ff6bb5",
-      flavor: "Rich ruby chocolate ganache swirling with tart raspberry nebula dust.",
-      secret: "Milestone Tier 5 star essence",
-      note: "Aisha unlocked the Level 5 Milestone with this cosmic masterpiece!"
-    },
-    {
-      tier: 6,
-      name: "Matcha Moonbeam Sponge",
-      icon: "🍵",
-      color: "#4e8c37",
-      accent: "#a3e58c",
-      flavor: "Earthy ceremonial matcha dusted with luminescent lunar powder.",
-      secret: "High-grade Japanese Uji matcha & sweet red bean",
-      note: "Zen tranquility balanced with gentle galactic sweetness."
-    },
-    {
-      tier: 7,
-      name: "Caramel Asteroid Truffle",
-      icon: "🪐",
-      color: "#b86b24",
-      accent: "#f5b778",
-      flavor: "Salted butter caramel studded with melt-in-your-mouth asteroid truffles.",
-      secret: "Pink Himalayan stardust rock salt",
-      note: "Rich, decadent, and pulls like gravity itself."
-    },
-    {
-      tier: 8,
-      name: "Pistachio Supernova",
-      icon: "💫",
-      color: "#729b4e",
-      accent: "#c2eb9d",
-      flavor: "Roasted galactic pistachios in an explosion of creamy emerald frosting.",
-      secret: "Toasted Mediterranean space pistachios",
-      note: "An explosion of nutty flavor lighting up the entire bakery!"
-    },
-    {
-      tier: 9,
-      name: "Piñata Rainbow Confetti",
-      icon: "🛸",
-      color: "#e62282",
-      accent: "#ffe600",
-      flavor: "Candy-stuffed confetti sponge that pops with sweet sparks on every bite.",
-      secret: "Confection harvested from the Cosmic Piñata Frenzy",
-      note: "Bursting with fun surprises gathered during Stage 9!"
-    },
-    {
-      tier: 10,
-      name: "Royal Birthday Velvet",
-      icon: "👑",
-      color: "#990033",
-      accent: "#ffd700",
-      flavor: "Aisha's signature crimson velvet cake with royal crown cream cheese frosting.",
-      secret: "Milestone Tier 10 Royal Birthday Crown",
-      note: "Fit for Queen Aisha! Level 10 Golden Crown unlocked!"
-    },
-    {
-      tier: 11,
-      name: "Lavender Solar Swirl",
-      icon: "💜",
-      color: "#7e57c2",
-      accent: "#d1c4e9",
-      flavor: "Calming French lavender blossoms kissed by gentle solar heat.",
-      secret: "Organic botanical lavender starlight syrup",
-      note: "A soothing floral layer that perfumes the bakery."
-    },
-    {
-      tier: 12,
-      name: "Passionfruit Pulsar",
-      icon: "💥",
-      color: "#ff6d00",
-      accent: "#ffd180",
-      flavor: "Electric passionfruit curd that pulses with tangy tropical energy.",
-      secret: "Sun-ripened tropical pulsar extract",
-      note: "Zingy, bright, and wakes up every tastebud in the galaxy!"
-    },
-    {
-      tier: 13,
-      name: "Dark Chocolate Black Hole",
-      icon: "🍫",
-      color: "#2a150e",
-      accent: "#795548",
-      flavor: "So intensely rich and chocolatey, not even light can escape its deliciousness!",
-      secret: "85% Single-origin interstellar cocoa beans",
-      note: "Gravitationally irresistible to all chocoholics."
-    },
-    {
-      tier: 14,
-      name: "Dragonfruit Aurora",
-      icon: "🐲",
-      color: "#d81b60",
-      accent: "#ff80ab",
-      flavor: "Vibrant magenta dragonfruit jam ribboned like the northern space lights.",
-      secret: "Exotic dragonfruit seeds & lime zest",
-      note: "A dazzling spectacle of electric magenta flavor ribbons."
-    },
-    {
-      tier: 15,
-      name: "Midnight Blackberry Frosting",
-      icon: "🌙",
-      color: "#311b92",
-      accent: "#b388ff",
-      flavor: "Deep purple moon-harvested blackberries whipped into velvety mousse.",
-      secret: "Milestone Tier 15 lunar dark berries",
-      note: "Halfway to the 30-tier summit! Aisha's halfway candle blown!"
-    },
-    {
-      tier: 16,
-      name: "Roasted Marshmallow Meteor",
-      icon: "🍡",
-      color: "#e09f67",
-      accent: "#fff3e0",
-      flavor: "Toasted campfire space mallows gooey enough to stretch across orbits.",
-      secret: "Torched vanilla marshmallow fluff",
-      note: "Warm, gooey comfort that brings back childhood campfire smiles."
-    },
-    {
-      tier: 17,
-      name: "Churro Starlight Crisp",
-      icon: "🥨",
-      color: "#b2732c",
-      accent: "#ffe082",
-      flavor: "Cinnamon starlight churros baked into a satisfying buttery crisp crust.",
-      secret: "Cinnamon bark ground by asteroid impacts",
-      note: "Crispy edges with tender cinnamon-sugar warmth."
-    },
-    {
-      tier: 18,
-      name: "Tiramisu Zero-Gravity",
-      icon: "☕",
-      color: "#5d4037",
-      accent: "#d7ccc8",
-      flavor: "Espresso-soaked ladyfingers that float gently in mascarpone clouds.",
-      secret: "Roasted dark roast orbital espresso",
-      note: "Elegant Italian bakery perfection defying all physics."
-    },
-    {
-      tier: 19,
-      name: "Star-Candy Sugar Shower",
-      icon: "🍬",
-      color: "#f06292",
-      accent: "#ffd54f",
-      flavor: "Golden rock candy and spun starlight gathered during Piñata Frenzy.",
-      secret: "Stage 19 Golden Piñata cascade drops",
-      note: "Crunchy star sparkles that light up with every slice."
-    },
-    {
-      tier: 20,
-      name: "Master Chef Golden Genoise",
-      icon: "🧑‍🍳",
-      color: "#e6ac00",
-      accent: "#ffffff",
-      flavor: "Hand-whisked golden egg ribbons folded into an impossibly airy genoise.",
-      secret: "Milestone Tier 20 Master Chef Toque & Golden Whisk",
-      note: "Certified Master Chef Aisha! Only legendary bakers reach this height!"
-    },
-    {
-      tier: 21,
-      name: "Peach Blossom Comet",
-      icon: "🌸",
-      color: "#ff7043",
-      accent: "#ffccbc",
-      flavor: "Sweet white peaches steeped in edible cosmic blossom water.",
-      secret: "Spring peach blossoms from the Orion sector",
-      note: "Sweet, fragrant, and gentle as a summer afternoon."
-    },
-    {
-      tier: 22,
-      name: "Mango Galaxy Glaze",
-      icon: "🥭",
-      color: "#ff8f00",
-      accent: "#ffe082",
-      flavor: "Sun-ripened Alphonso mangoes mirrored in a shimmering planetary glaze.",
-      secret: "Royal Alphonso mango puree & passion nectar",
-      note: "A mirror glaze so shiny Aisha can check her butterfly clip in it!"
-    },
-    {
-      tier: 23,
-      name: "Lychee Stardust Cream",
-      icon: "🍧",
-      color: "#f48fb1",
-      accent: "#fce4ec",
-      flavor: "Floral lychees paired with tender coconut cream from the outer rim.",
-      secret: "Fresh peeled tropical lychees & coconut milk",
-      note: "Exquisite tropical aroma with pure pearlescent cream."
-    },
-    {
-      tier: 24,
-      name: "Butterscotch Solar Flare",
-      icon: "☀️",
-      color: "#d87a00",
-      accent: "#ffe082",
-      flavor: "Warm bubbling butterscotch with a pinch of sparkling sea salt.",
-      secret: "Brown sugar caramelized over solar prominence",
-      note: "Deep molasses richness with an addictive caramelized warmth."
-    },
-    {
-      tier: 25,
-      name: "Galaxy Butterfly Mousse",
-      icon: "🦋",
-      color: "#5c6bc0",
-      accent: "#c5cae9",
-      flavor: "Inspired by Aisha's iconic hair clip: blue pea tea butterfly mousse!",
-      secret: "Milestone Tier 25 Butterfly Clip extract",
-      note: "Changes from royal blue to regal purple with a squeeze of lemon!"
-    },
-    {
-      tier: 26,
-      name: "Cotton Candy Nebula",
-      icon: "🍭",
-      color: "#ec407a",
-      accent: "#80deea",
-      flavor: "Spun cloud sugar that melts instantly into sweet dreams.",
-      secret: "Nebula cloud cotton candy threads",
-      note: "Dissolves on the tongue like a sweet whisper."
-    },
-    {
-      tier: 27,
-      name: "Ruby Chocolate Quasar",
-      icon: "💎",
-      color: "#ad1457",
-      accent: "#f48fb1",
-      flavor: "Naturally pink rare cocoa beans emitting radiant cosmic sweetness.",
-      secret: "100% natural berry-fruit ruby chocolate",
-      note: "No berry added — the cocoa bean itself is pink and berry-flavored!"
-    },
-    {
-      tier: 28,
-      name: "Champagne Sparkler Meringue",
-      icon: "🥂",
-      color: "#fff8e1",
-      accent: "#ffe57f",
-      flavor: "Effervescent bubbly meringue that crackles like celebration sparklers.",
-      secret: "Pop rocks & non-alcoholic sparkling grape elixir",
-      note: "Fizzes and crackles in celebration of approaching Stage 30!"
-    },
-    {
-      tier: 29,
-      name: "Supreme Piñata Gold Cluster",
-      icon: "⭐",
-      color: "#ffd700",
-      accent: "#ffffff",
-      flavor: "Solid gold candy nuggets harvested from the ultimate cosmic piñata!",
-      secret: "Final Piñata Frenzy star harvest",
-      note: "Shines with pure 24-karat edible gold stardust!"
-    },
-    {
-      tier: 30,
-      name: "Celestial Tiara Birthday Grand Tier",
-      icon: "🎂",
-      color: "#00e5ff",
-      accent: "#ffd700",
-      flavor: "The crowning 30th masterpiece! Topped with sparklers, edible diamonds, and 30 glowing candles!",
-      secret: "100% Aisha Birthday Magic & Infinite Love 💖",
-      note: "THE GRAND FINALE! Crowned with the Birthday Tiara of Eternity!"
-    }
-  ];
 
   // Cosmic Birthday Piñata "Bonus Frenzy" (Stages 9, 19, 29)
   let pinata = {
@@ -2792,10 +2175,6 @@
               return;
             }
           }
-        }
-        if (coords.y >= boxY + boxH - 32 && coords.y <= boxY + boxH && Math.abs(coords.x - WIDTH / 2) < 220) {
-          openCakeTowerModal();
-          return;
         }
         if (coords.y >= boxY + boxH - 60 && coords.y <= boxY + boxH - 34 && Math.abs(coords.x - WIDTH / 2) < 220) {
           shareOrSavePolaroid();
@@ -2980,23 +2359,7 @@
     });
   }
 
-  if (btnResume) {
-    btnResume.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      initAudio();
-      haptic(25);
-      resumeCheckpoint();
-    });
-  }
-  if (btnShare) {
-    btnShare.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      initAudio();
-      shareOrSavePolaroid();
-    });
-  }
+
   if (btnMic) {
     btnMic.addEventListener('pointerdown', (e) => {
       e.preventDefault();
@@ -3366,10 +2729,22 @@
     });
   }
 
+  const initialsCloseX = document.getElementById('initials-close-x');
+  function skipPlayerInitials() {
+    runScoreSubmitted = true;
+    closeInitialsModal();
+    openLeaderboardModal(false);
+  }
   if (initialsSkipBtn) {
     initialsSkipBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      closeInitialsModal();
+      skipPlayerInitials();
+    });
+  }
+  if (initialsCloseX) {
+    initialsCloseX.addEventListener('click', (e) => {
+      e.preventDefault();
+      skipPlayerInitials();
     });
   }
 
@@ -3412,25 +2787,46 @@
     });
   }
 
-  // ─── RETRO ARCADE HALL OF FAME LEADERBOARD UI LOGIC ──────────────────
+  // ─── RETRO ARCADE HALL OF FAME LEADERBOARD (MINI WINDOW) ────────────────
   const leaderboardModal = document.getElementById('leaderboard-modal');
   const leaderboardTable = document.getElementById('leaderboard-table');
   const lbCurrentStat = document.getElementById('leaderboard-current-stat');
   const lbShareBtn = document.getElementById('lb-share-btn');
   const lbResetBtn = document.getElementById('lb-reset-btn');
   const lbCloseBtn = document.getElementById('lb-close-btn');
+  const lbCloseX = document.getElementById('lb-close-x');
   const leaderboardBtn = document.getElementById('leaderboard-btn');
+
+  let wasPlayingBeforeLeaderboard = false;
 
   function openLeaderboardModal(highlightNew = false) {
     initAudio();
     haptic(20);
     collapseSettingsDock();
+
+    // Auto-pause if actively playing
+    if (state === 'PLAYING') {
+      wasPlayingBeforeLeaderboard = true;
+      state = 'PAUSED';
+      syncUIState();
+    }
+
     renderLeaderboard(highlightNew);
     if (leaderboardModal) leaderboardModal.style.display = 'flex';
   }
 
   function closeLeaderboardModal() {
     if (leaderboardModal) leaderboardModal.style.display = 'none';
+
+    // Auto-resume gameplay if it was paused when opening
+    if (wasPlayingBeforeLeaderboard) {
+      wasPlayingBeforeLeaderboard = false;
+      if (state === 'PAUSED') {
+        state = 'PLAYING';
+        lastTime = performance.now();
+        syncUIState();
+      }
+    }
   }
 
   function renderLeaderboard(highlightNew = false) {
@@ -3452,11 +2848,11 @@
           <div class="lb-trophy">${trophy}</div>
           <div>
             <div class="lb-name">${escapeHTML(entry.name)}</div>
-            <div style="font-size: 6px; color: #859bb8; margin-top: 2px;">${entry.date || 'OCT 18'}</div>
+            <div style="font-size: 5.5px; color: #859bb8; margin-top: 1px;">${entry.date || 'OCT 18'}</div>
           </div>
         </div>
         <div class="lb-right">
-          <div class="lb-score">${(entry.score || 0).toLocaleString()} <span style="font-size:7px; color:#ff6ebe;">PTS</span></div>
+          <div class="lb-score">${(entry.score || 0).toLocaleString()} <span style="font-size:6.5px; color:#ff6ebe;">PTS</span></div>
           <div class="lb-stage-tag">${stageText}</div>
         </div>
       `;
@@ -3518,6 +2914,7 @@ https://aishababu.vercel.app`;
   if (lbShareBtn) lbShareBtn.addEventListener('click', shareLeaderboard);
   if (lbResetBtn) lbResetBtn.addEventListener('click', resetLeaderboard);
   if (lbCloseBtn) lbCloseBtn.addEventListener('click', closeLeaderboardModal);
+  if (lbCloseX) lbCloseX.addEventListener('click', closeLeaderboardModal);
   if (leaderboardBtn) leaderboardBtn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -3528,290 +2925,6 @@ https://aishababu.vercel.app`;
       if (e.target === leaderboardModal) closeLeaderboardModal();
     });
   }
-
-  // ─── 30-TIER GIANT CAKE TOWER & RECIPE CARD UI LOGIC ───────────────────
-  const cakeTowerModal = document.getElementById('cake-tower-modal');
-  const cakeTowerCanvas = document.getElementById('cake-tower-canvas');
-  const cakeCardsContainer = document.getElementById('recipe-cards-container');
-  const towerUnlockedText = document.getElementById('tower-unlocked-text');
-  const towerPercentText = document.getElementById('tower-percent-text');
-  const towerProgressFill = document.getElementById('tower-progress-fill');
-  const cakeShareBtn = document.getElementById('cake-share-btn');
-  const cakeCloseBtn = document.getElementById('cake-close-btn');
-  const cakeTowerBtn = document.getElementById('cake-tower-btn');
-
-  function openCakeTowerModal() {
-    initAudio();
-    haptic(20);
-    collapseSettingsDock();
-    updateHiStage(stage);
-    const unlocked = Math.min(Math.max(hiStage, 1), 30);
-    const pct = Math.round((unlocked / 30) * 100);
-
-    if (towerUnlockedText) towerUnlockedText.textContent = `UNLOCKED: ${unlocked} / 30 TIERS`;
-    if (towerPercentText) towerPercentText.textContent = `${pct}%`;
-    if (towerProgressFill) towerProgressFill.style.width = `${pct}%`;
-
-    drawCakeTowerGraphic();
-    renderRecipeCards();
-    if (cakeTowerModal) cakeTowerModal.style.display = 'flex';
-  }
-
-  function closeCakeTowerModal() {
-    if (cakeTowerModal) cakeTowerModal.style.display = 'none';
-  }
-
-  function drawCakeTowerGraphic() {
-    if (!cakeTowerCanvas) return;
-    const cCtx = cakeTowerCanvas.getContext('2d');
-    const cw = cakeTowerCanvas.width;
-    const ch = cakeTowerCanvas.height;
-
-    cCtx.clearRect(0, 0, cw, ch);
-
-    // Deep space gradient backdrop inside canvas
-    const bgGrad = cCtx.createLinearGradient(0, 0, 0, ch);
-    bgGrad.addColorStop(0, '#0d041e');
-    bgGrad.addColorStop(0.5, '#180738');
-    bgGrad.addColorStop(1, '#070214');
-    cCtx.fillStyle = bgGrad;
-    cCtx.fillRect(0, 0, cw, ch);
-
-    // Background stardust speckles
-    for (let s = 0; s < 45; s++) {
-      const sx = (Math.sin(s * 91.3) * 0.5 + 0.5) * cw;
-      const sy = (Math.cos(s * 47.7) * 0.5 + 0.5) * ch;
-      cCtx.fillStyle = s % 3 === 0 ? 'rgba(255, 215, 0, 0.6)' : 'rgba(255, 110, 190, 0.5)';
-      cCtx.fillRect(sx, sy, 2, 2);
-    }
-
-    // Pedestal Plate at bottom
-    const pedW = 360;
-    const pedH = 14;
-    const pedX = cw / 2 - pedW / 2;
-    const pedY = ch - 20;
-    cCtx.fillStyle = '#e2e8f0';
-    cCtx.fillRect(pedX, pedY, pedW, pedH);
-    cCtx.fillStyle = '#cbd5e1';
-    cCtx.fillRect(pedX, pedY + pedH - 4, pedW, 4);
-    cCtx.fillStyle = '#ffd700';
-    cCtx.fillRect(pedX + 10, pedY + 3, pedW - 20, 2);
-
-    const unlocked = Math.min(Math.max(hiStage, 1), 30);
-
-    // Draw all 30 stacked tiers from 1 (bottom) to 30 (top)
-    for (let i = 1; i <= 30; i++) {
-      const recipe = CAKE_TIER_RECIPES[i - 1];
-      const prog = (i - 1) / 29; // 0 (bottom) to 1 (top)
-      const tierW = Math.round(330 - prog * 230); // 330px at bottom down to 100px at top
-      const tierH = 16;
-      const tierX = Math.round(cw / 2 - tierW / 2);
-      const tierY = Math.round(ch - 36 - (i - 1) * 18);
-      const isUnlocked = i <= unlocked;
-
-      if (isUnlocked) {
-        // Unlocked vibrant tier with gradient & frosting
-        const grad = cCtx.createLinearGradient(tierX, tierY, tierX, tierY + tierH);
-        grad.addColorStop(0, recipe.accent || '#ff99bb');
-        grad.addColorStop(0.3, recipe.color || '#ff3366');
-        grad.addColorStop(1, '#1a0520');
-        cCtx.fillStyle = grad;
-        cCtx.fillRect(tierX, tierY, tierW, tierH);
-
-        // Tier border
-        cCtx.strokeStyle = recipe.accent || '#ffd700';
-        cCtx.lineWidth = 1;
-        cCtx.strokeRect(tierX, tierY, tierW, tierH);
-
-        // Frosting scalloped drip on top edge
-        cCtx.fillStyle = '#ffffff';
-        cCtx.fillRect(tierX, tierY, tierW, 3);
-        const dripCount = Math.max(4, Math.floor(tierW / 14));
-        const dripStep = tierW / dripCount;
-        for (let d = 0; d < dripCount; d++) {
-          const dx = tierX + d * dripStep + 2;
-          const dh = (d % 2 === 0) ? 6 : 4;
-          cCtx.fillRect(dx, tierY + 2, 4, dh);
-        }
-
-        // Sprinkles on tier body
-        cCtx.fillStyle = '#ffd700';
-        for (let sp = 1; sp < Math.min(8, tierW / 25); sp++) {
-          cCtx.fillRect(tierX + sp * 24, tierY + 9, 3, 2);
-        }
-
-        // Tier milestone marker on the sides
-        if (i % 5 === 0) {
-          cCtx.fillStyle = '#ffd700';
-          cCtx.font = '8px "Press Start 2P", monospace';
-          cCtx.textAlign = 'right';
-          cCtx.fillText("★", tierX - 4, tierY + 12);
-        }
-
-        // Tier Number label
-        cCtx.fillStyle = '#ffffff';
-        cCtx.font = '7px "Press Start 2P", monospace';
-        cCtx.textAlign = 'center';
-        cCtx.fillText(`T${i} ${recipe.icon}`, cw / 2, tierY + 12);
-      } else {
-        // Locked silhouette tier
-        cCtx.fillStyle = 'rgba(30, 20, 50, 0.7)';
-        cCtx.fillRect(tierX, tierY, tierW, tierH);
-        cCtx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-        cCtx.setLineDash([3, 3]);
-        cCtx.strokeRect(tierX, tierY, tierW, tierH);
-        cCtx.setLineDash([]);
-
-        cCtx.fillStyle = 'rgba(180, 160, 220, 0.5)';
-        cCtx.font = '6.5px "Press Start 2P", monospace';
-        cCtx.textAlign = 'center';
-        cCtx.fillText(`🔒 TIER ${i}`, cw / 2, tierY + 11);
-      }
-    }
-
-    // Top Crown / Tiara & Sparklers on top of Tier 30!
-    const topY = ch - 36 - 29 * 18 - 8;
-    if (unlocked >= 30) {
-      // Golden Tiara & Celebration Sparklers
-      cCtx.fillStyle = '#ffd700';
-      cCtx.font = '14px sans-serif';
-      cCtx.textAlign = 'center';
-      cCtx.fillText("👑", cw / 2, topY);
-      cCtx.font = '10px sans-serif';
-      cCtx.fillText("✨", cw / 2 - 25, topY - 6);
-      cCtx.fillText("✨", cw / 2 + 25, topY - 6);
-    } else {
-      // Glowing Candle on current highest tier
-      const currTopY = ch - 36 - (unlocked - 1) * 18 - 10;
-      cCtx.fillStyle = '#ff6ebe';
-      cCtx.fillRect(cw / 2 - 2, currTopY + 2, 4, 8);
-      cCtx.fillStyle = '#ffd700';
-      cCtx.beginPath();
-      cCtx.arc(cw / 2, currTopY, 3, 0, Math.PI * 2);
-      cCtx.fill();
-    }
-  }
-
-  function renderRecipeCards() {
-    if (!cakeCardsContainer) return;
-    cakeCardsContainer.innerHTML = '';
-    const unlocked = Math.min(Math.max(hiStage, 1), 30);
-
-    // Render from Tier 30 down to Tier 1 so players see the crown first
-    for (let i = 30; i >= 1; i--) {
-      const r = CAKE_TIER_RECIPES[i - 1];
-      const isUnlocked = i <= unlocked;
-      const isMilestone = i % 5 === 0;
-
-      const card = document.createElement('div');
-      card.id = `recipe-tier-${i}`;
-      card.className = `recipe-card ${isUnlocked ? 'unlocked' : 'locked'} ${isMilestone ? 'milestone' : ''}`;
-
-      card.innerHTML = `
-        <div class="rc-header">
-          <div class="rc-title">${r.icon} TIER ${r.tier}: ${escapeHTML(r.name)}</div>
-          <span class="rc-tag ${isUnlocked ? 'unlocked' : 'locked'}">${isUnlocked ? 'UNLOCKED ✨' : `LVL ${i} 🔒`}</span>
-        </div>
-        <div class="rc-flavor">${escapeHTML(r.flavor)}</div>
-        <div class="rc-secret"><b>✨ Secret:</b> ${escapeHTML(r.secret)}</div>
-        <div class="rc-note"><b>👩‍🍳 Note:</b> "${escapeHTML(r.note)}"</div>
-      `;
-      cakeCardsContainer.appendChild(card);
-    }
-  }
-
-  // Tap canvas tier to jump to recipe card
-  if (cakeTowerCanvas) {
-    cakeTowerCanvas.addEventListener('pointerdown', (e) => {
-      initAudio();
-      haptic(15);
-      const rect = cakeTowerCanvas.getBoundingClientRect();
-      const scaleY = cakeTowerCanvas.height / rect.height;
-      const tapY = (e.clientY - rect.top) * scaleY;
-      const ch = cakeTowerCanvas.height;
-
-      // Inverse formula: tierY = ch - 36 - (i - 1) * 18
-      const rawI = Math.round((ch - 36 - tapY) / 18) + 1;
-      const tierClicked = Math.max(1, Math.min(30, rawI));
-
-      const targetEl = document.getElementById(`recipe-tier-${tierClicked}`);
-      if (targetEl) {
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        targetEl.classList.add('highlight');
-        setTimeout(() => targetEl.classList.remove('highlight'), 1200);
-        playTone(660 + tierClicked * 15, 'triangle', 0.08, 0.15);
-      }
-    });
-  }
-
-  async function shareCakeRecipe() {
-    initAudio();
-    haptic(20);
-    const unlocked = Math.min(Math.max(hiStage, 1), 30);
-    const text = `🎂 AISHA'S GIANT CAKE TOWER 🍰
-` +
-      `Master Baker: Aisha Babu 👑
-` +
-      `Height: 48 Meters | Sweetness: 99,999% | 100% Love 💖
-` +
-      `Tiers Conquered: ${unlocked} / 30 Cosmic Layers!
-` +
-      `Zero Calories in Outer Space ✨
-
-` +
-      `Check out Aisha's 30-Tier Birthday Confection:
-https://aishababu.vercel.app`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "Aisha's 30-Tier Giant Cake Tower 🍰",
-          text: text,
-          url: "https://aishababu.vercel.app"
-        });
-        return;
-      } catch (err) {
-        if (err.name !== 'AbortError') console.warn(err);
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(text);
-      if (cakeShareBtn) {
-        const orig = cakeShareBtn.textContent;
-        cakeShareBtn.textContent = "COPIED! ✨";
-        setTimeout(() => { cakeShareBtn.textContent = orig; }, 1800);
-      }
-      toastFortune("🍰 Recipe card copied to clipboard!");
-    } catch (e) {
-      prompt("Copy Cake Tower Recipe:", text);
-    }
-  }
-
-  if (cakeShareBtn) cakeShareBtn.addEventListener('click', shareCakeRecipe);
-  if (cakeCloseBtn) cakeCloseBtn.addEventListener('click', closeCakeTowerModal);
-  if (cakeTowerBtn) cakeTowerBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    openCakeTowerModal();
-  });
-  if (cakeTowerModal) {
-    cakeTowerModal.addEventListener('click', (e) => {
-      if (e.target === cakeTowerModal) closeCakeTowerModal();
-    });
-  }
-
-  const statsRolloffWrap = document.getElementById('bakery-stats-wrap');
-  const statsRolloffToggle = document.getElementById('stats-rolloff-toggle');
-  if (statsRolloffToggle && statsRolloffWrap) {
-    statsRolloffToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      initAudio();
-      haptic(15);
-      const isCollapsed = statsRolloffWrap.classList.toggle('collapsed');
-      statsRolloffToggle.setAttribute('aria-expanded', !isCollapsed);
-    });
-  }
-
   function syncUIState() {
     checkpointStage = parseInt(localStorage.getItem('anti_grav_checkpoint') || '0');
     checkpointScore = parseInt(localStorage.getItem('anti_grav_checkpoint_score') || '0');
@@ -4760,8 +3873,13 @@ https://aishababu.vercel.app`;
       playHappyBirthdaySong();
       haptic([40, 50, 40, 50, 100]);
       syncUIState();
-      if (!runScoreSubmitted && isHighScoreEligible(score)) {
-        setTimeout(() => promptInitials(score, 30), 600);
+      if (!runScoreSubmitted) {
+        runScoreSubmitted = true;
+        if (isHighScoreEligible(score)) {
+          setTimeout(() => promptInitials(score, 30), 600);
+        } else {
+          setTimeout(() => openLeaderboardModal(false), 700);
+        }
       }
     } else {
       itemsCaughtStage = 0;
@@ -4790,8 +3908,13 @@ https://aishababu.vercel.app`;
     btnAction.textContent = 'RETRY';
     haptic([100, 80, 120]);
     syncUIState();
-    if (!runScoreSubmitted && isHighScoreEligible(score)) {
-      setTimeout(() => promptInitials(score, stage), 450);
+    if (!runScoreSubmitted) {
+      runScoreSubmitted = true;
+      if (isHighScoreEligible(score)) {
+        setTimeout(() => promptInitials(score, stage), 450);
+      } else {
+        setTimeout(() => openLeaderboardModal(false), 500);
+      }
     }
   }
 
@@ -7618,7 +6741,7 @@ https://aishababu.vercel.app`;
       ctx.fillText(`BEST: ${hiScore.toLocaleString()}   |   🛸 BONUS PIÑATA: LVL 9, 19, 29`, WIDTH / 2, boxY + boxH - 42);
       ctx.fillStyle = '#ff94c2';
       ctx.font = '7px "Press Start 2P", monospace';
-      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + boxH - 18);
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME ★", WIDTH / 2, boxY + boxH - 18);
     } else if (state === 'PAUSED') {
       btnAction.textContent = 'RESUME';
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -7950,13 +7073,9 @@ https://aishababu.vercel.app`;
           ctx.font = '9px "Press Start 2P", monospace';
           ctx.fillText("📸 [ TAP HERE TO DECORATE POLAROID ]", WIDTH / 2, boxY + 504);
 
-          ctx.fillStyle = '#ffd700';
-          ctx.font = '8.5px "Press Start 2P", monospace';
-          ctx.fillText("🍰 [ VIEW 30-TIER CAKE TOWER ]", WIDTH / 2, boxY + 526);
-
           ctx.fillStyle = '#859bb8';
           ctx.font = '7.5px "Press Start 2P", monospace';
-          ctx.fillText(`VERIFIED BIRTHDAY EDITION   |   SCORE: ${score.toLocaleString()}`, WIDTH / 2, boxY + 544);
+          ctx.fillText(`VERIFIED BIRTHDAY EDITION   |   SCORE: ${score.toLocaleString()}`, WIDTH / 2, boxY + 528);
         }
       }
     } else if (state === 'GAME_OVER') {
@@ -8010,7 +7129,7 @@ https://aishababu.vercel.app`;
 
       ctx.fillStyle = '#859bb8';
       ctx.font = '7px "Press Start 2P", monospace';
-      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + boxH - 16);
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME ★", WIDTH / 2, boxY + boxH - 16);
     } else if (state === 'WIN') {
       btnAction.textContent = 'AGAIN';
       const boxW = Math.min(WIDTH - 32, 660);
@@ -8072,7 +7191,7 @@ https://aishababu.vercel.app`;
 
       ctx.fillStyle = '#ff94c2';
       ctx.font = '7px "Press Start 2P", monospace';
-      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME & 🍰 CAKE TOWER ★", WIDTH / 2, boxY + boxH - 6);
+      ctx.fillText("★ ⚙️ QUICK SETTINGS FOR 🏆 HALL OF FAME ★", WIDTH / 2, boxY + boxH - 6);
     }
 
     ctx.restore();
