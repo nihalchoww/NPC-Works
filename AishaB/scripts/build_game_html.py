@@ -160,23 +160,29 @@ html = """<!DOCTYPE html>
     box-shadow: 0 0 28px rgba(0, 220, 255, 0.9), inset 0 0 16px #ffffff;
   }
 
-  /* Action button (START / RETRY) at bottom center for menus */
+  /* Action buttons (START / RESUME / SHARE / MIC) at bottom center for menus & ceremonies */
   .action-zone {
     position: absolute;
-    bottom: max(18px, env(safe-area-inset-bottom));
+    bottom: max(16px, env(safe-area-inset-bottom));
     left: 50%;
     transform: translateX(-50%);
     pointer-events: auto;
     z-index: 22;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 92vw;
   }
   .btn-action {
     width: auto;
-    min-width: 140px;
-    height: 48px;
-    padding: 0 24px;
+    min-width: 130px;
+    height: 46px;
+    padding: 0 20px;
     border-radius: 24px;
-    font-size: 12px;
-    letter-spacing: 1.5px;
+    font-size: 11px;
+    letter-spacing: 1.2px;
     border-color: #ffd700;
     color: #ffd700;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.25);
@@ -185,6 +191,91 @@ html = """<!DOCTYPE html>
     background: rgba(255, 215, 0, 0.4);
     box-shadow: 0 0 26px rgba(255, 215, 0, 0.85), inset 0 0 14px #ffffff;
     color: #ffffff;
+  }
+  .btn-resume {
+    border-color: #00dcff;
+    color: #00dcff;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 220, 255, 0.4), inset 0 0 10px rgba(0, 220, 255, 0.25);
+  }
+  .btn-resume:active, .btn-resume.active {
+    background: rgba(0, 220, 255, 0.4);
+    box-shadow: 0 0 26px rgba(0, 220, 255, 0.85), inset 0 0 14px #ffffff;
+    color: #ffffff;
+  }
+  .btn-share {
+    border-color: #ff6ebe;
+    color: #ff6ebe;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 110, 190, 0.4), inset 0 0 10px rgba(255, 110, 190, 0.25);
+  }
+  .btn-share:active, .btn-share.active {
+    background: rgba(255, 110, 190, 0.4);
+    box-shadow: 0 0 26px rgba(255, 110, 190, 0.85), inset 0 0 14px #ffffff;
+    color: #ffffff;
+  }
+  .btn-mic {
+    border-color: #37be46;
+    color: #37be46;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(55, 190, 70, 0.4), inset 0 0 10px rgba(55, 190, 70, 0.25);
+  }
+  .btn-mic.active {
+    background: rgba(55, 190, 70, 0.5);
+    color: #ffffff;
+    box-shadow: 0 0 26px rgba(55, 190, 70, 0.9), inset 0 0 14px #ffffff;
+  }
+  /* Shareable Victory Polaroid Certificate Modal */
+  #polaroid-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(6, 3, 18, 0.92);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 16px;
+    box-sizing: border-box;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  #polaroid-wrap {
+    max-width: 90vw;
+    max-height: 82dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #polaroid-img {
+    max-width: 100%;
+    max-height: 68dvh;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), 0 0 24px rgba(255, 215, 0, 0.35);
+    display: block;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .modal-btn {
+    background: #ff4da6;
+    color: #fff;
+    border: 2px solid #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 77, 166, 0.5);
+  }
+  .modal-btn-close {
+    background: #374682;
+    border-color: #00dcff;
+    color: #00dcff;
   }
 </style>
 </head>
@@ -205,6 +296,19 @@ html = """<!DOCTYPE html>
     </div>
     <div class="action-zone" id="action-zone">
       <button class="control-btn btn-action" id="btn-action">START</button>
+      <button class="control-btn btn-action btn-resume" id="btn-resume" style="display:none;">★ RESUME ★</button>
+      <button class="control-btn btn-action btn-share" id="btn-share" style="display:none;">📸 POLAROID</button>
+      <button class="control-btn btn-action btn-mic" id="btn-mic" style="display:none;">🎤 BLOW MIC</button>
+    </div>
+  </div>
+  <div id="polaroid-modal">
+    <div id="polaroid-wrap">
+      <img id="polaroid-img" alt="Aisha Polaroid Certificate" />
+      <p style="font-size: 9px; color: #ffd700; margin-top: 10px; text-align: center; text-shadow: 0 0 8px #000;">★ TAP &amp; HOLD IMAGE TO SAVE TO PHOTOS ★</p>
+      <div class="modal-actions">
+        <button class="modal-btn" id="modal-download-btn">DOWNLOAD 📥</button>
+        <button class="modal-btn modal-btn-close" id="modal-close-btn">CLOSE ✕</button>
+      </div>
     </div>
   </div>
 </div>
@@ -386,6 +490,381 @@ html = """<!DOCTYPE html>
     setTimeout(() => playTone(1174, 'triangle', 0.16, 0.22), 60);
   }
 
+  // Full 8-Bit Happy Birthday to You Chiptune
+  function stopHappyBirthdaySong() {
+    hbTimeoutIds.forEach(id => clearTimeout(id));
+    hbTimeoutIds = [];
+    isPlayingHappyBirthday = false;
+    if (bgmGain && audioCtx) {
+      bgmGain.gain.setValueAtTime(bgmMuted ? 0.0001 : 0.045, audioCtx.currentTime);
+    }
+  }
+
+  function playHappyBirthdaySong() {
+    initAudio();
+    if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+
+    stopHappyBirthdaySong();
+    isPlayingHappyBirthday = true;
+
+    // Duck background BGM while birthday anthem plays
+    if (bgmGain) {
+      bgmGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    }
+
+    const notes = [
+      // Phrase 1: "Happy Birthday to you"
+      { f: 392, d: 0.28, bass: 196 },
+      { f: 392, d: 0.20, bass: 0 },
+      { f: 440, d: 0.48, bass: 220 },
+      { f: 392, d: 0.48, bass: 196 },
+      { f: 523, d: 0.48, bass: 261 },
+      { f: 494, d: 0.85, bass: 247 },
+      { f: 0,   d: 0.18, bass: 0 },
+
+      // Phrase 2: "Happy Birthday to you"
+      { f: 392, d: 0.28, bass: 196 },
+      { f: 392, d: 0.20, bass: 0 },
+      { f: 440, d: 0.48, bass: 220 },
+      { f: 392, d: 0.48, bass: 196 },
+      { f: 587, d: 0.48, bass: 294 },
+      { f: 523, d: 0.85, bass: 261 },
+      { f: 0,   d: 0.18, bass: 0 },
+
+      // Phrase 3: "Happy Birthday dear Aisha"
+      { f: 392, d: 0.28, bass: 196 },
+      { f: 392, d: 0.20, bass: 0 },
+      { f: 784, d: 0.52, bass: 392 },
+      { f: 659, d: 0.52, bass: 330 },
+      { f: 523, d: 0.52, bass: 261 },
+      { f: 494, d: 0.52, bass: 247 },
+      { f: 440, d: 0.78, bass: 220 },
+      { f: 0,   d: 0.18, bass: 0 },
+
+      // Phrase 4: "Happy Birthday to you!"
+      { f: 698, d: 0.28, bass: 349 },
+      { f: 698, d: 0.20, bass: 0 },
+      { f: 659, d: 0.52, bass: 330 },
+      { f: 523, d: 0.52, bass: 261 },
+      { f: 587, d: 0.52, bass: 294 },
+      { f: 523, d: 1.15, bass: 261 }
+    ];
+
+    let tAccum = 0;
+    notes.forEach(n => {
+      const tid = setTimeout(() => {
+        if (bgmMuted || !audioCtx || audioCtx.state !== 'running') return;
+        if (n.f > 0) {
+          try {
+            // Square wave lead with bright retro pulse
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(n.f, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + n.d);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + n.d);
+
+            // Triangle wave bass
+            if (n.bass > 0) {
+              const bOsc = audioCtx.createOscillator();
+              const bGain = audioCtx.createGain();
+              bOsc.type = 'triangle';
+              bOsc.frequency.setValueAtTime(n.bass / 2, audioCtx.currentTime);
+              bGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+              bGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + n.d);
+              bOsc.connect(bGain);
+              bGain.connect(audioCtx.destination);
+              bOsc.start();
+              bOsc.stop(audioCtx.currentTime + n.d);
+            }
+          } catch(e) {}
+        }
+      }, tAccum * 1000);
+      hbTimeoutIds.push(tid);
+      tAccum += n.d;
+    });
+
+    const finishTid = setTimeout(() => {
+      stopHappyBirthdaySong();
+    }, tAccum * 1000 + 400);
+    hbTimeoutIds.push(finishTid);
+  }
+
+  // Real Microphone Breath Detection
+  async function toggleMic() {
+    if (micEnabled) {
+      stopMic();
+    } else {
+      await startMic();
+    }
+    syncUIState();
+  }
+
+  async function startMic() {
+    initAudio();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Microphone is not supported on this browser.");
+      return;
+    }
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+      const source = audioCtx.createMediaStreamSource(micStream);
+      micAnalyser = audioCtx.createAnalyser();
+      micAnalyser.fftSize = 256;
+      micAnalyser.smoothingTimeConstant = 0.25;
+      source.connect(micAnalyser);
+      micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
+      micEnabled = true;
+      haptic(30);
+    } catch (err) {
+      console.warn("Microphone access error:", err);
+      micEnabled = false;
+      alert("Microphone permission was not granted. Tap candles to blow them out!");
+    }
+  }
+
+  function stopMic() {
+    if (micStream) {
+      try {
+        micStream.getTracks().forEach(track => track.stop());
+      } catch(e) {}
+      micStream = null;
+    }
+    micAnalyser = null;
+    micDataArray = null;
+    micEnabled = false;
+    micBlowLevel = 0;
+    micBlowFrames = 0;
+  }
+
+  // Shareable Victory Polaroid Certificate Generator
+  function generatePolaroidCanvas() {
+    const cw = 700;
+    const ch = 920;
+    const pCanvas = document.createElement('canvas');
+    pCanvas.width = cw;
+    pCanvas.height = ch;
+    const pCtx = pCanvas.getContext('2d');
+
+    // Cosmic space table backdrop
+    const bgGrad = pCtx.createRadialGradient(cw / 2, ch / 2, 50, cw / 2, ch / 2, cw * 0.8);
+    bgGrad.addColorStop(0, '#1c1444');
+    bgGrad.addColorStop(1, '#090518');
+    pCtx.fillStyle = bgGrad;
+    pCtx.fillRect(0, 0, cw, ch);
+
+    // Polaroid Outer Card
+    const pad = 36;
+    const cardW = cw - pad * 2;
+    const cardH = ch - pad * 2;
+    pCtx.fillStyle = '#faf8f5';
+    pCtx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+    pCtx.shadowBlur = 35;
+    pCtx.shadowOffsetY = 15;
+    if (pCtx.roundRect) pCtx.roundRect(pad, pad, cardW, cardH, 8);
+    else pCtx.rect(pad, pad, cardW, cardH);
+    pCtx.fill();
+    pCtx.shadowBlur = 0;
+    pCtx.shadowOffsetY = 0;
+
+    // Polaroid Card Header
+    pCtx.fillStyle = '#ff4da6';
+    pCtx.font = 'bold 15px "Press Start 2P", sans-serif';
+    pCtx.textAlign = 'center';
+    pCtx.fillText("★ AISHA'S BIRTHDAY BAKE-OFF ★", cw / 2, pad + 38);
+
+    pCtx.fillStyle = '#4a5568';
+    pCtx.font = 'bold 9px "Press Start 2P", sans-serif';
+    pCtx.fillText("OFFICIAL COSMIC BAKER CERTIFICATE", cw / 2, pad + 58);
+
+    // Photo Cutout Frame
+    const photoX = pad + 24;
+    const photoY = pad + 75;
+    const photoW = cardW - 48;
+    const photoH = 500;
+    pCtx.fillStyle = '#0f0826';
+    pCtx.fillRect(photoX, photoY, photoW, photoH);
+
+    // Photo Cosmic Nebula
+    const photoGrad = pCtx.createRadialGradient(photoX + photoW / 2, photoY + photoH / 2, 20, photoX + photoW / 2, photoY + photoH / 2, photoW * 0.7);
+    photoGrad.addColorStop(0, '#2d1b58');
+    photoGrad.addColorStop(1, '#080415');
+    pCtx.fillStyle = photoGrad;
+    pCtx.fillRect(photoX, photoY, photoW, photoH);
+
+    // Stardust Sparkles in photo background
+    const pColors = ['#ffd700', '#00dcff', '#ff6ebe', '#37be46', '#ffffff'];
+    for (let i = 0; i < 40; i++) {
+      pCtx.fillStyle = pColors[i % pColors.length];
+      const sx = photoX + 20 + ((i * 47) % (photoW - 40));
+      const sy = photoY + 20 + ((i * 31) % (photoH - 40));
+      pCtx.fillRect(sx, sy, 3, 3);
+    }
+
+    // Centered Aisha Portrait
+    const imgW = 280;
+    const imgH = 370;
+    const imgX = photoX + (photoW - imgW) / 2;
+    const imgY = photoY + (photoH - imgH) / 2 + 20;
+
+    pCtx.save();
+    pCtx.strokeStyle = '#ffd700';
+    pCtx.lineWidth = 4;
+    pCtx.strokeRect(imgX - 2, imgY - 2, imgW + 4, imgH + 4);
+
+    if (aishaPortrait.complete && aishaPortrait.naturalWidth > 0) {
+      pCtx.drawImage(aishaPortrait, imgX, imgY, imgW, imgH);
+    } else if (aishaHead.complete && aishaHead.naturalWidth > 0) {
+      pCtx.drawImage(aishaHead, imgX, imgY, imgW, imgH);
+    }
+    pCtx.restore();
+
+    // Golden Birthday Tiara & Crown atop Aisha's head in portrait
+    const crownCenterX = imgX + imgW / 2;
+    const crownTopY = imgY - 14;
+    pCtx.save();
+    pCtx.translate(crownCenterX, crownTopY);
+    pCtx.scale(2.2, 2.2);
+    pCtx.fillStyle = '#ffd700';
+    pCtx.beginPath();
+    pCtx.moveTo(-16, 4);
+    pCtx.lineTo(-16, -10);
+    pCtx.lineTo(-8, -4);
+    pCtx.lineTo(0, -18);
+    pCtx.lineTo(8, -4);
+    pCtx.lineTo(16, -10);
+    pCtx.lineTo(16, 4);
+    pCtx.closePath();
+    pCtx.fill();
+    pCtx.strokeStyle = '#ffffff';
+    pCtx.lineWidth = 1.2;
+    pCtx.stroke();
+    pCtx.fillStyle = '#ff1155';
+    pCtx.fillRect(-2, -6, 4, 4);
+    pCtx.fillStyle = '#00dcff';
+    pCtx.fillRect(-10, -3, 3, 3);
+    pCtx.fillRect(7, -3, 3, 3);
+    pCtx.restore();
+
+    // Photo inner border
+    pCtx.strokeStyle = '#d2d6dc';
+    pCtx.lineWidth = 2;
+    pCtx.strokeRect(photoX, photoY, photoW, photoH);
+
+    // Polaroid Bottom Margin
+    const marginY = photoY + photoH + 28;
+
+    // Gold Certified Master Baker Seal with Satin Ribbon
+    const sealX = photoX + photoW - 70;
+    const sealY = marginY + 68;
+    pCtx.save();
+    pCtx.fillStyle = '#ffd700';
+    pCtx.shadowColor = 'rgba(218, 165, 32, 0.4)';
+    pCtx.shadowBlur = 12;
+    pCtx.beginPath();
+    pCtx.arc(sealX, sealY, 36, 0, Math.PI * 2);
+    pCtx.fill();
+    pCtx.strokeStyle = '#b8860b';
+    pCtx.lineWidth = 3;
+    pCtx.stroke();
+
+    pCtx.fillStyle = '#e6005c';
+    pCtx.beginPath();
+    pCtx.moveTo(sealX - 14, sealY + 28);
+    pCtx.lineTo(sealX - 22, sealY + 70);
+    pCtx.lineTo(sealX - 10, sealY + 60);
+    pCtx.lineTo(sealX, sealY + 70);
+    pCtx.lineTo(sealX - 4, sealY + 28);
+    pCtx.fill();
+    pCtx.beginPath();
+    pCtx.moveTo(sealX + 4, sealY + 28);
+    pCtx.lineTo(sealX, sealY + 70);
+    pCtx.lineTo(sealX + 10, sealY + 60);
+    pCtx.lineTo(sealX + 22, sealY + 70);
+    pCtx.lineTo(sealX + 14, sealY + 28);
+    pCtx.fill();
+
+    pCtx.fillStyle = '#000000';
+    pCtx.font = 'bold 7px sans-serif';
+    pCtx.textAlign = 'center';
+    pCtx.fillText("★ CERTIFIED ★", sealX, sealY - 8);
+    pCtx.fillText("MASTER", sealX, sealY + 2);
+    pCtx.fillText("BAKER 👑", sealX, sealY + 12);
+    pCtx.restore();
+
+    // Handwritten Birthday Message & Stats
+    pCtx.fillStyle = '#1a202c';
+    pCtx.font = 'bold 22px "Press Start 2P", cursive, sans-serif';
+    pCtx.textAlign = 'left';
+    pCtx.fillText("HAPPY BIRTHDAY AISHA! 🎂", photoX, marginY + 12);
+
+    pCtx.fillStyle = '#2b6cb0';
+    pCtx.font = 'bold 12px "Press Start 2P", monospace';
+    const stageTitle = (stage >= TOTAL_STAGES) ? "★ GRAND CHAMPION BAKER (ALL 30 LEVELS) ★" : `★ CERTIFIED COSMIC BAKER (STAGE ${stage}) ★`;
+    pCtx.fillText(stageTitle, photoX, marginY + 45);
+
+    pCtx.fillStyle = '#4a5568';
+    pCtx.font = '11px "Press Start 2P", monospace';
+    pCtx.fillText(`FINAL SCORE: ${score.toLocaleString()} PTS`, photoX, marginY + 78);
+    pCtx.fillText("RANK: GALAXY QUEEN BAKER 👑", photoX, marginY + 102);
+
+    const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    pCtx.fillStyle = '#a0aec0';
+    pCtx.font = '9px "Press Start 2P", monospace';
+    pCtx.fillText(`DATE: ${dateStr} • VERIFIED BIRTHDAY EDITION`, photoX, marginY + 134);
+
+    return pCanvas;
+  }
+
+  let latestPolaroidBlob = null;
+  function shareOrSavePolaroid() {
+    initAudio();
+    haptic([30, 40]);
+    const pCanvas = generatePolaroidCanvas();
+    pCanvas.toBlob(async (blob) => {
+      if (!blob) return;
+      latestPolaroidBlob = blob;
+      const file = new File([blob], 'aisha-birthday-champion.png', { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: "Aisha's Birthday Bake-Off 🎂",
+            text: `Aisha conquered the Galaxy Bake-Off with ${score.toLocaleString()} points! Happy Birthday Aisha! 🎂👑`,
+            files: [file]
+          });
+          return;
+        } catch (err) {
+          if (err.name !== 'AbortError') console.warn("Share failed, falling back to modal:", err);
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      showPolaroidModal(url);
+    }, 'image/png');
+  }
+
+  function showPolaroidModal(imgUrl) {
+    const modal = document.getElementById('polaroid-modal');
+    const img = document.getElementById('polaroid-img');
+    if (modal && img) {
+      img.src = imgUrl;
+      modal.style.display = 'flex';
+    }
+  }
+
+  function closePolaroidModal() {
+    const modal = document.getElementById('polaroid-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
   // Haptic feedback
   function haptic(ms) {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -447,6 +926,22 @@ html = """<!DOCTYPE html>
   let hiScore = parseInt(localStorage.getItem('anti_grav_hiscore') || '1000');
   let lives = MAX_LIVES;
   let stage = 1;
+
+  // Checkpoints
+  let checkpointStage = parseInt(localStorage.getItem('anti_grav_checkpoint') || '0');
+  let checkpointScore = parseInt(localStorage.getItem('anti_grav_checkpoint_score') || '0');
+
+  // Real Microphone Breath Detection
+  let micStream = null;
+  let micAnalyser = null;
+  let micDataArray = null;
+  let micEnabled = false;
+  let micBlowLevel = 0;
+  let micBlowFrames = 0;
+
+  // Full 8-Bit Happy Birthday Chiptune Player
+  let isPlayingHappyBirthday = false;
+  let hbTimeoutIds = [];
   let itemsCaughtStage = 0;
   let timeLeft = STAGE_DURATION;
   let shakeTime = 0;
@@ -481,13 +976,50 @@ html = """<!DOCTYPE html>
   window.addEventListener('pointerdown', (e) => {
     initAudio();
     if (e.target.closest('.hud-btn') || e.target.closest('#touch-controls')) return;
-    if (state === 'MENU' || state === 'GAME_OVER' || state === 'WIN') {
-      startGame();
+    if (state === 'MENU') {
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      const boxY = HEIGHT / 2 - 265;
+      if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 455) {
+        resumeCheckpoint();
+      } else {
+        startGame();
+      }
+      haptic(25);
+      return;
+    }
+    if (state === 'GAME_OVER') {
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      const boxY = HEIGHT / 2 - 265;
+      if (checkpointStage > 1 && coords.y >= boxY + 410 && coords.y <= boxY + 455) {
+        resumeCheckpoint();
+      } else {
+        startGame();
+      }
+      haptic(25);
+      return;
+    }
+    if (state === 'WIN') {
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      const boxY = HEIGHT / 2 - 265;
+      if (coords.y >= boxY + 450 && coords.y <= boxY + 500) {
+        shareOrSavePolaroid();
+      } else {
+        startGame();
+      }
       haptic(25);
       return;
     }
     if (state === 'CANDLE_CEREMONY') {
       const coords = getCanvasCoords(e.clientX, e.clientY);
+      const boxY = HEIGHT / 2 - Math.min(HEIGHT - 80, 560) / 2;
+      if (!ceremonyAllBlown && coords.y >= boxY + 490 && coords.y <= boxY + 530) {
+        toggleMic();
+        return;
+      }
+      if (ceremonyAllBlown && coords.y >= boxY + 460 && coords.y <= boxY + 510) {
+        shareOrSavePolaroid();
+        return;
+      }
       blowCandles(coords.x, coords.y);
       return;
     }
@@ -532,10 +1064,15 @@ html = """<!DOCTYPE html>
   const btnL = document.getElementById('btn-left');
   const btnR = document.getElementById('btn-right');
   const btnAction = document.getElementById('btn-action');
+  const btnResume = document.getElementById('btn-resume');
+  const btnShare = document.getElementById('btn-share');
+  const btnMic = document.getElementById('btn-mic');
   const actionZone = document.getElementById('action-zone');
   const btnPause = document.getElementById('pause-btn');
   const btnFS = document.getElementById('fs-btn');
   const btnMute = document.getElementById('mute-btn');
+  const modalDownloadBtn = document.getElementById('modal-download-btn');
+  const modalCloseBtn = document.getElementById('modal-close-btn');
 
   if (btnMute) {
     btnMute.textContent = bgmMuted ? '🔇' : '🔊';
@@ -548,9 +1085,92 @@ html = """<!DOCTYPE html>
     });
   }
 
+  if (btnResume) {
+    btnResume.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      initAudio();
+      haptic(25);
+      resumeCheckpoint();
+    });
+  }
+  if (btnShare) {
+    btnShare.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      initAudio();
+      shareOrSavePolaroid();
+    });
+  }
+  if (btnMic) {
+    btnMic.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      initAudio();
+      toggleMic();
+    });
+  }
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', closePolaroidModal);
+  }
+  if (modalDownloadBtn) {
+    modalDownloadBtn.addEventListener('click', () => {
+      if (!latestPolaroidBlob) return;
+      const url = URL.createObjectURL(latestPolaroidBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'aisha-birthday-champion.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      haptic(20);
+    });
+  }
+  const polaroidModal = document.getElementById('polaroid-modal');
+  if (polaroidModal) {
+    polaroidModal.addEventListener('click', (e) => {
+      if (e.target === polaroidModal) closePolaroidModal();
+    });
+  }
+
   function syncUIState() {
+    checkpointStage = parseInt(localStorage.getItem('anti_grav_checkpoint') || '0');
+    checkpointScore = parseInt(localStorage.getItem('anti_grav_checkpoint_score') || '0');
+
     if (actionZone) {
-      actionZone.style.display = (state === 'PLAYING') ? 'none' : 'block';
+      if (state === 'PLAYING') {
+        actionZone.style.display = 'none';
+      } else {
+        actionZone.style.display = 'flex';
+      }
+    }
+
+    if (btnResume) {
+      if ((state === 'MENU' || state === 'GAME_OVER') && checkpointStage > 1) {
+        btnResume.style.display = 'block';
+        btnResume.textContent = '★ RESUME (LVL ' + checkpointStage + ')';
+      } else {
+        btnResume.style.display = 'none';
+      }
+    }
+
+    if (btnMic) {
+      if (state === 'CANDLE_CEREMONY' && !ceremonyAllBlown) {
+        btnMic.style.display = 'block';
+        btnMic.classList.toggle('active', micEnabled);
+        btnMic.textContent = micEnabled ? '🎤 MIC: LISTENING...' : '🎤 BLOW MIC';
+      } else {
+        btnMic.style.display = 'none';
+      }
+    }
+
+    if (btnShare) {
+      if (state === 'WIN' || (state === 'CANDLE_CEREMONY' && ceremonyAllBlown)) {
+        btnShare.style.display = 'block';
+        btnShare.textContent = '📸 SHARE POLAROID';
+      } else {
+        btnShare.style.display = 'none';
+      }
     }
   }
 
@@ -836,7 +1456,16 @@ html = """<!DOCTYPE html>
           hiScore = score;
           localStorage.setItem('anti_grav_hiscore', hiScore);
         }
-        sfxWin();
+        // Save Checkpoint for upcoming stage!
+        if (stage < TOTAL_STAGES) {
+          const nextCp = stage + 1;
+          localStorage.setItem('anti_grav_checkpoint', nextCp);
+          localStorage.setItem('anti_grav_checkpoint_score', score);
+          checkpointStage = nextCp;
+          checkpointScore = score;
+        }
+        stopMic();
+        playHappyBirthdaySong();
         haptic([50, 40, 50, 40, 120]);
         for (let k = 0; k < 6; k++) {
           setTimeout(() => {
@@ -866,10 +1495,10 @@ html = """<!DOCTYPE html>
     }
   }
 
-  function startGame() {
-    score = 0;
+  function startGame(startStage = 1, initialScore = 0) {
+    score = initialScore;
     lives = MAX_LIVES;
-    stage = 1;
+    stage = startStage;
     itemsCaughtStage = 0;
     timeLeft = STAGE_DURATION;
     shakeTime = 0;
@@ -890,11 +1519,21 @@ html = """<!DOCTYPE html>
     player.invincible = 0;
     targetX = player.x;
     state = 'PLAYING';
+    stopMic();
+    stopHappyBirthdaySong();
     btnAction.textContent = 'PAUSE';
     syncUIState();
   }
 
+  function resumeCheckpoint() {
+    const cpStage = parseInt(localStorage.getItem('anti_grav_checkpoint') || '1');
+    const cpScore = parseInt(localStorage.getItem('anti_grav_checkpoint_score') || '0');
+    startGame(cpStage, cpScore);
+  }
+
   function continueMilestone() {
+    stopMic();
+    stopHappyBirthdaySong();
     stage++;
     itemsCaughtStage = 0;
     timeLeft = STAGE_DURATION;
@@ -912,6 +1551,8 @@ html = """<!DOCTYPE html>
   }
 
   function nextStage() {
+    stopMic();
+    stopHappyBirthdaySong();
     stage++;
     if (stage > TOTAL_STAGES) {
       score += 2000;
@@ -921,7 +1562,7 @@ html = """<!DOCTYPE html>
       }
       state = 'WIN';
       btnAction.textContent = 'AGAIN';
-      sfxWin();
+      playHappyBirthdaySong();
       haptic([40, 50, 40, 50, 100]);
       syncUIState();
     } else {
@@ -1385,6 +2026,40 @@ html = """<!DOCTYPE html>
       p.life -= dt;
       p.alpha = Math.max(0, p.life / p.maxLife);
     });
+
+    // Real Microphone Breath Detection in Ceremony
+    if (state === 'CANDLE_CEREMONY' && micEnabled && micAnalyser && micDataArray && !ceremonyAllBlown) {
+      micAnalyser.getByteFrequencyData(micDataArray);
+      let sum = 0;
+      for (let i = 4; i < micDataArray.length; i++) {
+        sum += micDataArray[i];
+      }
+      const avg = sum / (micDataArray.length - 4);
+      micBlowLevel = Math.min(1.0, avg / 75.0);
+
+      if (avg > 36) {
+        micBlowFrames++;
+        // Generate visible breath wind stream
+        if (Math.random() < 0.6) {
+          ceremonySmokeParticles.push({
+            x: WIDTH / 2 + (Math.random() - 0.5) * 180,
+            y: HEIGHT / 2 + 100,
+            vx: (Math.random() - 0.5) * 35,
+            vy: -75 - Math.random() * 55,
+            radius: 3.5 + Math.random() * 4,
+            life: 0.8,
+            maxLife: 0.8,
+            alpha: 0.65
+          });
+        }
+        if (micBlowFrames >= 3) {
+          blowCandles();
+          micBlowFrames = 0;
+        }
+      } else {
+        micBlowFrames = Math.max(0, micBlowFrames - 1);
+      }
+    }
 
     if (state === 'PLAYING') {
       btnAction.textContent = 'PAUSE';
@@ -2085,23 +2760,146 @@ html = """<!DOCTYPE html>
         }
         ctx.restore();
 
-        // 6. Pink Party Hat Seated Directly on Top of Hair
-        const hatBaseY = headY - headRy + 3;
-        const hatTipY = hatBaseY - 26;
-        ctx.fillStyle = '#ff4da6';
-        ctx.beginPath();
-        ctx.moveTo(-13, hatBaseY);
-        ctx.lineTo(13, hatBaseY);
-        ctx.lineTo(0, hatTipY);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(-5, hatBaseY - 9, 3, 3);
-        ctx.fillRect(4, hatBaseY - 14, 3, 3);
-        ctx.fillRect(-1, hatBaseY - 20, 2, 2);
-        ctx.beginPath();
-        ctx.arc(0, hatTipY - 2, 3.5, 0, Math.PI * 2);
-        ctx.fill();
+        // 6. Unlockable Costumes (Party Hat / Royal Crown / Chef Toque / Diamond Tiara)
+        if (stage >= 30) {
+          // Tier 4 (Stage 30): Sparkling Diamond Birthday Tiara + Rainbow Stardust
+          const tiaraBaseY = headY - headRy + 3;
+          const tiaraW = 34;
+          ctx.strokeStyle = '#e0f7fa';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(-tiaraW / 2, tiaraBaseY);
+          ctx.quadraticCurveTo(0, tiaraBaseY - 6, tiaraW / 2, tiaraBaseY);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-tiaraW / 2, tiaraBaseY);
+          ctx.lineTo(-tiaraW / 3, tiaraBaseY - 12);
+          ctx.lineTo(-tiaraW / 6, tiaraBaseY - 6);
+          ctx.lineTo(0, tiaraBaseY - 24);
+          ctx.lineTo(tiaraW / 6, tiaraBaseY - 6);
+          ctx.lineTo(tiaraW / 3, tiaraBaseY - 12);
+          ctx.lineTo(tiaraW / 2, tiaraBaseY);
+          ctx.stroke();
+
+          ctx.fillStyle = '#ff0077';
+          ctx.beginPath();
+          ctx.arc(-2, tiaraBaseY - 12, 2.5, 0, Math.PI * 2);
+          ctx.arc(2, tiaraBaseY - 12, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(-4.5, tiaraBaseY - 11); ctx.lineTo(0, tiaraBaseY - 6); ctx.lineTo(4.5, tiaraBaseY - 11);
+          ctx.fill();
+
+          const dGems = ['#00ffff', '#ffffff', '#ffd700', '#ff66cc'];
+          [[-tiaraW / 3, tiaraBaseY - 12], [0, tiaraBaseY - 24], [tiaraW / 3, tiaraBaseY - 12]].forEach(([dx, dy], idx) => {
+            ctx.fillStyle = dGems[(idx + Math.floor(globalTime * 6)) % dGems.length];
+            ctx.shadowColor = '#00ffff';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(dx, dy, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          });
+
+          if (Math.random() < 0.35) {
+            trails.push({
+              x: px + (Math.random() - 0.5) * 36,
+              y: py - 40 + (Math.random() - 0.5) * 20,
+              vy: -18,
+              life: 0.55,
+              color: ['#00ffff', '#ff66cc', '#ffd700', '#37be46'][Math.floor(Math.random() * 4)]
+            });
+          }
+        } else if (stage >= 20) {
+          // Tier 3 (Stages 20-29): Master Chef Toque with Pink Satin Ribbon & Gold Buckle
+          const toqueBaseY = headY - headRy + 3;
+          const toqueW = 32;
+          ctx.fillStyle = '#ff4da6';
+          ctx.fillRect(-toqueW / 2 + 2, toqueBaseY - 6, toqueW - 4, 7);
+          ctx.fillStyle = '#ffd700';
+          ctx.fillRect(-3, toqueBaseY - 5, 6, 5);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(-toqueW / 2 + 2, toqueBaseY - 6);
+          ctx.bezierCurveTo(-toqueW / 2 - 6, toqueBaseY - 22, -toqueW / 4, toqueBaseY - 28, -toqueW / 6, toqueBaseY - 26);
+          ctx.bezierCurveTo(-toqueW / 8, toqueBaseY - 32, toqueW / 8, toqueBaseY - 32, toqueW / 6, toqueBaseY - 26);
+          ctx.bezierCurveTo(toqueW / 4, toqueBaseY - 28, toqueW / 2 + 6, toqueBaseY - 22, toqueW / 2 - 2, toqueBaseY - 6);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 1.5;
+          [-6, 0, 6].forEach(fx => {
+            ctx.beginPath();
+            ctx.moveTo(fx, toqueBaseY - 7);
+            ctx.lineTo(fx * 1.2, toqueBaseY - 24);
+            ctx.stroke();
+          });
+        } else if (stage >= 10) {
+          // Tier 2 (Stages 10-19): Golden Royal Baker Crown with Ruby & Sapphire Jewels
+          const crownBaseY = headY - headRy + 3;
+          const crownH = 20;
+          const crownW = 30;
+          ctx.fillStyle = '#d48800';
+          ctx.fillRect(-crownW / 2, crownBaseY - 5, crownW, 6);
+          ctx.fillStyle = '#ffd700';
+          ctx.fillRect(-crownW / 2, crownBaseY - 4, crownW, 4);
+
+          ctx.beginPath();
+          ctx.moveTo(-crownW / 2, crownBaseY - 5);
+          ctx.lineTo(-crownW / 2, crownBaseY - crownH);
+          ctx.lineTo(-crownW / 4, crownBaseY - crownH * 0.55);
+          ctx.lineTo(-crownW / 8, crownBaseY - crownH * 1.05);
+          ctx.lineTo(0, crownBaseY - crownH * 0.65);
+          ctx.lineTo(crownW / 8, crownBaseY - crownH * 1.05);
+          ctx.lineTo(crownW / 4, crownBaseY - crownH * 0.55);
+          ctx.lineTo(crownW / 2, crownBaseY - crownH);
+          ctx.lineTo(crownW / 2, crownBaseY - 5);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = '#fff5a0';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          ctx.fillStyle = '#ff1144';
+          ctx.fillRect(-2, crownBaseY - 5, 4, 4);
+          ctx.fillStyle = '#00dcff';
+          ctx.fillRect(-crownW / 3, crownBaseY - 4, 3, 3);
+          ctx.fillRect(crownW / 3 - 3, crownBaseY - 4, 3, 3);
+
+          ctx.fillStyle = '#ffffff';
+          [[-crownW / 2, crownBaseY - crownH], [-crownW / 8, crownBaseY - crownH * 1.05], [crownW / 8, crownBaseY - crownH * 1.05], [crownW / 2, crownBaseY - crownH]].forEach(([pxo, pyo]) => {
+            ctx.beginPath(); ctx.arc(pxo, pyo, 2, 0, Math.PI * 2); ctx.fill();
+          });
+          if (Math.sin(globalTime * 8) > 0.6) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, crownBaseY - crownH * 0.85, 3, 3);
+          }
+        } else {
+          // Tier 1 (Stages 1-9): Classic Pink Party Hat with Polka Dots & Gold Pompom
+          const hatBaseY = headY - headRy + 3;
+          const hatTipY = hatBaseY - 26;
+          ctx.fillStyle = '#ff4da6';
+          ctx.beginPath();
+          ctx.moveTo(-13, hatBaseY);
+          ctx.lineTo(13, hatBaseY);
+          ctx.lineTo(0, hatTipY);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(-5, hatBaseY - 9, 3, 3);
+          ctx.fillRect(4, hatBaseY - 14, 3, 3);
+          ctx.fillRect(-1, hatBaseY - 20, 2, 2);
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath();
+          ctx.arc(0, hatTipY - 2, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         // 7. Wide Silver Catch Tray Held Right Above Party Hat
         const trayW = 110;
@@ -2355,6 +3153,11 @@ html = """<!DOCTYPE html>
     ctx.font = '13px "Press Start 2P", monospace';
     ctx.textAlign = 'right';
     ctx.fillText("STAGE " + stage + "/" + TOTAL_STAGES, WIDTH - pw - 18, HEIGHT - 20);
+
+    const costumeTitle = stage >= 30 ? "💎 TIARA" : (stage >= 20 ? "🧑‍🍳 CHEF" : (stage >= 10 ? "👑 CROWN" : "🎀 PARTY"));
+    ctx.fillStyle = stage >= 30 ? '#00f0ff' : (stage >= 20 ? '#ffffff' : (stage >= 10 ? '#ffd700' : '#ff6ebe'));
+    ctx.font = '8px "Press Start 2P", monospace';
+    ctx.fillText(costumeTitle, WIDTH - pw - 18, HEIGHT - 36);
     ctx.restore();
 
     // ─── OVERLAY SCREENS ──────────────────────────────────────────────
@@ -2402,21 +3205,34 @@ html = """<!DOCTYPE html>
       ctx.font = '11px "Press Start 2P", monospace';
       ctx.fillText("★ THE BIRTHDAY GIRL ★", WIDTH / 2, portY + portH / 2 + 22 + floatY);
 
-      // Instructions
-      ctx.fillStyle = '#c8d4f0';
-      ctx.font = '10px "Press Start 2P", monospace';
-      ctx.fillText("CATCH FALLING CAKES - DODGE ANVILS!", WIDTH / 2, boxY + 396);
+      // Checkpoint resume option or new game prompt
+      if (checkpointStage > 1) {
+        ctx.fillStyle = COLORS.CYAN;
+        ctx.font = '10px "Press Start 2P", monospace';
+        ctx.fillText(`★ CHECKPOINT: STAGE ${checkpointStage} (${checkpointScore.toLocaleString()} PTS) ★`, WIDTH / 2, boxY + 396);
 
-      // Flashing Start Prompt
-      const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
-      ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
-      ctx.font = '14px "Press Start 2P", monospace';
-      ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + 440);
+        const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+        ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
+        ctx.font = '12px "Press Start 2P", monospace';
+        ctx.fillText(`★ TAP TO RESUME STAGE ${checkpointStage} ★`, WIDTH / 2, boxY + 434);
 
-      // Controls hint
-      ctx.fillStyle = '#859bb8';
-      ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("BEST: " + hiScore.toLocaleString() + "   |   TAP ARROWS OR GLIDE THUMB", WIDTH / 2, boxY + 485);
+        ctx.fillStyle = '#859bb8';
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillText(`START LVL 1 BELOW   |   BEST: ${hiScore.toLocaleString()}`, WIDTH / 2, boxY + 475);
+      } else {
+        ctx.fillStyle = '#c8d4f0';
+        ctx.font = '10px "Press Start 2P", monospace';
+        ctx.fillText("CATCH FALLING CAKES - DODGE ANVILS!", WIDTH / 2, boxY + 396);
+
+        const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
+        ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
+        ctx.font = '14px "Press Start 2P", monospace';
+        ctx.fillText("▶ TAP SCREEN TO PLAY ◀", WIDTH / 2, boxY + 440);
+
+        ctx.fillStyle = '#859bb8';
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillText("BEST: " + hiScore.toLocaleString() + "   |   TAP ARROWS OR GLIDE THUMB", WIDTH / 2, boxY + 485);
+      }
     } else if (state === 'PAUSED') {
       btnAction.textContent = 'RESUME';
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -2557,11 +3373,29 @@ html = """<!DOCTYPE html>
         const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
         ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
         ctx.font = '11px "Press Start 2P", monospace';
-        ctx.fillText("🎂 TAP CANDLES TO BLOW & MAKE A WISH! 🎂", WIDTH / 2, boxY + 445);
+        ctx.fillText("🎂 TAP CANDLES OR BLOW PHONE MIC! 🎂", WIDTH / 2, boxY + 445);
 
-        ctx.fillStyle = '#ffd700';
-        ctx.font = '9px "Press Start 2P", monospace';
-        ctx.fillText("BLOW OUT ALL 5 CANDLES FOR AISHA'S WISH!", WIDTH / 2, boxY + 475);
+        if (!micEnabled) {
+          ctx.fillStyle = '#37be46';
+          ctx.font = '9px "Press Start 2P", monospace';
+          ctx.fillText("🎤 [ TAP 'BLOW MIC' TO USE REAL BREATH! ]", WIDTH / 2, boxY + 475);
+        } else {
+          ctx.fillStyle = '#37be46';
+          ctx.font = '9px "Press Start 2P", monospace';
+          ctx.fillText("🎤 MIC ACTIVE — BLOW INTO MIC NOW! 💨", WIDTH / 2, boxY + 468);
+
+          const mBarW = 160;
+          const mBarH = 8;
+          const mBarX = WIDTH / 2 - mBarW / 2;
+          const mBarY = boxY + 478;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+          ctx.fillRect(mBarX, mBarY, mBarW, mBarH);
+          ctx.fillStyle = micBlowLevel > 0.4 ? '#00f0ff' : '#37be46';
+          ctx.fillRect(mBarX, mBarY, mBarW * micBlowLevel, mBarH);
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(mBarX, mBarY, mBarW, mBarH);
+        }
       } else {
         ctx.fillStyle = COLORS.GOLD;
         ctx.font = '10px "Press Start 2P", monospace';
@@ -2575,11 +3409,15 @@ html = """<!DOCTYPE html>
         const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
         ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
         ctx.font = '12px "Press Start 2P", monospace';
-        ctx.fillText(advPrompt, WIDTH / 2, boxY + 485);
+        ctx.fillText(advPrompt, WIDTH / 2, boxY + 480);
+
+        ctx.fillStyle = '#ff6ebe';
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillText("📸 [ TAP HERE TO SHARE POLAROID CERTIFICATE ]", WIDTH / 2, boxY + 508);
 
         ctx.fillStyle = '#859bb8';
-        ctx.font = '9px "Press Start 2P", monospace';
-        ctx.fillText(`${info.bonus}   |   SCORE: ${score.toLocaleString()}`, WIDTH / 2, boxY + 520);
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillText(`${info.bonus}   |   SCORE: ${score.toLocaleString()}`, WIDTH / 2, boxY + 532);
       }
     } else if (state === 'GAME_OVER') {
       btnAction.textContent = 'RETRY';
@@ -2667,11 +3505,15 @@ html = """<!DOCTYPE html>
       const pulse = Math.floor(globalTime * 2.5) % 2 === 0;
       ctx.fillStyle = pulse ? COLORS.CYAN_GLOW : COLORS.WHITE;
       ctx.font = '13px "Press Start 2P", monospace';
-      ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + 440);
+      ctx.fillText("★ TAP TO PLAY AGAIN ★", WIDTH / 2, boxY + 434);
+
+      ctx.fillStyle = '#ff6ebe';
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillText("📸 TAP TO SHARE POLAROID CERTIFICATE 📸", WIDTH / 2, boxY + 468);
 
       ctx.fillStyle = '#859bb8';
       ctx.font = '9px "Press Start 2P", monospace';
-      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 485);
+      ctx.fillText("BEST: " + hiScore.toLocaleString(), WIDTH / 2, boxY + 500);
     }
 
     ctx.restore();
